@@ -5,13 +5,20 @@ import { useRouter } from "next/navigation";
 
 const DashboardPage = () => {
   const { data: session, status } = useSession();
-  const { push } = useRouter();
-  console.log(session);
-  console.log(status);
+  const router = useRouter();
+
+  if (status === "loading") {
+    return <div>Loading...</div>;
+  }
+
+  // if (status === "unauthenticated" || !session) {
+  //   router.push("/");
+  // }
+
   const logout = async () => {
     try {
       await signOut({ redirect: false, callbackUrl: "/" });
-      push("/");
+      router.push("/");
     } catch (error) {
       console.error("An error occurred:", error);
     }

@@ -38,16 +38,19 @@ const LoginPage = () => {
 
     try {
       setLoading(true);
-      await signIn("credentials", {
+      const res = await signIn("credentials", {
         redirect: false,
         username: sanitizeInputData.username,
         password: sanitizeInputData.password,
         callbackUrl: "/dashboard",
-      }).then((res) => {
-        setLoading(false);
-        console.log(res);
-        push("/dashboard");
       });
+
+      if (res?.error) {
+        console.error("An error occurred:", res.error);
+      } else {
+        setLoading(false);
+        push("/dashboard");
+      }
     } catch (error) {
       console.error("An error occurred:", error);
     }

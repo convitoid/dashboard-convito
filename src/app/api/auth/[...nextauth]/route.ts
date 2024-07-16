@@ -6,7 +6,7 @@ const authOptions: NextAuthOptions = {
   session: {
     strategy: "jwt",
   },
-  secret: process.env.NEXTAUTH_SECRET,
+  secret: process.env.NEXTAUTH_SECRET || "secret",
   providers: [
     CredentialsContainer({
       type: "credentials",
@@ -48,16 +48,7 @@ const authOptions: NextAuthOptions = {
     },
 
     async session({ session, token }: any) {
-      if ("email" in token) {
-        session.user.email = token.email;
-      }
-      if ("name" in token) {
-        session.user.name = token.name;
-      }
-      if ("role" in token) {
-        session.user.role = token.role;
-      }
-
+      session.user = token;
       return session;
     },
   },
