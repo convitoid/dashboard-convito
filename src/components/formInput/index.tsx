@@ -5,6 +5,7 @@ type FormInputProps = {
   inputName?: string;
   inputType?: string;
   inputStyle?: string;
+  autoFocus?: boolean;
 };
 
 export const FormIinput = ({
@@ -14,6 +15,7 @@ export const FormIinput = ({
   inputName,
   inputType,
   inputStyle,
+  autoFocus,
 }: FormInputProps) => {
   return (
     <label className="form-control w-full">
@@ -31,7 +33,7 @@ export const FormIinput = ({
         type={inputType ?? "text"}
         placeholder={`${placeholder ?? "Input Placeholder"}`}
         className={inputStyle ?? "input input-bordered"}
-        autoFocus={true}
+        autoFocus={autoFocus}
         name={inputName ?? "inputName"}
       />
     </label>
