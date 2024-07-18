@@ -47,6 +47,7 @@ const LoginPage = () => {
 
       if (res?.error) {
         console.error("An error occurred:", res.error);
+        setLoading(false);
       } else {
         setLoading(false);
         push("/dashboard");
@@ -60,7 +61,7 @@ const LoginPage = () => {
     <Card
       title="Sign in to your account"
       cardTitleStyle="text-slate-100 text-xl lg:text-3xl font-semibold mb-5"
-      cardWrapper="bg-base-300 w-full lg:w-2/4 2xl:w-1/4 shadow-xl px-2 py-4"
+      cardWrapper="bg-slate-950 w-full lg:w-2/4 2xl:w-1/4 shadow-xl px-2 py-4"
     >
       <form onSubmit={(e) => handleLogin(e)}>
         <div className="mb-3 lg:mb-3">
@@ -100,11 +101,10 @@ const LoginPage = () => {
           )}
         </div>
 
-        <div className="card-actions mt-4">
+        <div className="card-actions mt-8">
           {loading ? (
-            <button className="btn btn-primary w-full btn-disabled">
+            <button className="bg-slate-700 w-full text-slate-200 hover:text-slate-900 border-none py-4 rounded-md cursor-pointer">
               <span className="loading loading-spinner"></span>
-              Signing in...
             </button>
           ) : (
             <button className="btn btn-primary w-full">Sign in</button>
