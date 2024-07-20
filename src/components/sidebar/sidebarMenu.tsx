@@ -4,6 +4,7 @@ import { SidebarMenuSection } from "./sidebarMenuSection";
 import { SidebarMenuLink } from "./sidebarMenuLink";
 import { HomeIcon } from "../icons/home";
 import { SettingIcon } from "../icons/setting";
+import { UsersIcon } from "../icons/users";
 
 type SidebarMenuProps = {
   currentPath?: string;
@@ -21,12 +22,12 @@ export const SidebarMenu = ({ currentPath }: SidebarMenuProps) => {
         />
       </SidebarMenuSection>
       <SidebarMenuSection title="Data">
-        <AccordionComponent
-          menuIcon={<HomeIcon />}
-          menuTitle="Customers"
-          isActive={currentPath === "/customers"}
+        <SidebarMenuLink
+          link="/dashboard/customers"
+          title="Customers"
+          icon={<UsersIcon />}
+          isActive={currentPath === "/dashboard/customers"}
         />
-        <AccordionComponent menuIcon={<HomeIcon />} menuTitle="Customers" />
       </SidebarMenuSection>
       <SidebarMenuSection title="Utilities">
         <AccordionComponent

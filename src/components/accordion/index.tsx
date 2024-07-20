@@ -1,6 +1,7 @@
 "use client";
 
 import { Transition } from "@headlessui/react";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 
 type AccordionProps = {
@@ -69,7 +70,16 @@ export const AccordionComponent = ({
         leaveFrom="max-h-screen opacity-100"
         leaveTo="max-h-0 opacity-0"
       >
-        <div className="overflow-hidden p-4 text-slate-100">test</div>
+        <div className="overflow-hidden text-slate-100 ">
+          <div className="w-full">
+            <Link
+              href="/dashboard/users"
+              className="hover:bg-slate-900 block py-4 px-[3.2rem] rounded-md"
+            >
+              Users
+            </Link>
+          </div>
+        </div>
       </Transition>
     </div>
   );
