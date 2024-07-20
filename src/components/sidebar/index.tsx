@@ -3,9 +3,13 @@
 import Link from "next/link";
 import { SidebarMenu } from "./sidebarMenu";
 import { usePathname } from "next/navigation";
+import { useEffect } from "react";
 
 export const SidebarComponent = () => {
   const pathname = usePathname();
+  useEffect(() => {
+    console.log("sadadasd");
+  }, []);
 
   return (
     <div className="h-screen bg-gray-800 hidden 2md:block 2md:w-[20%] xl:w-[15%] px-4 py-6 fixed inset-y-0 left-0">

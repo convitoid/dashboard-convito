@@ -18,6 +18,7 @@ const config: Config = {
       sm: "640px",
       md: "768px",
       "2md": "1024px",
+      "3md": "1366px",
       lg: "1440px",
       xl: "1920px",
     },

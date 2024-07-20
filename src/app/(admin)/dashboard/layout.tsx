@@ -9,13 +9,11 @@ type AdminLayoutProps = {
 };
 
 const AdminLayout = ({ children }: AdminLayoutProps) => {
-  // const currentYear = moment().format("YYYY");
-
   return (
     <main className="h-screen flex relative">
       <SidebarComponent />
       <div
-        className={`w-full md:w-full 2md:w-[75%] 2md:ml-56 lg:w-[75%] lg:ml-80 xl:w-[80%] xl:ml-[17%] flex-1 overflow-y-auto`}
+        className={`w-full md:w-full 2md:w-[75%] 2md:ml-56 3md:ml-[20rem] lg:w-[75%] lg:ml-80 xl:w-[80%] xl:ml-[17%] flex-1 overflow-y-auto`}
       >
         <NavbarComponent />
         <div className="pt-12">
