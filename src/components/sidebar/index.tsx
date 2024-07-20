@@ -8,7 +8,7 @@ export const SidebarComponent = () => {
   const pathname = usePathname();
 
   return (
-    <div className="h-screen bg-gray-800 hidden lg:block lg:w-[20%] xl:w-[15%] px-4 py-6">
+    <div className="h-screen bg-gray-800 hidden 2md:block 2md:w-[20%] xl:w-[15%] px-4 py-6 fixed inset-y-0 left-0">
       <div className="mb-10">
         <Link
           href={"/dashboard"}

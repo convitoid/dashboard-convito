@@ -20,7 +20,6 @@ export const SidebarMenu = ({ currentPath }: SidebarMenuProps) => {
           isActive={currentPath === "/dashboard"}
         />
       </SidebarMenuSection>
-
       <SidebarMenuSection title="Data">
         <AccordionComponent
           menuIcon={<HomeIcon />}
@@ -29,7 +28,6 @@ export const SidebarMenu = ({ currentPath }: SidebarMenuProps) => {
         />
         <AccordionComponent menuIcon={<HomeIcon />} menuTitle="Customers" />
       </SidebarMenuSection>
-
       <SidebarMenuSection title="Utilities">
         <AccordionComponent
           menuIcon={<SettingIcon />}

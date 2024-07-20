@@ -21,7 +21,9 @@ export const SidebarMenuLink = ({
       }`}
     >
       {icon}
-      <span className="text-[.9rem] font-medium">{title}</span>
+      <span className="2md:text-[.7rem] xl:text-[.9rem] font-medium">
+        {title}
+      </span>
     </Link>
   );
 };

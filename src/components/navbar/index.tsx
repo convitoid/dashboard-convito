@@ -3,9 +3,9 @@
 import { signOut, useSession } from "next-auth/react";
 import { DrawerComponent } from "../drawer";
 import { usePathname, useRouter } from "next/navigation";
-import Link from "next/link";
 import { SkeletonComponent } from "../skeleton";
 import { ProfileDropdownComponent } from "../dropdown/profileDropdown";
+import { useEffect } from "react";
 
 export const NavbarComponent = () => {
   const router = useRouter();
@@ -26,9 +26,29 @@ export const NavbarComponent = () => {
       console.error("An error occurred:", error);
     }
   };
+
+  const onScrollNavbar = () => {
+    const navbar = document.querySelector("nav");
+    console.log(window.scrollY);
+
+    if (window.scrollY > 10) {
+      navbar?.classList.add("bg-white");
+    } else {
+      navbar?.classList.remove("bg-white");
+    }
+  };
+
+  useEffect(() => {
+    window.addEventListener("scroll", onScrollNavbar);
+
+    return () => {
+      window.removeEventListener("scroll", onScrollNavbar);
+    };
+  }, []);
+
   return (
-    <nav className="border-b-[1px] border-slate-200">
-      <div className="flex justify-between items-center py-2">
+    <nav className="border-b-[1px] bg-white border-slate-200 fixed top-0 2md:w-[76%] lg:w-[76%] xl:w-[81%] transition duration-200 ease-in">
+      <div className="flex justify-between items-center py-5">
         <div className="flex items-center justify-between gap-3">
           <DrawerComponent />
           <h1 className="text-slate-900 uppercase font-semibold text-lg lg:text-2xl">

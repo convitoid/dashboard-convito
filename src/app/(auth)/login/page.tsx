@@ -58,11 +58,13 @@ const LoginPage = () => {
   };
 
   return (
-    <Card
-      title="Sign in to your account"
-      cardTitleStyle="text-slate-100 text-xl lg:text-3xl font-semibold mb-5"
-      cardWrapper="bg-slate-950 w-full lg:w-2/4 2xl:w-1/4 shadow-xl px-2 py-4"
-    >
+    <Card cardWrapper="bg-slate-950 w-full 2md:w-2/4 lg:w-1/4 xl:w-1/4 shadow-xl px-2 py-4">
+      <h2
+        className={`card-title text-slate-100 text-xl lg:text-3xl font-semibold mb-5`}
+      >
+        Sign in to your account
+      </h2>
+
       <form onSubmit={(e) => handleLogin(e)}>
         <div className="mb-3 lg:mb-3">
           <FormIinput

@@ -37,7 +37,9 @@ export const AccordionComponent = ({
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-2">
             {menuIcon}
-            <span className="ml-2 font-medium text-[.9rem]">{menuTitle}</span>
+            <span className="ml-2 font-medium 2md:text-[.7rem] xl:text-[.9rem]">
+              {menuTitle}
+            </span>
           </div>
           <svg
             className={`w-6 h-6 transform ${

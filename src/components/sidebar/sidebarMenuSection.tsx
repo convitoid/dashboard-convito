@@ -8,11 +8,15 @@ export const SidebarMenuSection = ({
   title,
 }: SidebarMenuSectionProps) => {
   return (
-    <div className="mb-5">
-      <span className="text-slate-300 font-light capitalize text-sm">
+    <div className="mb-5 flex flex-col items-start w-full ">
+      <span
+        className={`text-slate-300 font-light capitalize text-sm ${
+          title ?? "hidden"
+        }`}
+      >
         {title}
       </span>
-      <div className="mt-4 flex flex-col gap-2">{children}</div>
+      <div className="mt-4 flex flex-col gap-2 w-full">{children}</div>
     </div>
   );
 };

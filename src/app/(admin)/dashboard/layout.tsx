@@ -9,18 +9,26 @@ type AdminLayoutProps = {
 };
 
 const AdminLayout = ({ children }: AdminLayoutProps) => {
-  const currentYear = moment().format("YYYY");
+  // const currentYear = moment().format("YYYY");
 
-  console.log(currentYear);
   return (
-    <main className="h-screen flex ">
+    <main className="h-screen flex relative">
       <SidebarComponent />
-      <div className={` w-full lg:w-[80%] xl:w-[85%] py-6 px-7 relative`}>
+
+      <div
+        className={`w-full md:w-full 2md:w-[75%] 2md:ml-56 lg:w-[75%] lg:ml-80 xl:w-[80%] xl:ml-[17%] flex-1 overflow-y-auto`}
+      >
         <NavbarComponent />
-        <div className="py-6">{children}</div>
-        <footer className=" text-sm font-light w-full text-center px-6 py-2 absolute bottom-0 left-0">
-          {`© ${currentYear} Cenvito - All rights reserved 🚀`}
-        </footer>
+        <div className="pt-12">
+          <div className="py-9 pr-12">{children}</div>
+          <footer className="font-bold static bottom-0 w-full  2md:w-[76%] lg:w-[97%] xl:w-[98%]">
+            <div className="flex justify-center items-center h-12">
+              <p className="text-slate-900 text-sm">
+                &copy; {moment().format("YYYY")} Cenvito - All Rights Reserved
+              </p>
+            </div>
+          </footer>
+        </div>
       </div>
     </main>
   );
