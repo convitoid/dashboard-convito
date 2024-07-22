@@ -31,9 +31,7 @@ export const NavbarComponent = () => {
 
   const logout = async () => {
     try {
-      setIsLoading(true);
       await signOut({ redirect: true, callbackUrl: "/login" });
-      setIsLoading(false);
       router.push("/");
     } catch (error) {
       setIsLoading(false);

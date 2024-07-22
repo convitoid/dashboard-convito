@@ -1,10 +1,14 @@
 "use client";
 import { BreadcrumbsComponent } from "@/components/breadcrumbs";
 import { useEffect, useState } from "react";
-import { faker } from "@faker-js/faker";
+import { faker, tr } from "@faker-js/faker";
 import { useSession } from "next-auth/react";
 import { DataTablesComponent } from "@/components/datatables";
 import { ModalAddUser } from "@/components/page/modalAddUser";
+import moment from "moment";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "@/app/store";
+import { fetchUsers } from "@/app/GlobalRedux/Features/user/userSlicer";
 
 const breadcrumbsData = [
   {
@@ -21,58 +25,47 @@ const breadcrumbsData = [
   },
 ];
 
-type User = {
-  id: string;
-  name: string;
+const tableHead = [
+  "No",
+  "Username",
+  "Email",
+  "Created At",
+  "Updated At",
+  "Created By",
+  "Updated By",
+  "Actions",
+];
+
+interface User {
+  username: string;
   email: string;
-};
-
-const users = () => {
-  return {
-    id: faker.string.uuid(),
-    name: faker.person.fullName(),
-    email: faker.internet.email(),
-  };
-};
-
-const createUser = (numUser = 5) =>
-  new Array(numUser).fill(undefined).map(users);
-
-const fakeUser = createUser(10);
-
-const tableHead = ["No", "Name", "Email"];
+}
 
 const UsersPage = () => {
-  const [users, setUsers] = useState([] as User[]);
   const [search, setSearch] = useState("");
-  const [filteredUsers, setFilteredUsers] = useState([] as User[]);
-  const { data: session, status } = useSession();
   const [currentPage, setCurrentPage] = useState(1);
   const [usersPerPage, setUsersPerPage] = useState(5);
 
-  useEffect(() => {
-    setUsers(fakeUser);
-  }, []);
+  const dispatch = useDispatch<AppDispatch>();
+  const users = useSelector((state: RootState) => state?.users?.users);
+  const status = useSelector((state: RootState) => state.users.status);
+  const error = useSelector((state: RootState) => state.users.error);
 
-  // create filter all columns
   useEffect(() => {
-    setFilteredUsers(
-      users.filter(
-        (user) =>
-          user.name.toLowerCase().includes(search.toLowerCase()) ||
-          user.email.toLowerCase().includes(search.toLowerCase())
-      )
-    );
-  }, [search, users]);
+    dispatch(fetchUsers());
+  }, [dispatch]);
+
+  console.log(users);
 
   const indexOfLastUser = currentPage * usersPerPage;
   const indexOfFirstUsers = indexOfLastUser - usersPerPage;
-  const currentUsers = filteredUsers.slice(indexOfFirstUsers, indexOfLastUser);
+
   const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
 
   useEffect(() => {
     document.title = "Cenvito - Users Data";
   }, []);
+
   return (
     <>
       <div className="flex items-center justify-between mb-3">
@@ -90,15 +83,68 @@ const UsersPage = () => {
           />
         </div>
         <DataTablesComponent tableHead={tableHead}>
-          {currentUsers.map((user, index) => (
-            <tr key={index}>
-              <td className="border-b-[1px] py-2 px-4 w-[3%]">{index + 1}</td>
-              <td className="border-b-[1px] py-2 px-4 w-1/4">{user.name}</td>
-              <td className="border-b-[1px] py-2 px-4">{user.email}</td>
+          {status === "loading" || status === "idle" ? (
+            <tr>
+              <td colSpan={8} className="text-center py-4">
+                <span className="loading loading-spinner loading-lg"></span>
+              </td>
             </tr>
-          ))}
+          ) : (
+            <>
+              {/* tambahkan filter juga */}
+              {Array.isArray(users) && users.length > 0 ? (
+                users
+                  .filter((user: User) => {
+                    if (search === "") {
+                      return user;
+                    } else if (
+                      user.username.toLowerCase().includes(search.toLowerCase())
+                    ) {
+                      return user;
+                    }
+                  })
+                  .slice(indexOfFirstUsers, indexOfLastUser)
+                  .map((user, index) => (
+                    <tr key={index}>
+                      <td className="border-b-[1px] py-2 px-4 w-[3%]">
+                        {index + 1}
+                      </td>
+                      <td className="border-b-[1px] py-2 px-4 w-1/4">
+                        {user.username}
+                      </td>
+                      <td className="border-b-[1px] py-2 px-4">{user.email}</td>
+                      <td className="border-b-[1px] py-2 px-4">
+                        {moment(user.createdAt).format("D-M-Y")}
+                      </td>
+                      <td className="border-b-[1px] py-2 px-4">
+                        {moment(user.updatedAt).format("D-M-Y")}
+                      </td>
+                      <td className="border-b-[1px] py-2 px-4">
+                        {user.createdBy}
+                      </td>
+                      <td className="border-b-[1px] py-2 px-4">
+                        {user.updatedBy}
+                      </td>
+                      <td className="border-b-[1px] py-2 px-4">
+                        <button className="btn bg-slate-900 text-white">
+                          Edit
+                        </button>
+                        <button className="btn bg-red-500 text-white">
+                          Delete
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+              ) : (
+                <tr>
+                  <td colSpan={8} className="text-center py-4">
+                    No data
+                  </td>
+                </tr>
+              )}
+            </>
+          )}
         </DataTablesComponent>
-
         <div className="flex justify-end mt-4">
           <div className="join">
             <button
@@ -109,13 +155,14 @@ const UsersPage = () => {
               «
             </button>
             <button className="join-item btn">
-              {currentPage} of {Math.ceil(filteredUsers.length / usersPerPage)}
+              {currentPage} of {Math.ceil(users.length / usersPerPage)}
             </button>
             <button
               className="join-item btn"
               onClick={() => paginate(currentPage + 1)}
               disabled={
-                currentPage === Math.ceil(filteredUsers.length / usersPerPage)
+                currentPage === Math.ceil(users.length / usersPerPage) ||
+                users.length === 0
               }
             >
               »

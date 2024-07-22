@@ -1,6 +1,7 @@
 import { NextAuthOptions } from "next-auth";
 import NextAuth from "next-auth/next";
 import CredentialsContainer from "next-auth/providers/credentials";
+import jwt from "jsonwebtoken";
 
 const authOptions: NextAuthOptions = {
   session: {
@@ -29,7 +30,12 @@ const authOptions: NextAuthOptions = {
         };
 
         if (username === "admin" && password === "admin") {
-          return user;
+          return {
+            ...user,
+            jwt: jwt.sign(user, process.env.NEXTAUTH_SECRET || "secret", {
+              expiresIn: "1h",
+            }),
+          };
         } else {
           return null;
         }
@@ -42,8 +48,8 @@ const authOptions: NextAuthOptions = {
         token.email = user.email;
         token.name = user.name;
         token.role = user.role;
+        token.jwt = user.jwt;
       }
-
       return token;
     },
 

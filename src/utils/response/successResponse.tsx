@@ -1,21 +1,22 @@
 interface SuccessReponse<T> {
-  status: string;
+  status: number;
   message: string;
   data: T;
 }
 
 interface ErrorResponse {
-  status: string;
+  status: number;
   message: string;
   error: string;
 }
 
 export function getSuccessReponse<T>(
   data: T,
+  status: number,
   message: string = "Success"
 ): SuccessReponse<T> {
   return {
-    status: "success",
+    status,
     message,
     data,
   };
@@ -23,10 +24,11 @@ export function getSuccessReponse<T>(
 
 export function getErrorResponse(
   error: string,
+  status: number,
   message: string = "Failed"
 ): ErrorResponse {
   return {
-    status: "error",
+    status,
     message,
     error,
   };

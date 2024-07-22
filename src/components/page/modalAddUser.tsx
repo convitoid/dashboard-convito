@@ -1,8 +1,15 @@
 "use client";
 
+import Swal from "sweetalert2";
 import { FormIinput } from "../formInput";
 import { PlusCircleIcon } from "../icons/plusCircle";
 import { ModalComponent } from "../modal";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "@/app/store";
+import {
+  createUser,
+  fetchUsers,
+} from "@/app/GlobalRedux/Features/user/userSlicer";
 
 type ModalUserProps = {
   modalId?: string;
@@ -10,12 +17,38 @@ type ModalUserProps = {
 };
 
 export const ModalAddUser = ({ modalId, title }: ModalUserProps) => {
-  const handleSubmitCustomer = (e: any) => {
-    e.preventDefault();
-    const formData = new FormData(e.target);
-    const data = Object.fromEntries(formData.entries());
-    console.log(data);
-  };
+  const dispatch = useDispatch<AppDispatch>();
+
+  // const handleSubmitCustomer = (e: any) => {
+  //   e.preventDefault();
+  //   const formData = new FormData(e.target);
+  //   const data = Object.fromEntries(formData.entries());
+
+  //   // dispatch(createUser(data)).then((res) => {
+  //   //   if (res.payload) {
+  //   //     Swal.fire({
+  //   //       title: "Success",
+  //   //       text: "User created",
+  //   //       icon: "success",
+  //   //     });
+  //   //     (document.getElementById(`${modalId}`) as HTMLDialogElement).close();
+  //   //   }
+  //   //   dispatch(fetchUsers());
+  //   // });
+  //   dispatch(createUser(data))
+  //     .unwrap()
+  //     .then((res) => {
+  //       if (res) {
+  //         Swal.fire({
+  //           title: "Success",
+  //           text: "User created",
+  //           icon: "success",
+  //         });
+  //         (document.getElementById(`${modalId}`) as HTMLDialogElement).close();
+  //       }
+  //       dispatch(fetchUsers());
+  //     });
+  // };
   return (
     <>
       <button
@@ -36,7 +69,29 @@ export const ModalAddUser = ({ modalId, title }: ModalUserProps) => {
         backgroundColorHeader="bg-blue-700 text-white px-6 py-5"
         modalBodyStyle="pt-3 px-6 pb-6"
       >
-        <form onSubmit={(e) => handleSubmitCustomer(e)}>
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target as HTMLFormElement);
+            const data = Object.fromEntries(formData.entries());
+            dispatch(createUser(data))
+              .unwrap()
+              .then((res) => {
+                if (res) {
+                  Swal.fire({
+                    title: "Success",
+                    text: "User created",
+                    icon: "success",
+                  });
+                  (
+                    document.getElementById(`${modalId}`) as HTMLDialogElement
+                  ).close();
+                  (e.target as HTMLFormElement).reset();
+                }
+                dispatch(fetchUsers());
+              });
+          }}
+        >
           <div className="mb-1">
             <FormIinput
               label="Username"

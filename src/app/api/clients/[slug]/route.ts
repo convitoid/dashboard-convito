@@ -15,6 +15,7 @@ export async function GET(
 
     const response = getSuccessReponse(
       client,
+      200,
       "Client data fetched successfully"
     );
 
