@@ -18,8 +18,13 @@ export const NavbarComponent = () => {
   // remove "" from array
   pathArray.shift();
 
+  let activePath: string;
   // get the last item in the array
-  const activePath = pathArray[pathArray.length - 1];
+  if (pathArray.length > 2) {
+    activePath = pathArray[1];
+  } else {
+    activePath = pathArray[pathArray.length - 1];
+  }
 
   const name = session?.user?.name ?? "";
   const initial = name.slice(0, 2);
@@ -55,7 +60,7 @@ export const NavbarComponent = () => {
   }, []);
 
   return (
-    <nav className="border-b-[1px] bg-white border-slate-200 fixed top-0 z-10 w-full px-8 2md:px-0 2md:w-[76%] lg:w-[76%] xl:w-[81%] transition duration-200 ease-in">
+    <nav className="border-b-[1px] border-slate-200 transition duration-200 ease-in px-6">
       <div className="flex justify-between items-center py-5">
         <div className="flex items-center justify-between gap-3">
           <DrawerComponent />

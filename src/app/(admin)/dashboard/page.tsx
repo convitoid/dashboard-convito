@@ -11,7 +11,7 @@ import { useEffect } from "react";
 const breadcrumbsData = [
   {
     name: "dashboard",
-    href: "/",
+    href: "/dashboard",
   },
   {
     name: "statistics",

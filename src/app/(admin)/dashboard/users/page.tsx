@@ -4,9 +4,7 @@ import { useEffect, useState } from "react";
 import { faker } from "@faker-js/faker";
 import { useSession } from "next-auth/react";
 import { DataTablesComponent } from "@/components/datatables";
-import { PlusCircleIcon } from "@/components/icons/plusCircle";
-import { ModalComponent } from "@/components/modal";
-import { ModalAddCustomer } from "@/components/page/modalAddCustomer";
+import { ModalAddUser } from "@/components/page/modalAddUser";
 
 const breadcrumbsData = [
   {
@@ -14,18 +12,22 @@ const breadcrumbsData = [
     href: "/dashboard",
   },
   {
-    name: "customers",
+    name: "setting",
+    href: "",
+  },
+  {
+    name: "users",
     href: "",
   },
 ];
 
-type Customer = {
+type User = {
   id: string;
   name: string;
   email: string;
 };
 
-const customers = () => {
+const users = () => {
   return {
     id: faker.string.uuid(),
     name: faker.person.fullName(),
@@ -33,74 +35,70 @@ const customers = () => {
   };
 };
 
-const createCustomer = (numCustomer = 5) =>
-  new Array(numCustomer).fill(undefined).map(customers);
+const createUser = (numUser = 5) =>
+  new Array(numUser).fill(undefined).map(users);
 
-const fakeCustomers = createCustomer(10);
+const fakeUser = createUser(10);
 
 const tableHead = ["No", "Name", "Email"];
 
-const CustomerPage = () => {
-  const [customers, setCustomers] = useState([] as Customer[]);
+const UsersPage = () => {
+  const [users, setUsers] = useState([] as User[]);
   const [search, setSearch] = useState("");
-  const [filteredCustomers, setFilteredCustomers] = useState([] as Customer[]);
+  const [filteredUsers, setFilteredUsers] = useState([] as User[]);
   const { data: session, status } = useSession();
   const [currentPage, setCurrentPage] = useState(1);
-  const [customersPerPage, setCustomersPerPage] = useState(5);
+  const [usersPerPage, setUsersPerPage] = useState(5);
 
   useEffect(() => {
-    setCustomers(fakeCustomers);
+    setUsers(fakeUser);
   }, []);
 
   // create filter all columns
   useEffect(() => {
-    setFilteredCustomers(
-      customers.filter(
-        (customer) =>
-          customer.name.toLowerCase().includes(search.toLowerCase()) ||
-          customer.email.toLowerCase().includes(search.toLowerCase())
+    setFilteredUsers(
+      users.filter(
+        (user) =>
+          user.name.toLowerCase().includes(search.toLowerCase()) ||
+          user.email.toLowerCase().includes(search.toLowerCase())
       )
     );
-  }, [search, customers]);
+  }, [search, users]);
 
-  const indexOfLastCustomer = currentPage * customersPerPage;
-  const indexOfFirstCustomer = indexOfLastCustomer - customersPerPage;
-  const currentCustomers = filteredCustomers.slice(
-    indexOfFirstCustomer,
-    indexOfLastCustomer
-  );
+  const indexOfLastUser = currentPage * usersPerPage;
+  const indexOfFirstUsers = indexOfLastUser - usersPerPage;
+  const currentUsers = filteredUsers.slice(indexOfFirstUsers, indexOfLastUser);
   const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
 
   useEffect(() => {
-    document.title = "Cenvito - Customers";
+    document.title = "Cenvito - Users Data";
   }, []);
   return (
     <>
       <div className="flex items-center justify-between mb-3">
-        <h1 className="text-2xl font-bold">Customers data</h1>
+        <h1 className="text-2xl font-bold">Users data</h1>
         <BreadcrumbsComponent data={breadcrumbsData} />
       </div>
       <div className="overflow-x-auto pt-3">
         <div className="flex items-center justify-between mb-3">
-          <ModalAddCustomer modalId="add_customer" title="Add new customer" />
+          <ModalAddUser modalId="add_user" title="Add new user" />
           <input
             type="text"
             className="border-[1px] border-slate-300 rounded-md px-3 py-2"
-            placeholder="Search customer"
+            placeholder="Search user"
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
         <DataTablesComponent tableHead={tableHead}>
-          {currentCustomers.map((customer, index) => (
+          {currentUsers.map((user, index) => (
             <tr key={index}>
               <td className="border-b-[1px] py-2 px-4 w-[3%]">{index + 1}</td>
-              <td className="border-b-[1px] py-2 px-4 w-1/4">
-                {customer.name}
-              </td>
-              <td className="border-b-[1px] py-2 px-4">{customer.email}</td>
+              <td className="border-b-[1px] py-2 px-4 w-1/4">{user.name}</td>
+              <td className="border-b-[1px] py-2 px-4">{user.email}</td>
             </tr>
           ))}
         </DataTablesComponent>
+
         <div className="flex justify-end mt-4">
           <div className="join">
             <button
@@ -111,15 +109,13 @@ const CustomerPage = () => {
               «
             </button>
             <button className="join-item btn">
-              {currentPage} of{" "}
-              {Math.ceil(filteredCustomers.length / customersPerPage)}
+              {currentPage} of {Math.ceil(filteredUsers.length / usersPerPage)}
             </button>
             <button
               className="join-item btn"
               onClick={() => paginate(currentPage + 1)}
               disabled={
-                currentPage ===
-                Math.ceil(filteredCustomers.length / customersPerPage)
+                currentPage === Math.ceil(filteredUsers.length / usersPerPage)
               }
             >
               »
@@ -131,4 +127,4 @@ const CustomerPage = () => {
   );
 };
 
-export default CustomerPage;
+export default UsersPage;

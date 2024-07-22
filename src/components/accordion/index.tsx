@@ -38,7 +38,7 @@ export const AccordionComponent = ({
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-2">
             {menuIcon}
-            <span className="ml-2 font-medium 2md:text-[.7rem] xl:text-[.9rem]">
+            <span className="ml-2 font-medium 2md:text-[.7rem] lg:text-[.8rem] xl:text-[.9rem]">
               {menuTitle}
             </span>
           </div>
@@ -70,11 +70,13 @@ export const AccordionComponent = ({
         leaveFrom="max-h-screen opacity-100"
         leaveTo="max-h-0 opacity-0"
       >
-        <div className="overflow-hidden text-slate-100 ">
+        <div className="overflow-hidden text-slate-100 py-2">
           <div className="w-full">
             <Link
               href="/dashboard/users"
-              className="hover:bg-slate-900 block py-4 px-[3.2rem] rounded-md"
+              className={`hover:bg-slate-900 block py-4 px-[3.2rem] rounded-md font-medium 2md:text-[.7rem] lg:text-[.8rem] xl:text-[.9rem]${
+                isActive ? "bg-slate-900" : ""
+              }`}
             >
               Users
             </Link>

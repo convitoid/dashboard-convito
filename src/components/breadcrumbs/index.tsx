@@ -11,7 +11,6 @@ interface BreadcrumbsProps {
   data: BreadcrumbItem[];
 }
 export const BreadcrumbsComponent = ({ data }: BreadcrumbsProps) => {
-  console.log(data);
   return (
     <div className="breadcrumbs text-sm">
       <ul>

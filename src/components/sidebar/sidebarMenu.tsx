@@ -33,6 +33,7 @@ export const SidebarMenu = ({ currentPath }: SidebarMenuProps) => {
         <AccordionComponent
           menuIcon={<SettingIcon />}
           menuTitle="Setting Users"
+          isActive={currentPath === "/dashboard/users"}
         />
       </SidebarMenuSection>
     </>
