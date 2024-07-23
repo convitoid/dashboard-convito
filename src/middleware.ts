@@ -42,12 +42,10 @@ export async function middleware(request: NextRequest) {
           process.env.NEXTAUTH_SECRET ?? ""
         );
         const { payload } = await jwtVerify(jwtToken as string, secret);
-        console.log("payload", payload);
         return NextResponse.redirect(
           new URL("/dashboard", request.nextUrl.origin).href
         );
       } catch (error) {
-        console.log("jwt expired", error);
         return NextResponse.next();
       }
     } else {

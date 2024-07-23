@@ -65,8 +65,6 @@ export async function PUT(req: NextRequest) {
     password
   );
 
-  console.log(response);
-
   return NextResponse.json(response, { status: response.status });
 }
 

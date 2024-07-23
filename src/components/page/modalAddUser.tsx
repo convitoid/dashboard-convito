@@ -4,12 +4,13 @@ import Swal from "sweetalert2";
 import { FormIinput } from "../formInput";
 import { PlusCircleIcon } from "../icons/plusCircle";
 import { ModalComponent } from "../modal";
-import { useDispatch } from "react-redux";
-import { AppDispatch } from "@/app/store";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "@/app/store";
 import {
   createUser,
   fetchUsers,
 } from "@/app/GlobalRedux/Features/user/userSlicer";
+import React, { useState } from "react";
 
 type ModalUserProps = {
   modalId?: string;
@@ -18,37 +19,65 @@ type ModalUserProps = {
 
 export const ModalAddUser = ({ modalId, title }: ModalUserProps) => {
   const dispatch = useDispatch<AppDispatch>();
+  const status = useSelector((state: RootState) => state.users.status);
+  const [formData, setFormData] = useState({
+    username: "",
+    email: "",
+    password: "",
+  });
 
-  // const handleSubmitCustomer = (e: any) => {
-  //   e.preventDefault();
-  //   const formData = new FormData(e.target);
-  //   const data = Object.fromEntries(formData.entries());
+  const submitHandler = (e: any) => {
+    e.preventDefault();
 
-  //   // dispatch(createUser(data)).then((res) => {
-  //   //   if (res.payload) {
-  //   //     Swal.fire({
-  //   //       title: "Success",
-  //   //       text: "User created",
-  //   //       icon: "success",
-  //   //     });
-  //   //     (document.getElementById(`${modalId}`) as HTMLDialogElement).close();
-  //   //   }
-  //   //   dispatch(fetchUsers());
-  //   // });
-  //   dispatch(createUser(data))
-  //     .unwrap()
-  //     .then((res) => {
-  //       if (res) {
-  //         Swal.fire({
-  //           title: "Success",
-  //           text: "User created",
-  //           icon: "success",
-  //         });
-  //         (document.getElementById(`${modalId}`) as HTMLDialogElement).close();
-  //       }
-  //       dispatch(fetchUsers());
-  //     });
-  // };
+    try {
+      dispatch(createUser(formData))
+        .unwrap()
+        .then((res) => {
+          if (res.status === 201) {
+            Swal.fire({
+              title: "Success",
+              text: "User created successfully",
+              icon: "success",
+            });
+            (
+              document.getElementById(`${modalId}`) as HTMLDialogElement
+            ).close();
+            dispatch(fetchUsers());
+          }
+
+          if (res.status === 400) {
+            Swal.fire({
+              title: "Error",
+              text: res.message,
+              icon: "error",
+              target: document.getElementById(`${modalId}`),
+            });
+            dispatch(fetchUsers());
+          }
+        });
+    } catch (error) {
+      Swal.fire({
+        title: "Error",
+        text: "Failed to create user",
+        icon: "error",
+      });
+    }
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+  };
+
+  const closeModalEdit = () => {
+    (document.getElementById(`${modalId}`) as HTMLDialogElement).close();
+    setFormData({
+      username: "",
+      email: "",
+      password: "",
+    });
+  };
+
   return (
     <>
       <button
@@ -68,30 +97,9 @@ export const ModalAddUser = ({ modalId, title }: ModalUserProps) => {
         modalWrapper="p-0"
         backgroundColorHeader="bg-blue-700 text-white px-6 py-5"
         modalBodyStyle="pt-3 px-6 pb-6"
+        closeModal={closeModalEdit}
       >
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            const formData = new FormData(e.target as HTMLFormElement);
-            const data = Object.fromEntries(formData.entries());
-            dispatch(createUser(data))
-              .unwrap()
-              .then((res) => {
-                if (res) {
-                  Swal.fire({
-                    title: "Success",
-                    text: "User created",
-                    icon: "success",
-                  });
-                  (
-                    document.getElementById(`${modalId}`) as HTMLDialogElement
-                  ).close();
-                  (e.target as HTMLFormElement).reset();
-                }
-                dispatch(fetchUsers());
-              });
-          }}
-        >
+        <form onSubmit={(e) => submitHandler(e)}>
           <div className="mb-1">
             <FormIinput
               label="Username"
@@ -101,6 +109,8 @@ export const ModalAddUser = ({ modalId, title }: ModalUserProps) => {
               labelStyle="text-slate-900 font-semibold text-sm"
               inputStyle="input input-bordered h-10"
               autoFocus={true}
+              value={formData.username}
+              onChange={handleInputChange}
             />
           </div>
           <div className="mb-1">
@@ -112,6 +122,8 @@ export const ModalAddUser = ({ modalId, title }: ModalUserProps) => {
               labelStyle="text-slate-900 font-semibold text-sm"
               inputStyle="input input-bordered h-10"
               autoFocus={false}
+              value={formData.email}
+              onChange={handleInputChange}
             />
           </div>
           <div className="mb-1">
@@ -123,22 +135,27 @@ export const ModalAddUser = ({ modalId, title }: ModalUserProps) => {
               labelStyle="text-slate-900 font-semibold text-sm"
               inputStyle="input input-bordered h-10"
               autoFocus={false}
+              value={formData.password}
+              onChange={handleInputChange}
             />
           </div>
           <div className="flex items-center justify-end gap-1 mt-4">
             <button
               className="btn bg-slate-300"
               type="button"
-              onClick={() =>
-                (
-                  document.getElementById(`${modalId}`) as HTMLDialogElement
-                ).close()
-              }
+              onClick={() => closeModalEdit()}
             >
               Cancel
             </button>
-            <button className="btn bg-blue-700 text-white hover:bg-blue-800">
-              Submit
+            <button
+              className={`btn bg-blue-700 text-white hover:bg-blue-800 `}
+              disabled={status === "loading"}
+            >
+              {status === "loading" ? (
+                <span className="loading loading-spinner loading-sm"></span>
+              ) : (
+                "Save"
+              )}
             </button>
           </div>
         </form>

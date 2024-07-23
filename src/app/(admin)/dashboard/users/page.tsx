@@ -1,14 +1,18 @@
 "use client";
 import { BreadcrumbsComponent } from "@/components/breadcrumbs";
 import { useEffect, useState } from "react";
-import { faker, tr } from "@faker-js/faker";
-import { useSession } from "next-auth/react";
 import { DataTablesComponent } from "@/components/datatables";
 import { ModalAddUser } from "@/components/page/modalAddUser";
 import moment from "moment";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/app/store";
-import { fetchUsers } from "@/app/GlobalRedux/Features/user/userSlicer";
+import {
+  deleteUser,
+  fetchUsers,
+  findUserById,
+} from "@/app/GlobalRedux/Features/user/userSlicer";
+import { ModalEditUser } from "@/components/page/modalEditUser";
+import Swal from "sweetalert2";
 
 const breadcrumbsData = [
   {
@@ -40,11 +44,17 @@ interface User {
   username: string;
   email: string;
 }
+type ModalUserProps = {
+  modalId?: string;
+  userId?: number;
+};
 
 const UsersPage = () => {
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [usersPerPage, setUsersPerPage] = useState(5);
+  const [idUser, setIdUser] = useState<number | null>(null);
+  const [isOpenModalEdit, setIsOpenModalEdit] = useState(false);
 
   const dispatch = useDispatch<AppDispatch>();
   const users = useSelector((state: RootState) => state?.users?.users);
@@ -55,12 +65,76 @@ const UsersPage = () => {
     dispatch(fetchUsers());
   }, [dispatch]);
 
-  console.log(users);
-
   const indexOfLastUser = currentPage * usersPerPage;
   const indexOfFirstUsers = indexOfLastUser - usersPerPage;
 
   const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
+
+  const openEditModal = (id: number) => {
+    // open modal ModalEditUserTest
+    setIdUser(id);
+    setIsOpenModalEdit(true);
+  };
+
+  const closeEditModal = () => {
+    setIsOpenModalEdit(false);
+    const modal = document.getElementById("edit_user") as HTMLDialogElement;
+    modal.close();
+  };
+
+  const deleteHandler = (id: number, username: string) => {
+    console.log("delete user", id);
+    Swal.fire({
+      title: "Are you sure?",
+      html: `Are you sure want to delete user <b>${username}</b> ?`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        try {
+          dispatch(deleteUser(id))
+            .unwrap()
+            .then((res) => {
+              console.log("res delete", res);
+              if (res.status === 201) {
+                Swal.fire({
+                  title: "Deleted!",
+                  text: "User has been deleted.",
+                  icon: "success",
+                });
+                dispatch(fetchUsers());
+              }
+
+              if (res.status === 400) {
+                Swal.fire({
+                  title: "Failed!",
+                  text: res.message,
+                  icon: "error",
+                });
+              }
+            });
+        } catch (error) {
+          Swal.fire({
+            title: "Failed!",
+            text: "Failed to delete user.",
+            icon: "error",
+          });
+        }
+      }
+    });
+  };
+
+  useEffect(() => {
+    if (isOpenModalEdit) {
+      const modal = document.getElementById("edit_user") as HTMLDialogElement;
+      if (modal) {
+        modal.showModal();
+      }
+    }
+  }, [isOpenModalEdit]);
 
   useEffect(() => {
     document.title = "Cenvito - Users Data";
@@ -91,17 +165,15 @@ const UsersPage = () => {
             </tr>
           ) : (
             <>
-              {/* tambahkan filter juga */}
               {Array.isArray(users) && users.length > 0 ? (
                 users
                   .filter((user: User) => {
                     if (search === "") {
                       return user;
-                    } else if (
-                      user.username.toLowerCase().includes(search.toLowerCase())
-                    ) {
-                      return user;
                     }
+                    return user.username
+                      .toLowerCase()
+                      .includes(search.toLowerCase());
                   })
                   .slice(indexOfFirstUsers, indexOfLastUser)
                   .map((user, index) => (
@@ -125,11 +197,19 @@ const UsersPage = () => {
                       <td className="border-b-[1px] py-2 px-4">
                         {user.updatedBy}
                       </td>
-                      <td className="border-b-[1px] py-2 px-4">
-                        <button className="btn bg-slate-900 text-white">
+                      <td className="border-b-[1px] py-2 px-4 flex items-center gap-2">
+                        <button
+                          className="btn bg-yellow-400 text-slate-900"
+                          onClick={() => {
+                            openEditModal(user.id);
+                          }}
+                        >
                           Edit
                         </button>
-                        <button className="btn bg-red-500 text-white">
+                        <button
+                          className="btn bg-red-500 text-white"
+                          onClick={() => deleteHandler(user.id, user.username)}
+                        >
                           Delete
                         </button>
                       </td>
@@ -155,14 +235,20 @@ const UsersPage = () => {
               «
             </button>
             <button className="join-item btn">
-              {currentPage} of {Math.ceil(users.length / usersPerPage)}
+              {currentPage} of{" "}
+              {Math.ceil(
+                (Array.isArray(users) && users.length / usersPerPage) || 0
+              )}
             </button>
             <button
               className="join-item btn"
               onClick={() => paginate(currentPage + 1)}
               disabled={
-                currentPage === Math.ceil(users.length / usersPerPage) ||
-                users.length === 0
+                currentPage ===
+                  Math.ceil(
+                    (Array.isArray(users) && users.length / usersPerPage) || 0
+                  ) ||
+                (Array.isArray(users) && users.length < usersPerPage)
               }
             >
               »
@@ -170,6 +256,13 @@ const UsersPage = () => {
           </div>
         </div>
       </div>
+      {isOpenModalEdit && (
+        <ModalEditUser
+          modalId="edit_user"
+          userId={idUser ?? 0}
+          closeModal={closeEditModal}
+        />
+      )}
     </>
   );
 };

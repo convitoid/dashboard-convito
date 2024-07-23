@@ -8,7 +8,6 @@ export default function withAuth(
   return async (req: NextRequest, next: NextFetchEvent) => {
     const pathname = req.nextUrl.pathname;
     if (requireAuth.includes(pathname)) {
-      console.log("pathname", pathname);
     }
     return middleware(req, next);
   };

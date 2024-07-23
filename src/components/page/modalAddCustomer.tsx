@@ -7,6 +7,7 @@ import { ModalComponent } from "../modal";
 type ModalAddCustomerProps = {
   modalId?: string;
   title?: string;
+  closeModal: () => void;
 };
 
 export const ModalAddCustomer = ({ modalId, title }: ModalAddCustomerProps) => {
@@ -14,17 +15,17 @@ export const ModalAddCustomer = ({ modalId, title }: ModalAddCustomerProps) => {
     e.preventDefault();
     const formData = new FormData(e.target);
     const data = Object.fromEntries(formData.entries());
-    console.log(data);
   };
+
+  const closeCustomerModal = () => {
+    (document.getElementById(`${modalId}`) as HTMLDialogElement).showModal();
+  };
+
   return (
     <>
       <button
         className="btn bg-blue-600 text-slate-100 focus:bg-blue-700 hover:bg-blue-700"
-        onClick={() =>
-          (
-            document.getElementById(`${modalId}`) as HTMLDialogElement
-          ).showModal()
-        }
+        onClick={closeCustomerModal}
       >
         <PlusCircleIcon />
         <span>{title}</span>
@@ -35,6 +36,7 @@ export const ModalAddCustomer = ({ modalId, title }: ModalAddCustomerProps) => {
         modalWrapper="p-0"
         backgroundColorHeader="bg-blue-700 text-white px-6 py-5"
         modalBodyStyle="pt-3 px-6 pb-6"
+        closeModal={closeCustomerModal}
       >
         <form onSubmit={(e) => handleSubmitCustomer(e)}>
           <FormIinput
