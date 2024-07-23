@@ -90,7 +90,19 @@ export async function createUser(
     if (jwtError.code === "ERR_JWT_EXPIRED") {
       return getErrorResponse(error as string, 401);
     }
-    return getErrorResponse(error as string, 500);
+
+    // get error message from error object
+    const errorMessage = error as Error;
+    // format to json
+    const errorJson = JSON.parse(JSON.stringify(errorMessage));
+    console.log(errorJson.meta.target[0]);
+    if (errorJson.code === "P2002") {
+      return getErrorResponse(
+        ` ${errorJson.meta.target[0]} already exists`,
+        400
+      );
+    }
+    return getErrorResponse(errorJson, 500);
   }
 }
 

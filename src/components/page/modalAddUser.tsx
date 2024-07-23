@@ -33,6 +33,7 @@ export const ModalAddUser = ({ modalId, title }: ModalUserProps) => {
       dispatch(createUser(formData))
         .unwrap()
         .then((res) => {
+          console.log(res);
           if (res.status === 201) {
             Swal.fire({
               title: "Success",
@@ -46,9 +47,11 @@ export const ModalAddUser = ({ modalId, title }: ModalUserProps) => {
           }
 
           if (res.status === 400) {
+            // capitalize first letter
+
             Swal.fire({
               title: "Error",
-              text: res.message,
+              html: `${res.error}`,
               icon: "error",
               target: document.getElementById(`${modalId}`),
             });
