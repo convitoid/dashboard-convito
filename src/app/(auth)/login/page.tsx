@@ -7,6 +7,7 @@ import { useState } from "react";
 import { sanitizeHtml } from "@/utils/sanitizeHtml";
 import InputErrorMessage from "@/components/error/inputErrorMessage";
 import { loginValidation } from "@/utils/formValidation";
+import Swal from "sweetalert2";
 
 const LoginPage = () => {
   const { push } = useRouter();
@@ -45,8 +46,14 @@ const LoginPage = () => {
         callbackUrl: "/dashboard",
       });
 
+      console.log(res);
+
       if (res?.error) {
-        console.error("An error occurred:", res.error);
+        Swal.fire({
+          icon: "error",
+          title: "Oops...",
+          text: "Invalid username or password",
+        });
         setLoading(false);
       } else {
         setLoading(false);
@@ -76,13 +83,6 @@ const LoginPage = () => {
             inputStyle="input input-bordered h-10 lg:h-12 xl:h-14"
             autoFocus={true}
           />
-          {isUsernameError && (
-            <InputErrorMessage
-              message="Username is required"
-              color="text-red-500"
-              id="username-error"
-            />
-          )}
         </div>
 
         <div className=" mb-0 lg:mb-1">
@@ -94,13 +94,6 @@ const LoginPage = () => {
             labelStyle="text-slate-100 font-semibold text-sm lg:text-[1.05rem]"
             inputStyle="input input-bordered h-10 lg:h-12 xl:h-14"
           />
-          {isPasswordError && (
-            <InputErrorMessage
-              message="Username is required"
-              color="text-red-500"
-              id="password-error"
-            />
-          )}
         </div>
 
         <div className="card-actions mt-8">

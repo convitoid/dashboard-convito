@@ -2,6 +2,15 @@ import { NextAuthOptions } from "next-auth";
 import NextAuth from "next-auth/next";
 import CredentialsContainer from "next-auth/providers/credentials";
 import jwt from "jsonwebtoken";
+import prisma from "@/libs/prisma";
+import bcrypt from "bcrypt";
+
+interface User {
+  id: string;
+  name: string;
+  email: string;
+  jwt: string;
+}
 
 const authOptions: NextAuthOptions = {
   session: {
@@ -17,25 +26,32 @@ const authOptions: NextAuthOptions = {
         password: { label: "Password", type: "password" },
       },
 
-      async authorize(credentials) {
+      async authorize(credentials): Promise<User | null> {
         const { username, password } = credentials as {
           username: string;
           password: string;
         };
-        const user: any = {
-          id: 1,
-          name: "Admin",
-          email: "admin@mail.com",
-          role: "admin",
-        };
 
-        if (username === "admin" && password === "admin") {
-          return {
-            ...user,
-            jwt: jwt.sign(user, process.env.NEXTAUTH_SECRET || "secret", {
-              expiresIn: "1h",
-            }),
-          };
+        const user = await prisma.user.findFirst({
+          where: {
+            username: username,
+          },
+        });
+
+        if (user && user.password) {
+          const isPasswordMatch = await bcrypt.compare(password, user.password);
+          if (isPasswordMatch) {
+            return {
+              id: user.id.toString(),
+              name: user.username,
+              email: user.email,
+              jwt: jwt.sign(user, process.env.NEXTAUTH_SECRET || "secret", {
+                expiresIn: "1h",
+              }),
+            };
+          } else {
+            return null;
+          }
         } else {
           return null;
         }
