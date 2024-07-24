@@ -24,6 +24,8 @@ export const NavbarComponent = () => {
     activePath = pathArray[1];
   } else {
     activePath = pathArray[pathArray.length - 1];
+    // if active page like this /dashboard/test-blasting remove dash and replace with space
+    activePath = activePath.replace("-", " ");
   }
 
   const name = session?.user?.name ?? "";

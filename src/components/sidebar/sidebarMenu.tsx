@@ -5,6 +5,7 @@ import { SidebarMenuLink } from "./sidebarMenuLink";
 import { HomeIcon } from "../icons/home";
 import { SettingIcon } from "../icons/setting";
 import { UsersIcon } from "../icons/users";
+import { ChatBubleLeftIcon } from "../icons/chatBubleLeft";
 
 type SidebarMenuProps = {
   currentPath?: string;
@@ -30,6 +31,12 @@ export const SidebarMenu = ({ currentPath }: SidebarMenuProps) => {
         />
       </SidebarMenuSection>
       <SidebarMenuSection title="Utilities">
+        <SidebarMenuLink
+          link="/dashboard/test-blasting"
+          title="Test Blasting"
+          icon={<ChatBubleLeftIcon />}
+          isActive={currentPath === "/dashboard/test-blasting"}
+        />
         <AccordionComponent
           menuIcon={<SettingIcon />}
           menuTitle="Setting Users"

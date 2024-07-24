@@ -52,7 +52,7 @@ type ModalUserProps = {
 const UsersPage = () => {
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const [usersPerPage, setUsersPerPage] = useState(5);
+  const [usersPerPage, setUsersPerPage] = useState(10);
   const [idUser, setIdUser] = useState<number | null>(null);
   const [isOpenModalEdit, setIsOpenModalEdit] = useState(false);
 
@@ -142,12 +142,12 @@ const UsersPage = () => {
 
   return (
     <>
-      <div className="flex items-center justify-between mb-3">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-3">
         <h1 className="text-2xl font-bold">Users data</h1>
         <BreadcrumbsComponent data={breadcrumbsData} />
       </div>
       <div className="overflow-x-auto pt-3">
-        <div className="flex items-center justify-between mb-3">
+        <div className="flex flex-col gap-4 md:flex-row md:gap-0 md:items-center md:justify-between mb-3">
           <ModalAddUser modalId="add_user" title="Add new user" />
           <input
             type="text"
