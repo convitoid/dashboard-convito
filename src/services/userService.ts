@@ -67,11 +67,15 @@ export async function createUser(
   jwtToken: string,
   username: string,
   email: string,
-  password: string
+  password: string,
+  createdBy: string,
+  updatedBy: string
 ) {
   try {
     const { payload } = await jwtVerify(jwtToken, secret);
     const hashedPassword = await bcrypt.hash(password, 10);
+
+    console.log(payload);
 
     const data = {
       username,
@@ -79,8 +83,8 @@ export async function createUser(
       password: hashedPassword,
       createdAt: new Date(),
       updatedAt: new Date(),
-      createdBy: payload.name as string,
-      updatedBy: payload.name as string,
+      createdBy: createdBy,
+      updatedBy: updatedBy,
     };
 
     const result = await prisma.user.create({ data });
@@ -111,7 +115,9 @@ export async function updateUser(
   id: number,
   username: string,
   email: string,
-  password: string
+  password: string,
+  createdBy: string,
+  updatedBy: string
 ) {
   try {
     const { payload } = await jwtVerify(jwtToken, secret);
@@ -127,8 +133,8 @@ export async function updateUser(
       password: hashedPassword,
       createdAt: user?.createdAt,
       updatedAt: new Date(),
-      createdBy: payload.name as string,
-      updatedBy: payload.name as string,
+      createdBy: createdBy,
+      updatedBy: updatedBy,
     };
 
     if (!user) {

@@ -16,7 +16,7 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const { username, email, password } = await req.json();
+  const { username, email, password, createdBy, updatedBy } = await req.json();
   const token = req.headers.get("authorization");
   const jwtToken = token?.split(" ")[1];
 
@@ -31,13 +31,16 @@ export async function POST(req: NextRequest) {
     jwtToken as string,
     username,
     email,
-    password
+    password,
+    createdBy,
+    updatedBy
   );
   return NextResponse.json(response, { status: response.status });
 }
 
 export async function PUT(req: NextRequest) {
-  const { id, username, email, password } = await req.json();
+  const { id, username, email, password, createdBy, updatedBy } =
+    await req.json();
   const token = req.headers.get("authorization");
   const jwtToken = token?.split(" ")[1];
 
@@ -62,7 +65,9 @@ export async function PUT(req: NextRequest) {
     id,
     username,
     email,
-    password
+    password,
+    createdBy,
+    updatedBy
   );
 
   return NextResponse.json(response, { status: response.status });

@@ -26,14 +26,20 @@ export const ModalAddUser = ({ modalId, title }: ModalUserProps) => {
     password: "",
   });
 
+  let newData = {
+    ...formData,
+    updatedBy: "admin",
+    createdBy: "admin",
+  };
+
   const submitHandler = (e: any) => {
     e.preventDefault();
 
     try {
-      dispatch(createUser(formData))
+      dispatch(createUser(newData))
         .unwrap()
         .then((res) => {
-          console.log(res);
+          console.log("response", res);
           if (res.status === 201) {
             Swal.fire({
               title: "Success",
@@ -56,6 +62,11 @@ export const ModalAddUser = ({ modalId, title }: ModalUserProps) => {
               target: document.getElementById(`${modalId}`),
             });
             dispatch(fetchUsers());
+            setFormData({
+              username: "",
+              email: "",
+              password: "",
+            });
           }
         });
     } catch (error) {
