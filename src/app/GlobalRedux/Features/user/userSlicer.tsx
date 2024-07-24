@@ -80,7 +80,7 @@ export const updateUser = createAsyncThunk(
         return data;
       });
 
-    const response = await fetch("http://localhost:3000/api/users", {
+    const response = await fetch("/api/users", {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
