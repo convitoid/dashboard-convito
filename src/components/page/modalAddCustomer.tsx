@@ -7,7 +7,6 @@ import { ModalComponent } from "../modal";
 type ModalAddCustomerProps = {
   modalId?: string;
   title?: string;
-  closeModal: () => void;
 };
 
 export const ModalAddCustomer = ({ modalId, title }: ModalAddCustomerProps) => {
