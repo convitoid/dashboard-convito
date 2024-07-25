@@ -4,12 +4,14 @@ import counterReducer from "@/app/GlobalRedux/Features/counter/counterSlice";
 import userReducer from "@/app/GlobalRedux/Features/user/userSlicer";
 import authReducer from "@/app/GlobalRedux/Features/auth/authSlicer";
 import testBlastingReducer from "@/app/GlobalRedux/Features/test/testBlastingSlicer";
+import clientReducer from "@/app/GlobalRedux/Features/clients/clientSlice";
 
 const rootReducer = combineReducers({
   counter: counterReducer,
   users: userReducer,
   auth: authReducer,
   testBlasting: testBlastingReducer,
+  clients: clientReducer,
   //add all your reducers here
 });
 

@@ -24,10 +24,10 @@ export const SidebarMenu = ({ currentPath }: SidebarMenuProps) => {
       </SidebarMenuSection>
       <SidebarMenuSection title="Data">
         <SidebarMenuLink
-          link="/dashboard/customers"
-          title="Customers"
+          link="/dashboard/clients"
+          title="Clients"
           icon={<UsersIcon />}
-          isActive={currentPath === "/dashboard/customers"}
+          isActive={currentPath === "/dashboard/clients"}
         />
       </SidebarMenuSection>
       <SidebarMenuSection title="Utilities">

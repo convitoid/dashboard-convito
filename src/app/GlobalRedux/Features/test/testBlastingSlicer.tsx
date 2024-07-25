@@ -2,13 +2,17 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 
 interface TestBlasting {
   data: any[] | "";
+  logs: any[] | "";
   status: "idle" | "loading" | "failed" | "success";
+  statusLogs: "idle" | "loading" | "failed" | "success";
   error: any | null;
 }
 
 const initialState: TestBlasting = {
   data: [],
+  logs: [],
   status: "idle",
+  statusLogs: "idle",
   error: null,
 };
 
@@ -38,6 +42,31 @@ export const sendMessage = createAsyncThunk(
   }
 );
 
+export const fetchLogs = createAsyncThunk(
+  "testBlasting/fetchLogs",
+  async () => {
+    const getToken = await fetch("/api/auth/session")
+      .then((res) => res.json())
+      .then((data) => {
+        return data;
+      });
+
+    const response = await fetch("/api/test/blasting", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${getToken.user.jwt}`,
+      },
+    });
+
+    const res = await response.json().then((data) => {
+      return data;
+    });
+
+    return res;
+  }
+);
+
 export const testBlastingSlice = createSlice({
   name: "testBlasting",
   initialState,
@@ -53,6 +82,18 @@ export const testBlastingSlice = createSlice({
       })
       .addCase(sendMessage.rejected, (state, action) => {
         state.status = "failed";
+        state.error = action.error.message;
+      })
+
+      .addCase(fetchLogs.pending, (state) => {
+        state.statusLogs = "loading";
+      })
+      .addCase(fetchLogs.fulfilled, (state, action) => {
+        state.statusLogs = "success";
+        state.logs = action.payload.data;
+      })
+      .addCase(fetchLogs.rejected, (state, action) => {
+        state.statusLogs = "failed";
         state.error = action.error.message;
       });
   },

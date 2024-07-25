@@ -1,9 +1,14 @@
 "use client";
-import { sendMessage } from "@/app/GlobalRedux/Features/test/testBlastingSlicer";
+import {
+  fetchLogs,
+  sendMessage,
+} from "@/app/GlobalRedux/Features/test/testBlastingSlicer";
 import { AppDispatch, RootState } from "@/app/store";
 import { BreadcrumbsComponent } from "@/components/breadcrumbs";
 import { Card } from "@/components/card";
+import { DataTablesComponent } from "@/components/datatables";
 import { SendIcon } from "@/components/icons/send";
+import moment from "moment";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import Swal from "sweetalert2";
@@ -19,6 +24,16 @@ const breadcrumbsData = [
   },
 ];
 
+const tableHead = [
+  "No",
+  "Client ID",
+  "Phone Number",
+  "Event Name",
+  "Sender",
+  "Created At",
+  "Actions",
+];
+
 const DummyBlastingPage = () => {
   const [formData, setFormData] = useState({
     access_token: process.env.NEXT_WHATSAPP_TOKEN_ID ?? "",
@@ -28,10 +43,20 @@ const DummyBlastingPage = () => {
     sender: "",
     invitation_link: "",
   });
+  const [currentPage, setCurrentPage] = useState(1);
+  const [logPerPage, setlogPerPage] = useState(10);
 
   const dispatch = useDispatch<AppDispatch>();
   const data = useSelector((state: RootState) => state.testBlasting.data);
+  const logs = useSelector((state: RootState) => state.testBlasting.logs);
   const status = useSelector((state: RootState) => state.testBlasting.status);
+  const statusLogs = useSelector(
+    (state: RootState) => state.testBlasting.statusLogs
+  );
+
+  useEffect(() => {
+    dispatch(fetchLogs());
+  }, [dispatch]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -43,15 +68,14 @@ const DummyBlastingPage = () => {
     dispatch(sendMessage(formData))
       .unwrap()
       .then((res) => {
-        let errorMessage;
-        console.log("response", res);
-
+        console.log(res);
         if (!res.error) {
           Swal.fire({
             title: "Success",
             text: "Blasting message sent successfully",
             icon: "success",
           });
+          dispatch(fetchLogs());
         } else {
           Swal.fire({
             title: "Error",
@@ -68,43 +92,45 @@ const DummyBlastingPage = () => {
   useEffect(() => {
     document.title = "Cenvito - Test Blasting";
   }, []);
+
+  const indexOfLastLogs = currentPage * logPerPage;
+  const indexOfFirstLogs = indexOfLastLogs - logPerPage;
+  const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
   return (
     <>
       <div className="flex items-center justify-end mb-3">
         <BreadcrumbsComponent data={breadcrumbsData} />
       </div>
-      <div className="grid grid-cols-1 3md:grid-cols-2">
-        <form onSubmit={(e) => handleSendBlasting(e)}>
-          <Card cardWrapper="bg-slate-50 text-slate-900 shadow-md mb-5">
-            <h2 className="text-[1rem] font-semibold mb-1">
-              Temporary access token
-            </h2>
-            <div className="flex flex-col">
-              <input
-                type="text"
-                placeholder="Input your token here"
-                className="input input-bordered w-full"
-                name="access_token"
-                value={formData.access_token}
-                onChange={handleInputChange}
-              />
-              <span className="mt-2 px-1 text-[.8rem]">
-                This token will be valid for 24 hours. To obtain a temporary
-                token, please log in with your Meta Developer account{" "}
-                <span className="text-blue-800 font-semibold">
-                  <a href="https://developers.facebook.com" target="_blank">
-                    here
-                  </a>
-                </span>
+      <form onSubmit={(e) => handleSendBlasting(e)}>
+        <Card cardWrapper="bg-slate-50 text-slate-900 shadow-md mb-5">
+          <h2 className="text-[1rem] font-semibold mb-1">
+            Temporary access token
+          </h2>
+          <div className="flex flex-col">
+            <input
+              type="text"
+              placeholder="Input your token here"
+              className="input input-bordered w-full"
+              name="access_token"
+              value={formData.access_token}
+              onChange={handleInputChange}
+            />
+            <span className="mt-2 px-1 text-[.8rem]">
+              This token will be valid for 24 hours. To obtain a temporary
+              token, please log in with your Meta Developer account{" "}
+              <span className="text-blue-800 font-semibold">
+                <a href="https://developers.facebook.com" target="_blank">
+                  here
+                </a>
               </span>
-            </div>
-          </Card>
-          <Card cardWrapper="bg-slate-50 text-slate-900 shadow-md">
-            <h2 className="text-lg font-semibold mb-4">
-              Test blasting whatsapp
-            </h2>
-            <div className="grid gap-4 3md:grid-cols-2 3md:gap-5 mb-5">
-              <div className="col-span-1">
+            </span>
+          </div>
+        </Card>
+        <Card cardWrapper="bg-slate-50 text-slate-900 shadow-md">
+          <h2 className="text-lg font-semibold mb-4">Test blasting whatsapp</h2>
+          <div className="flex">
+            <div className="grid grid-cols-1 md:grid-cols-2 2md:grid-cols-3 3md:grid-cols-4 lg:grid-cols-5 gap-4">
+              <div className="mb-1">
                 <label
                   htmlFor="test_phone_number"
                   className="text-[.9rem] font-semibold"
@@ -120,7 +146,7 @@ const DummyBlastingPage = () => {
                   readOnly={true}
                 />
               </div>
-              <div className="col-span-1">
+              <div className="mb-1">
                 <label
                   htmlFor="target_phone_number"
                   className="text-[.9rem] font-semibold"
@@ -137,9 +163,7 @@ const DummyBlastingPage = () => {
                   autoFocus={true}
                 />
               </div>
-            </div>
-            <div className="grid gap-4 3md:grid-cols-2 3md:gap-5 ">
-              <div className="col-span-1">
+              <div className="mb-1">
                 <label
                   htmlFor="event_name"
                   className="text-[.9rem] font-semibold"
@@ -155,7 +179,7 @@ const DummyBlastingPage = () => {
                   onChange={handleInputChange}
                 />
               </div>
-              <div className="col-span-1">
+              <div className="mb-1">
                 <label htmlFor="sender" className="text-[.9rem] font-semibold">
                   Sender
                 </label>
@@ -168,40 +192,125 @@ const DummyBlastingPage = () => {
                   onChange={handleInputChange}
                 />
               </div>
+              <div className="mb-5">
+                <label
+                  htmlFor="invitation_link"
+                  className="text-[.9rem] font-semibold"
+                >
+                  Invitation Link
+                </label>
+                <div className="flex items-center gap-3">
+                  <input
+                    type="text"
+                    placeholder="e.g. "
+                    className="input input-bordered w-full mt-2"
+                    name="invitation_link"
+                    value={formData.invitation_link}
+                    onChange={handleInputChange}
+                  />
+                  <button
+                    className={`btn btn-accent mt-2${
+                      status === "loading" ? "btn-disabled" : ""
+                    }`}
+                  >
+                    {status === "loading" ? (
+                      <span className="loading loading-spinner loading-md"></span>
+                    ) : (
+                      <>
+                        <SendIcon />
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
             </div>
-            <div className="mb-5">
-              <label
-                htmlFor="invitation_link"
-                className="text-[.9rem] font-semibold"
-              >
-                Invitation Link
-              </label>
-              <input
-                type="text"
-                placeholder="e.g. https://yourwebsite.com/invitation"
-                className="input input-bordered w-full mt-2"
-                name="invitation_link"
-                value={formData.invitation_link}
-                onChange={handleInputChange}
-              />
-            </div>
-            <button
-              className={`btn btn-accent ${
-                status === "loading" ? "btn-disabled" : ""
-              }`}
-            >
-              {status === "loading" ? (
-                <span className="loading loading-spinner loading-md"></span>
+          </div>
+        </Card>
+      </form>
+      <Card cardWrapper="bg-slate-50 shadow-md mt-5 overflow-x-auto">
+        <h1 className="font-semibold text-lg mb-4 uppercase">
+          Logs test blasting message
+        </h1>
+        <DataTablesComponent tableHead={tableHead}>
+          {statusLogs === "loading" || statusLogs === "idle" ? (
+            <tr>
+              <td colSpan={6} className="text-center py-4">
+                <span className="loading loading-spinner loading-lg"></span>
+              </td>
+            </tr>
+          ) : (
+            <>
+              {Array.isArray(logs) && logs.length > 0 ? (
+                logs
+                  .slice(indexOfFirstLogs, indexOfLastLogs)
+                  .map((log, index) => (
+                    <tr key={log.id}>
+                      <td className="border-b-[1px] py-2 px-4 w-[3%]">
+                        {index + 1 + (currentPage - 1) * logPerPage}
+                      </td>
+                      <td className="border-b-[1px] py-2 px-4">
+                        {log.clientId}
+                      </td>
+                      <td className="border-b-[1px] py-2 px-4">
+                        {log.phoneNumber}
+                      </td>
+                      <td className="border-b-[1px] py-2 px-4">
+                        {log.eventName}
+                      </td>
+                      <td className="border-b-[1px] py-2 px-4">
+                        {log.senderName}
+                      </td>
+                      <td className="border-b-[1px] py-2 px-4">
+                        {moment(log.createdAt).format("D MMM Y")}
+                      </td>
+                      <td className="border-b-[1px] py-2 px-4">
+                        <button className="btn bg-yellow-400 text-slate-900">
+                          Detail
+                        </button>
+                      </td>
+                    </tr>
+                  ))
               ) : (
-                <>
-                  <SendIcon />
-                  <span>Send message</span>
-                </>
+                <tr>
+                  <td colSpan={6} className="text-center py-4">
+                    No data
+                  </td>
+                </tr>
+              )}
+            </>
+          )}
+        </DataTablesComponent>
+        <div className="flex justify-start md:justify-end mt-6">
+          <div className="join">
+            <button
+              className="join-item btn"
+              onClick={() => paginate(currentPage - 1)}
+              disabled={currentPage === 1}
+            >
+              «
+            </button>
+            <button className="join-item btn">
+              {currentPage} of{" "}
+              {Math.ceil(
+                (Array.isArray(logs) && logs.length / logPerPage) || 0
               )}
             </button>
-          </Card>
-        </form>
-      </div>
+            <button
+              className="join-item btn"
+              onClick={() => paginate(currentPage + 1)}
+              disabled={
+                currentPage ===
+                  Math.ceil(
+                    (Array.isArray(logs) && logs.length / logPerPage) || 0
+                  ) ||
+                (Array.isArray(logs) && logs.length < logPerPage)
+              }
+            >
+              »
+            </button>
+          </div>
+        </div>
+      </Card>
     </>
   );
 };

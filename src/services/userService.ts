@@ -75,8 +75,6 @@ export async function createUser(
     const { payload } = await jwtVerify(jwtToken, secret);
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    console.log(payload);
-
     const data = {
       username,
       email,

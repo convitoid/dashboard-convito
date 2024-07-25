@@ -16,15 +16,19 @@ export const ModalAddCustomer = ({ modalId, title }: ModalAddCustomerProps) => {
     const data = Object.fromEntries(formData.entries());
   };
 
-  const closeCustomerModal = () => {
+  const openModal = () => {
     (document.getElementById(`${modalId}`) as HTMLDialogElement).showModal();
+  };
+
+  const closeModal = () => {
+    (document.getElementById(`${modalId}`) as HTMLDialogElement).close();
   };
 
   return (
     <>
       <button
         className="btn bg-blue-600 text-slate-100 focus:bg-blue-700 hover:bg-blue-700"
-        onClick={closeCustomerModal}
+        onClick={openModal}
       >
         <PlusCircleIcon />
         <span>{title}</span>
@@ -35,7 +39,7 @@ export const ModalAddCustomer = ({ modalId, title }: ModalAddCustomerProps) => {
         modalWrapper="p-0"
         backgroundColorHeader="bg-blue-700 text-white px-6 py-5"
         modalBodyStyle="pt-3 px-6 pb-6"
-        closeModal={closeCustomerModal}
+        closeModal={closeModal}
       >
         <form onSubmit={(e) => handleSubmitCustomer(e)}>
           <FormIinput
@@ -86,11 +90,7 @@ export const ModalAddCustomer = ({ modalId, title }: ModalAddCustomerProps) => {
             <button
               className="btn bg-slate-300"
               type="button"
-              onClick={() =>
-                (
-                  document.getElementById(`${modalId}`) as HTMLDialogElement
-                ).close()
-              }
+              onClick={closeModal}
             >
               Cancel
             </button>

@@ -179,7 +179,7 @@ const UsersPage = () => {
                   .map((user, index) => (
                     <tr key={index}>
                       <td className="border-b-[1px] py-2 px-4 w-[3%]">
-                        {index + 1}
+                        {index + 1 + (currentPage - 1) * usersPerPage}
                       </td>
                       <td className="border-b-[1px] py-2 px-4 w-1/4">
                         {user.username}
