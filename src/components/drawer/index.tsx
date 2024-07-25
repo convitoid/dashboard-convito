@@ -8,11 +8,13 @@ import { SidebarMenuSection } from "../sidebar/sidebarMenuSection";
 import { SidebarMenu } from "../sidebar/sidebarMenu";
 import { AccordionComponent } from "../accordion";
 import { SettingIcon } from "../icons/setting";
+import { UsersIcon } from "../icons/users";
+import { ChatBubleLeftIcon } from "../icons/chatBubleLeft";
 
 export const DrawerComponent = () => {
   const pathname = usePathname();
   return (
-    <div className="drawer block 2md:hidden">
+    <div className="drawer z-10 block 2md:hidden">
       <input id="my-drawer" type="checkbox" className="drawer-toggle" />
       <div className="drawer-content">
         {/* Page content here */}
@@ -46,22 +48,26 @@ export const DrawerComponent = () => {
           </li>
           <li className="mb-2">
             <SidebarMenuSection title="Data">
-              <AccordionComponent
-                menuIcon={<HomeIcon />}
-                menuTitle="Customers"
-                isActive={pathname === "/customers"}
-              />
-              <AccordionComponent
-                menuIcon={<HomeIcon />}
-                menuTitle="Customers"
+              <SidebarMenuLink
+                link="/dashboard/customers"
+                title="Customers"
+                icon={<UsersIcon />}
+                isActive={pathname === "/dashboard/customers"}
               />
             </SidebarMenuSection>
           </li>
           <li className="mb-2">
             <SidebarMenuSection title="Utilities">
+              <SidebarMenuLink
+                link="/dashboard/test-blasting"
+                title="Test Blasting"
+                icon={<ChatBubleLeftIcon />}
+                isActive={pathname === "/dashboard/test-blasting"}
+              />
               <AccordionComponent
                 menuIcon={<SettingIcon />}
                 menuTitle="Setting Users"
+                isActive={pathname === "/dashboard/users"}
               />
             </SidebarMenuSection>
           </li>

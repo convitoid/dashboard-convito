@@ -10,7 +10,7 @@ export const SidebarComponent = () => {
   useEffect(() => {}, []);
 
   return (
-    <div className="h-screen bg-gray-800 hidden 2md:block 2md:w-[13%] xl:w-[15%] px-4 py-6 flex-none overflow-y-auto">
+    <div className="h-screen bg-gray-800 hidden 2md:block 2md:w-[20%] 3md:w-[15%] xl:w-[15%] px-4 py-6 flex-none overflow-y-auto">
       <div className="mb-10">
         <Link
           href={"/dashboard"}

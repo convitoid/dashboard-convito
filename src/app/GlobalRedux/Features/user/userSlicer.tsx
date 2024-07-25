@@ -29,6 +29,7 @@ export const fetchUsers = createAsyncThunk("user/fetchUsers", async () => {
 export const createUser = createAsyncThunk(
   "user/createUser",
   async (data: any) => {
+    console.log("userSlice", data);
     const getToken = await fetch("/api/auth/session")
       .then((res) => res.json())
       .then((data) => {
@@ -79,7 +80,7 @@ export const updateUser = createAsyncThunk(
         return data;
       });
 
-    const response = await fetch("http://localhost:3000/api/users", {
+    const response = await fetch("/api/users", {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
