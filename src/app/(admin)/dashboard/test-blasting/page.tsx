@@ -190,10 +190,14 @@ const DummyBlastingPage = () => {
                 status === "loading" ? "btn-disabled" : ""
               }`}
             >
-              <SendIcon />
-              <span>
-                {status === "loading" ? "Sending..." : "Send Blasting"}
-              </span>
+              {status === "loading" ? (
+                <span className="loading loading-spinner loading-md"></span>
+              ) : (
+                <>
+                  <SendIcon />
+                  <span>Send message</span>
+                </>
+              )}
             </button>
           </Card>
         </form>
