@@ -20,15 +20,6 @@ export async function POST(req: NextRequest) {
   const jwtToken = token?.split(" ")[1];
 
   try {
-    const response = await sendMessage(
-      jwtToken as string,
-      access_token,
-      target_phone_number,
-      event_name,
-      sender,
-      invitation_link
-    );
-
     const logs = await prisma.logTestMessage.findMany();
     let newClientId = "";
     if (logs.length === 0) {
@@ -49,7 +40,8 @@ export async function POST(req: NextRequest) {
 
     const getLogs = await prisma.logTestMessage.findMany();
     const lastId = getLogs[getLogs.length - 1].id;
-    console.log("lastId", lastId);
+    const invitationLink = getLogs[getLogs.length - 1].invitationLink;
+    console.log("lastId", invitationLink);
 
     const questionData = [
       "Will you be able to join us in celebrating our special day?",
@@ -60,6 +52,15 @@ export async function POST(req: NextRequest) {
     for (const question of questionData) {
       await createQuestion(jwtToken as string, question, lastId.toString());
     }
+
+    const response = await sendMessage(
+      jwtToken as string,
+      access_token,
+      target_phone_number,
+      event_name,
+      sender,
+      invitationLink
+    );
 
     return NextResponse.json(response, { status: 200 });
   } catch (error) {
