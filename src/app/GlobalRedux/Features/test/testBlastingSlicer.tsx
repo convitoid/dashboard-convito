@@ -3,6 +3,7 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 interface TestBlasting {
   data: any[] | "";
   logs: any[] | "";
+  invitation: any[] | "";
   status: "idle" | "loading" | "failed" | "success";
   statusLogs: "idle" | "loading" | "failed" | "success";
   error: any | null;
@@ -11,6 +12,7 @@ interface TestBlasting {
 const initialState: TestBlasting = {
   data: [],
   logs: [],
+  invitation: [],
   status: "idle",
   statusLogs: "idle",
   error: null,
@@ -67,6 +69,16 @@ export const fetchLogs = createAsyncThunk(
   }
 );
 
+export const fetchInvitation = createAsyncThunk(
+  "testBlasting/fetchInvitation",
+  async (clientId: string) => {
+    const response = await fetch(`/api/test/invitation/${clientId}`);
+    const data = await response.json();
+    console.log("dari redux", data);
+    return data;
+  }
+);
+
 export const testBlastingSlice = createSlice({
   name: "testBlasting",
   initialState,
@@ -94,6 +106,18 @@ export const testBlastingSlice = createSlice({
       })
       .addCase(fetchLogs.rejected, (state, action) => {
         state.statusLogs = "failed";
+        state.error = action.error.message;
+      })
+
+      .addCase(fetchInvitation.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(fetchInvitation.fulfilled, (state, action) => {
+        state.status = "success";
+        state.invitation = action.payload;
+      })
+      .addCase(fetchInvitation.rejected, (state, action) => {
+        state.status = "failed";
         state.error = action.error.message;
       });
   },

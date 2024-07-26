@@ -161,3 +161,43 @@ export async function getLogs(jwtToken: string) {
     return getErrorResponse(error as string, 500);
   }
 }
+
+export async function invitationGuest(clientId: string) {
+  try {
+    const response = await prisma.logTestMessage.findFirst({
+      select: {
+        id: true,
+        clientId: true,
+        eventName: true,
+        senderName: true,
+      },
+      where: {
+        clientId: clientId,
+      },
+    });
+
+    console.log("response api", response);
+
+    const questions = await prisma.logTestQuestion.findFirst({
+      select: {
+        id: true,
+        question: true,
+        answer: true,
+      },
+      where: {
+        idLogTestMessage: response?.id,
+      },
+    });
+
+    return getSuccessReponse(
+      {
+        ...response,
+        questions: questions,
+      },
+      200,
+      "Invitation guest fetched successfully"
+    );
+  } catch (error) {
+    return getErrorResponse(error as string, 500);
+  }
+}
