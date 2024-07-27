@@ -18,6 +18,8 @@ export const NavbarComponent = () => {
   // remove "" from array
   pathArray.shift();
 
+  console.log("array path", pathArray.length);
+
   let activePath: string;
   // get the last item in the array
   if (pathArray.length > 2) {
@@ -65,7 +67,7 @@ export const NavbarComponent = () => {
         <div className="flex items-center justify-between gap-3">
           <DrawerComponent />
           <h1 className="text-slate-900 uppercase font-semibold text-lg lg:text-2xl">
-            {activePath}
+            {pathArray.length > 3 ? activePath : activePath.replace("-", " ")}
           </h1>
         </div>
         <div className="flex items-center gap-3">

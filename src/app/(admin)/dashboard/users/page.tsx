@@ -13,6 +13,8 @@ import {
 } from "@/app/GlobalRedux/Features/user/userSlicer";
 import { ModalEditUser } from "@/components/page/modalEditUser";
 import Swal from "sweetalert2";
+import { EditIcon } from "@/components/icons/edit";
+import { DeleteIcon } from "@/components/icons/delete";
 
 const breadcrumbsData = [
   {
@@ -198,20 +200,29 @@ const UsersPage = () => {
                         {user.updatedBy}
                       </td>
                       <td className="border-b-[1px] py-2 px-4 flex items-center gap-2">
-                        <button
-                          className="btn bg-yellow-400 text-slate-900"
-                          onClick={() => {
-                            openEditModal(user.id);
-                          }}
+                        <div className="tooltip tooltip-bottom" data-tip="Edit">
+                          <button
+                            className="btn bg-yellow-400 text-slate-900"
+                            onClick={() => {
+                              openEditModal(user.id);
+                            }}
+                          >
+                            <EditIcon />
+                          </button>
+                        </div>
+                        <div
+                          className="tooltip tooltip-bottom"
+                          data-tip="Delete"
                         >
-                          Edit
-                        </button>
-                        <button
-                          className="btn bg-red-500 text-white"
-                          onClick={() => deleteHandler(user.id, user.username)}
-                        >
-                          Delete
-                        </button>
+                          <button
+                            className="btn bg-red-500 text-white"
+                            onClick={() =>
+                              deleteHandler(user.id, user.username)
+                            }
+                          >
+                            <DeleteIcon/>
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))

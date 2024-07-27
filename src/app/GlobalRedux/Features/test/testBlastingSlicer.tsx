@@ -3,22 +3,26 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 interface TestBlasting {
   data: any[] | "";
   logs: any[] | "";
+  detailLogs: any[] | "";
   invitation: any[] | "";
   answer: any[] | "";
   status: "idle" | "loading" | "failed" | "success";
   statusLogs: "idle" | "loading" | "failed" | "success";
   statusAnswer: "idle" | "loading" | "failed" | "success";
+  statusDetailLogs: "idle" | "loading" | "failed" | "success";
   error: any | null;
 }
 
 const initialState: TestBlasting = {
   data: [],
   logs: [],
+  detailLogs: [],
   invitation: [],
   answer: [],
   status: "idle",
   statusLogs: "idle",
   statusAnswer: "idle",
+  statusDetailLogs: "idle",
   error: null,
 };
 
@@ -104,6 +108,23 @@ export const putAnswerInvitation = createAsyncThunk(
   }
 );
 
+export const getDetailLogs = createAsyncThunk(
+  "testBlasting/getDetailLogs",
+  async (clientId: string) => {
+    const response = await fetch(`/api/test/blasting/${clientId}`);
+    const data = await response.json();
+
+    const newJson = [
+      {
+        ...data,
+        questionLog: data.questionLog,
+      },
+    ];
+
+    return newJson;
+  }
+);
+
 export const testBlastingSlice = createSlice({
   name: "testBlasting",
   initialState,
@@ -150,12 +171,23 @@ export const testBlastingSlice = createSlice({
         state.statusAnswer = "loading";
       })
       .addCase(putAnswerInvitation.fulfilled, (state, action) => {
-        console.log("put answer slice fulfilled", action.payload);
         state.statusAnswer = "success";
         state.answer = action.payload;
       })
       .addCase(putAnswerInvitation.rejected, (state, action) => {
         state.statusAnswer = "failed";
+        state.error = action.error.message;
+      })
+
+      .addCase(getDetailLogs.pending, (state) => {
+        state.statusDetailLogs = "loading";
+      })
+      .addCase(getDetailLogs.fulfilled, (state, action) => {
+        state.statusDetailLogs = "success";
+        state.detailLogs = action.payload;
+      })
+      .addCase(getDetailLogs.rejected, (state, action) => {
+        state.statusDetailLogs = "failed";
         state.error = action.error.message;
       });
   },

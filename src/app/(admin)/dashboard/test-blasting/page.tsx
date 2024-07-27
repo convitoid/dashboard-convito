@@ -7,8 +7,10 @@ import { AppDispatch, RootState } from "@/app/store";
 import { BreadcrumbsComponent } from "@/components/breadcrumbs";
 import { Card } from "@/components/card";
 import { DataTablesComponent } from "@/components/datatables";
+import { DetailIcon } from "@/components/icons/detail";
 import { SendIcon } from "@/components/icons/send";
 import moment from "moment";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import Swal from "sweetalert2";
@@ -208,19 +210,24 @@ const DummyBlastingPage = () => {
                     value={formData.invitation_link}
                     onChange={handleInputChange}
                   />
-                  <button
-                    className={`btn btn-accent mt-2${
-                      status === "loading" ? "btn-disabled" : ""
-                    }`}
+                  <div
+                    className="tooltip tooltip-bottom"
+                    data-tip="Send Message"
                   >
-                    {status === "loading" ? (
-                      <span className="loading loading-spinner loading-md"></span>
-                    ) : (
-                      <>
-                        <SendIcon />
-                      </>
-                    )}
-                  </button>
+                    <button
+                      className={`btn btn-primary mt-2${
+                        status === "loading" ? "btn-disabled" : ""
+                      }`}
+                    >
+                      {status === "loading" ? (
+                        <span className="loading loading-spinner loading-md"></span>
+                      ) : (
+                        <>
+                          <SendIcon />
+                        </>
+                      )}
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -264,9 +271,17 @@ const DummyBlastingPage = () => {
                         {moment(log.createdAt).format("D MMM Y")}
                       </td>
                       <td className="border-b-[1px] py-2 px-4">
-                        <button className="btn bg-yellow-400 text-slate-900">
-                          Detail
-                        </button>
+                        <div
+                          className="tooltip tooltip-bottom"
+                          data-tip="Details"
+                        >
+                          <Link
+                            href={`/dashboard/test-blasting/${log.clientId}`}
+                            className="btn btn-info"
+                          >
+                            <DetailIcon />
+                          </Link>
+                        </div>
                       </td>
                     </tr>
                   ))
