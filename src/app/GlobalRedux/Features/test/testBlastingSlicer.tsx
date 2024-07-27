@@ -4,8 +4,10 @@ interface TestBlasting {
   data: any[] | "";
   logs: any[] | "";
   invitation: any[] | "";
+  answer: any[] | "";
   status: "idle" | "loading" | "failed" | "success";
   statusLogs: "idle" | "loading" | "failed" | "success";
+  statusAnswer: "idle" | "loading" | "failed" | "success";
   error: any | null;
 }
 
@@ -13,8 +15,10 @@ const initialState: TestBlasting = {
   data: [],
   logs: [],
   invitation: [],
+  answer: [],
   status: "idle",
   statusLogs: "idle",
+  statusAnswer: "idle",
   error: null,
 };
 
@@ -74,8 +78,29 @@ export const fetchInvitation = createAsyncThunk(
   async (clientId: string) => {
     const response = await fetch(`/api/test/invitation/${clientId}`);
     const data = await response.json();
-    console.log("dari redux", data);
     return data;
+  }
+);
+
+export const putAnswerInvitation = createAsyncThunk(
+  "testBlasting/putAnswerInvitation",
+  async (data: any) => {
+    console.log("put answer slice", data);
+    const response = await fetch(`/api/test/invitation/${data.clientId}`, {
+      method: "PUT",
+      body: JSON.stringify(data),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    const res = await response.json().then((data) => {
+      return data;
+    });
+
+    console.log("put answer slice res", res);
+
+    return res;
   }
 );
 
@@ -118,6 +143,19 @@ export const testBlastingSlice = createSlice({
       })
       .addCase(fetchInvitation.rejected, (state, action) => {
         state.status = "failed";
+        state.error = action.error.message;
+      })
+
+      .addCase(putAnswerInvitation.pending, (state) => {
+        state.statusAnswer = "loading";
+      })
+      .addCase(putAnswerInvitation.fulfilled, (state, action) => {
+        console.log("put answer slice fulfilled", action.payload);
+        state.statusAnswer = "success";
+        state.answer = action.payload;
+      })
+      .addCase(putAnswerInvitation.rejected, (state, action) => {
+        state.statusAnswer = "failed";
         state.error = action.error.message;
       });
   },

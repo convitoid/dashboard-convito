@@ -11,11 +11,11 @@ export default function NotFound() {
   return (
     <div className="h-screen flex justify-center items-center">
       <div className="text-center">
-        <h5 className="uppercase font-semibold text-slate-200 text-xl">
+        <h5 className="uppercase font-semibold text-slate-900 text-xl">
           oops! page not found
         </h5>
-        <h1 className="font-bold text-9xl text-slate-200 mb-3">404</h1>
-        <h4 className="uppercase font-light text-slate-200 mb-4">
+        <h1 className="font-bold text-9xl text-slate-900 mb-3">404</h1>
+        <h4 className="uppercase font-light text-slate-900 mb-4">
           we are sorry, but the page you requested was not found
         </h4>
         <button className="btn btn-info uppercase" onClick={() => goBack()}>

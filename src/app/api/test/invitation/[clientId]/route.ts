@@ -1,5 +1,5 @@
 import prisma from "@/libs/prisma";
-import { invitationGuest } from "@/services/testBlastingService";
+import { invitationGuest, updateAnsware } from "@/services/testBlastingService";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
@@ -19,6 +19,16 @@ export async function GET(
   }
 }
 
-export async function POST() {
-  return NextResponse.json({ message: "Hello from POST" });
+export async function PUT(req: NextRequest) {
+  const { questionId, answer } = await req.json();
+
+  try {
+    const response = await updateAnsware(questionId, answer);
+    return NextResponse.json({ message: response.message }, { status: 200 });
+  } catch (error) {
+    return NextResponse.json(
+      { error: "Failed to create question" },
+      { status: 500 }
+    );
+  }
 }

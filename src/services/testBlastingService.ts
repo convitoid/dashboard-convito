@@ -176,9 +176,13 @@ export async function invitationGuest(clientId: string) {
       },
     });
 
-    console.log("response api", response);
+    console.log("data dari service", response);
 
-    const questions = await prisma.logTestQuestion.findFirst({
+    if (!response) {
+      return getErrorResponse("Invitation guest not found", 404);
+    }
+
+    const questions = await prisma.logTestQuestion.findMany({
       select: {
         id: true,
         question: true,
@@ -201,3 +205,22 @@ export async function invitationGuest(clientId: string) {
     return getErrorResponse(error as string, 500);
   }
 }
+
+export const updateAnsware = async (questionId: string, answer: string) => {
+  console.log("dari service", questionId, answer.length);
+  try {
+    const response = await prisma.logTestQuestion.update({
+      where: {
+        id: parseInt(questionId),
+      },
+      data: {
+        answer: answer,
+      },
+    });
+    console.log("data dari service", response);
+
+    return getSuccessReponse(response, 200, "Answer submitted successfully");
+  } catch (error) {
+    return getErrorResponse("Failed to create question", 500);
+  }
+};
