@@ -14,6 +14,7 @@ export async function POST(req: NextRequest) {
     target_phone_number,
     event_name,
     sender,
+    guest_name,
     invitation_link,
   } = await req.json();
 
@@ -21,25 +22,37 @@ export async function POST(req: NextRequest) {
   const jwtToken = token?.split(" ")[1];
 
   try {
+    console.log("data", {
+      access_token,
+      target_phone_number,
+      event_name,
+      sender,
+      guest_name,
+      invitation_link,
+    });
     const logs = await prisma.logTestMessage.findMany({
       orderBy: {
         id: "desc",
       },
     });
+    console.log("logs", logs);
 
     let newClientId;
     if (logs.length === 0) {
       newClientId = "CL-0001";
     } else {
-      const lastData = logs[logs.length - 1].clientId.split("-")[1];
+      const lastData = logs[0].clientId.split("-")[1];
+      console.log("lastData", lastData);
       const increment = parseInt(lastData, 10) + 1;
       console.log("increment", increment);
       newClientId = `CL-${increment.toString().padStart(4, "0")}`;
     }
+    console.log("newClientId", newClientId);
 
     await createLogs(
       jwtToken as string,
       target_phone_number,
+      guest_name,
       event_name,
       sender,
       invitation_link,
@@ -55,7 +68,7 @@ export async function POST(req: NextRequest) {
       {
         question:
           "Please confirm your attendance, YES (joyfully accept), NO (regretfully decline)",
-        type: "select",
+        type: "radio",
       },
       {
         question:
@@ -79,7 +92,7 @@ export async function POST(req: NextRequest) {
       await createQuestion(
         jwtToken as string,
         question.question,
-        newClientId,
+        lastId.toString(),
         question.type
       );
     });
@@ -88,12 +101,11 @@ export async function POST(req: NextRequest) {
       jwtToken as string,
       access_token,
       target_phone_number,
-      event_name,
-      sender,
+      guest_name,
       invitationLink
     );
 
-    return NextResponse.json(response, { status: response.status });
+    return NextResponse.json(response, { status: 200 });
   } catch (error) {
     console.log("error", error);
     return NextResponse.json({ error: error }, { status: 500 });

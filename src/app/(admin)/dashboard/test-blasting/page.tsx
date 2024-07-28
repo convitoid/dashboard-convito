@@ -41,9 +41,10 @@ const DummyBlastingPage = () => {
     access_token: process.env.NEXT_WHATSAPP_TOKEN_ID ?? "",
     test_phone_number: "5556112319",
     target_phone_number: "",
-    event_name: "",
-    sender: "",
-    invitation_link: "",
+    guest_name: "",
+    event_name: "The Wedding of Mr. CONVITO & Ms. CONVITO",
+    sender: "By Convito",
+    invitation_link: "testing",
   });
   const [currentPage, setCurrentPage] = useState(1);
   const [logPerPage, setlogPerPage] = useState(10);
@@ -70,7 +71,7 @@ const DummyBlastingPage = () => {
     dispatch(sendMessage(formData))
       .unwrap()
       .then((res) => {
-        console.log(res);
+        console.log("res send message", res);
         if (!res.error) {
           Swal.fire({
             title: "Success",
@@ -103,49 +104,43 @@ const DummyBlastingPage = () => {
       <div className="flex items-center justify-end mb-3">
         <BreadcrumbsComponent data={breadcrumbsData} />
       </div>
-      <form onSubmit={(e) => handleSendBlasting(e)}>
-        <Card cardWrapper="bg-slate-50 text-slate-900 shadow-md mb-5">
-          <h2 className="text-[1rem] font-semibold mb-1">
-            Temporary access token
-          </h2>
-          <div className="flex flex-col">
-            <input
-              type="text"
-              placeholder="Input your token here"
-              className="input input-bordered w-full"
-              name="access_token"
-              value={formData.access_token}
-              onChange={handleInputChange}
-            />
-            <span className="mt-2 px-1 text-[.8rem]">
-              This token will be valid for 24 hours. To obtain a temporary
-              token, please log in with your Meta Developer account{" "}
-              <span className="text-blue-800 font-semibold">
-                <a href="https://developers.facebook.com" target="_blank">
-                  here
-                </a>
-              </span>
-            </span>
-          </div>
-        </Card>
+      <form onSubmit={(e) => handleSendBlasting(e)} className="">
         <Card cardWrapper="bg-slate-50 text-slate-900 shadow-md">
           <h2 className="text-lg font-semibold mb-4">Test blasting whatsapp</h2>
           <div className="flex">
-            <div className="grid grid-cols-1 md:grid-cols-2 2md:grid-cols-3 3md:grid-cols-4 lg:grid-cols-5 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 2md:grid-cols-3 3md:grid-cols-3 lg:grid-cols-3 gap-4">
               <div className="mb-1">
                 <label
-                  htmlFor="test_phone_number"
+                  htmlFor="access_token"
                   className="text-[.9rem] font-semibold"
                 >
-                  From
+                  Temporary token meta
                 </label>
                 <input
                   type="text"
-                  placeholder="+1 555 611 2319"
+                  placeholder="input your token here"
                   className="input input-bordered w-full mt-2"
-                  name="test_phone_number"
-                  value={formData.test_phone_number}
-                  readOnly={true}
+                  name="access_token"
+                  value={formData.access_token}
+                  onChange={handleInputChange}
+                  autoFocus={true}
+                />
+              </div>
+              <div className="mb-1">
+                <label
+                  htmlFor="guest_name"
+                  className="text-[.9rem] font-semibold"
+                >
+                  Guest Name
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. Mr. Convito"
+                  className="input input-bordered w-full mt-2"
+                  name="guest_name"
+                  value={formData.guest_name}
+                  onChange={handleInputChange}
+                  autoFocus={false}
                 />
               </div>
               <div className="mb-1">
@@ -155,76 +150,29 @@ const DummyBlastingPage = () => {
                 >
                   To
                 </label>
-                <input
-                  type="number"
-                  placeholder="e.g. 628123456789"
-                  className="input input-bordered w-full mt-2"
-                  name="target_phone_number"
-                  value={formData.target_phone_number}
-                  onChange={handleInputChange}
-                  autoFocus={true}
-                />
-              </div>
-              <div className="mb-1">
-                <label
-                  htmlFor="event_name"
-                  className="text-[.9rem] font-semibold"
-                >
-                  Event name
-                </label>
-                <input
-                  type="text"
-                  placeholder="e.g weeding invitation Jhon & Jane"
-                  className="input input-bordered w-full mt-2"
-                  name="event_name"
-                  value={formData.event_name}
-                  onChange={handleInputChange}
-                />
-              </div>
-              <div className="mb-1">
-                <label htmlFor="sender" className="text-[.9rem] font-semibold">
-                  Sender
-                </label>
-                <input
-                  type="text"
-                  placeholder="e.g. by Event Organizer Team"
-                  className="input input-bordered w-full mt-2"
-                  name="sender"
-                  value={formData.sender}
-                  onChange={handleInputChange}
-                />
-              </div>
-              <div className="mb-5">
-                <label
-                  htmlFor="invitation_link"
-                  className="text-[.9rem] font-semibold"
-                >
-                  Invitation Link
-                </label>
                 <div className="flex items-center gap-3">
                   <input
-                    type="text"
-                    placeholder="e.g. "
+                    type="number"
+                    placeholder="e.g. 628123456789"
                     className="input input-bordered w-full mt-2"
-                    name="invitation_link"
-                    value={formData.invitation_link}
+                    name="target_phone_number"
+                    value={formData.target_phone_number}
                     onChange={handleInputChange}
+                    autoFocus={false}
                   />
                   <div
-                    className="tooltip tooltip-bottom"
+                    className="tooltip tooltip-bottom pt-1"
                     data-tip="Send Message"
                   >
                     <button
-                      className={`btn btn-primary mt-2${
+                      className={`bg-blue-600 p-3 rounded-md text-slate-100 font-semibold hover:bg-blue-700 transition ease-in duration-200 ${
                         status === "loading" ? "btn-disabled" : ""
                       }`}
                     >
                       {status === "loading" ? (
-                        <span className="loading loading-spinner loading-md"></span>
+                        <span className="loading loading-spinner loading-sm"></span>
                       ) : (
-                        <>
-                          <SendIcon />
-                        </>
+                        <SendIcon />
                       )}
                     </button>
                   </div>
