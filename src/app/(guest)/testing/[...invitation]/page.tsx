@@ -67,7 +67,7 @@ const GuestTestingPage = ({ params }: { params: { invitation: string } }) => {
   };
 
   useEffect(() => {
-    document.title = "Cenvito - Reservations wedding and event";
+    document.title = "Convito - Reservations wedding and event";
   }, []);
 
   return (

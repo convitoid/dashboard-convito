@@ -22,7 +22,7 @@ const breadcrumbsData = [
 const DashboardPage = () => {
   const { data: session, status } = useSession();
   useEffect(() => {
-    document.title = "Cenvito - Dashboard";
+    document.title = "Convito - Dashboard";
   });
 
   if (status === "loading") {
@@ -57,7 +57,7 @@ const DashboardPage = () => {
       <div className="mt-4">
         <div className="flex items-center justify-between mb-6">
           <h1 className="font-semibold text-sm lg:text-lg xl:text-xl">
-            Cenvito customers statistics
+            Convito customers statistics
           </h1>
           <select
             name="customers_statistics_year"

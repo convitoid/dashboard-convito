@@ -16,7 +16,7 @@ export const SidebarComponent = () => {
           href={"/dashboard"}
           className="text-slate-200 font-semibold uppercase text-2xl"
         >
-          Cenvito
+          Convito
         </Link>
       </div>
       <div>

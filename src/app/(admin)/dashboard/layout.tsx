@@ -19,7 +19,7 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
           <footer className="font-bold static bottom-0 w-full">
             <div className="flex justify-center items-center h-12">
               <p className="text-slate-900 text-sm">
-                &copy; {moment().format("YYYY")} Cenvito - All Rights Reserved
+                &copy; {moment().format("YYYY")} Convito - All Rights Reserved
               </p>
             </div>
           </footer>

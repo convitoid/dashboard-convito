@@ -139,7 +139,7 @@ const UsersPage = () => {
   }, [isOpenModalEdit]);
 
   useEffect(() => {
-    document.title = "Cenvito - Users Data";
+    document.title = "Convito - Users Data";
   }, []);
 
   return (

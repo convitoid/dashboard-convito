@@ -34,7 +34,7 @@ export const DrawerComponent = () => {
         <ul className="menu bg-slate-800 min-h-full w-80 p-4 text-slate-200">
           {/* Sidebar content here */}
           <li className="text-2xl px-3 py-4 mb-4 uppercase font-semibold">
-            Cenvito
+            Convito
           </li>
           <li className="mb-2">
             <SidebarMenuSection>

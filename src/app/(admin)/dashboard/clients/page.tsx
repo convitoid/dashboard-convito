@@ -60,7 +60,7 @@ const ClientPage = () => {
   const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
 
   useEffect(() => {
-    document.title = "Cenvito - Clients";
+    document.title = "Convito - Clients";
   }, []);
   return (
     <>

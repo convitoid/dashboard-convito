@@ -19,7 +19,7 @@ const breadcrumbsData = [
 
 const CustomerDetailPage = ({ params }: { params: { slug: string } }) => {
   useEffect(() => {
-    document.title = "Cenvito - Customers Detail";
+    document.title = "Convito - Customers Detail";
   }, []);
   return (
     <div>

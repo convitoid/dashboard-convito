@@ -92,7 +92,7 @@ const DummyBlastingPage = () => {
   };
 
   useEffect(() => {
-    document.title = "Cenvito - Test Blasting";
+    document.title = "Convito - Test Blasting";
   }, []);
 
   const indexOfLastLogs = currentPage * logPerPage;

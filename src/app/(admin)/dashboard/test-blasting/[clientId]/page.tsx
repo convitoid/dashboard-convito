@@ -39,7 +39,7 @@ const DetailLogsPage = ({ params }: { params: { clientId: string } }) => {
   }, [dispatch, id]);
 
   useEffect(() => {
-    document.title = "Cenvito - Detail Logs Test Blasting";
+    document.title = "Convito - Detail Logs Test Blasting";
   }, []);
 
   return (
