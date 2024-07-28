@@ -3,6 +3,7 @@ import {
   getErrorResponse,
   getSuccessReponse,
 } from "@/utils/response/successResponse";
+import { faker } from "@faker-js/faker";
 import { jwtVerify } from "jose";
 
 interface JWTError extends Error {
@@ -105,6 +106,7 @@ export async function createLogs(
     const logs = await prisma.logTestMessage.create({
       data: {
         clientId: clientId,
+        clientName: faker.person.fullName(),
         phoneNumber: to,
         eventName: event_name,
         senderName: sender,
@@ -123,14 +125,17 @@ export async function createLogs(
 export async function createQuestion(
   jwtToken: string,
   questionLog: string,
-  guestLog: string
+  guestLog: string,
+  type: string
 ) {
   try {
     const { payload } = await jwtVerify(jwtToken, secret);
+    console.log("dari service", questionLog, guestLog, type);
 
     const question = await prisma.logTestQuestion.create({
       data: {
         question: questionLog,
+        type: type,
         idLogTestMessage: Number(guestLog),
         createdAt: new Date(),
         updatedAt: new Date(),

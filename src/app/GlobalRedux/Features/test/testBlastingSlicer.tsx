@@ -48,6 +48,8 @@ export const sendMessage = createAsyncThunk(
       return data;
     });
 
+    console.log("slicer", res);
+
     return res;
   }
 );
@@ -135,7 +137,9 @@ export const testBlastingSlice = createSlice({
         state.status = "loading";
       })
       .addCase(sendMessage.fulfilled, (state, action) => {
+        console.log("action.payload", action.payload);
         state.status = "success";
+        // state.data = action.payload;
         state.data = action.payload.data;
       })
       .addCase(sendMessage.rejected, (state, action) => {

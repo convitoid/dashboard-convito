@@ -5,6 +5,7 @@ import {
   getLogs,
   sendMessage,
 } from "@/services/testBlastingService";
+import { faker } from "@faker-js/faker";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
@@ -20,13 +21,20 @@ export async function POST(req: NextRequest) {
   const jwtToken = token?.split(" ")[1];
 
   try {
-    const logs = await prisma.logTestMessage.findMany();
-    let newClientId = "";
+    const logs = await prisma.logTestMessage.findMany({
+      orderBy: {
+        id: "desc",
+      },
+    });
+
+    let newClientId;
     if (logs.length === 0) {
-      newClientId = "CLID-1";
+      newClientId = "CL-0001";
     } else {
       const lastData = logs[logs.length - 1].clientId.split("-")[1];
-      newClientId = `CLID-${parseInt(lastData) + 1}`;
+      const increment = parseInt(lastData, 10) + 1;
+      console.log("increment", increment);
+      newClientId = `CL-${increment.toString().padStart(4, "0")}`;
     }
 
     await createLogs(
@@ -44,14 +52,37 @@ export async function POST(req: NextRequest) {
     console.log("lastId", invitationLink);
 
     const questionData = [
-      "Will you be able to join us in celebrating our special day?",
-      "Will you be bringing a guest?",
-      "Do you have a favorite song you'd love to hear at our wedding reception?",
+      {
+        question:
+          "Please confirm your attendance, YES (joyfully accept), NO (regretfully decline)",
+        type: "select",
+      },
+      {
+        question:
+          "This invitation is valid for 2 Guest(s), how many guest will attend?",
+        type: "number",
+      },
+      {
+        question:
+          "Are any guest vegetarian? (Optional) Example: Bambang - Vegetarian / Adeline Vegetarian",
+        type: "text",
+      },
+      {
+        question:
+          "You are also invited in The Holy Matrimony of Mr. Convito & Ms. Convito for 2 Guest(s), how many guest will attend?",
+        type: "number",
+      },
     ];
 
-    for (const question of questionData) {
-      await createQuestion(jwtToken as string, question, lastId.toString());
-    }
+    // loop questionData
+    questionData.map(async (question) => {
+      await createQuestion(
+        jwtToken as string,
+        question.question,
+        newClientId,
+        question.type
+      );
+    });
 
     const response = await sendMessage(
       jwtToken as string,
@@ -62,7 +93,7 @@ export async function POST(req: NextRequest) {
       invitationLink
     );
 
-    return NextResponse.json(response, { status: 200 });
+    return NextResponse.json(response, { status: response.status });
   } catch (error) {
     console.log("error", error);
     return NextResponse.json({ error: error }, { status: 500 });
