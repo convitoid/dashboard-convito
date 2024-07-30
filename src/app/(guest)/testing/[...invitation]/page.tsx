@@ -4,7 +4,7 @@ import { fetchInvitation } from "@/app/GlobalRedux/Features/test/testBlastingSli
 import NotFound from "@/app/not-found";
 import { AppDispatch, RootState } from "@/app/store";
 import { InvitationHome } from "@/components/page/invitationHome";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -19,7 +19,6 @@ const GuestTestingPage = ({ params }: { params: { invitation: string } }) => {
   );
 
   const status = useSelector((state: RootState) => state.testBlasting.status);
-  console.log("invitations", invitations);
 
   if (invitations?.status === 404) {
     // return
@@ -46,9 +45,7 @@ const GuestTestingPage = ({ params }: { params: { invitation: string } }) => {
                 <div className="loader"></div>
               </div>
             ) : (
-              <>
-                <InvitationHome invitations={invitations} />
-              </>
+              <InvitationHome invitations={invitations} />
             )}
           </div>
         </div>

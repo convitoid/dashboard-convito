@@ -7,6 +7,7 @@ interface TestBlasting {
   invitation: any | "";
   invitationConfirm: any[] | "";
   answer: any[] | "";
+  answers: any | "";
   status: "idle" | "loading" | "failed" | "success";
   statusLogs: "idle" | "loading" | "failed" | "success";
   statusAnswer: "idle" | "loading" | "failed" | "success";
@@ -22,6 +23,7 @@ const initialState: TestBlasting = {
   invitation: [],
   invitationConfirm: [],
   answer: [],
+  answers: [],
   status: "idle",
   statusLogs: "idle",
   statusAnswer: "idle",
@@ -150,6 +152,22 @@ export const confirmInvitation = createAsyncThunk(
   }
 );
 
+export const putAnswer = createAsyncThunk(
+  "testBlasting/putAnswer",
+  async (data: any) => {
+    const response = await fetch(`/api/test/invitation/${data.questionId}`, {
+      method: "PUT",
+      body: JSON.stringify(data),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    const res = await response.json();
+    console.log("put answer", res);
+    return res;
+  }
+);
+
 export const testBlastingSlice = createSlice({
   name: "testBlasting",
   initialState,
@@ -228,6 +246,18 @@ export const testBlastingSlice = createSlice({
       })
       .addCase(confirmInvitation.rejected, (state, action) => {
         state.statusInvitationConfirm = "failed";
+        state.error = action.error.message;
+      })
+
+      .addCase(putAnswer.pending, (state) => {
+        state.statusAnswer = "loading";
+      })
+      .addCase(putAnswer.fulfilled, (state, action) => {
+        state.statusAnswer = "success";
+        state.answers = action.payload;
+      })
+      .addCase(putAnswer.rejected, (state, action) => {
+        state.statusAnswer = "failed";
         state.error = action.error.message;
       });
   },
