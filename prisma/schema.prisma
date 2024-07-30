@@ -51,6 +51,7 @@ model LogTestQuestion {
   answer           String?
   type             String
   guest            LogTestMessage @relation(fields: [idLogTestMessage], references: [id])
+  flag             String?
   idLogTestMessage Int
   createdAt        DateTime       @default(now())
   updatedAt        DateTime       @updatedAt

@@ -16,8 +16,7 @@ export async function sendMessage(
   jwtToken: string,
   authToken: string,
   to: string,
-  event_name: string,
-  sender: string,
+  guest_name: string,
   invitation_link: string
 ) {
   console.log("dari service", authToken);
@@ -37,7 +36,7 @@ export async function sendMessage(
       to: to,
       type: "template",
       template: {
-        name: "testing_rsv ",
+        name: "testing_rsv",
         language: {
           code: "en",
         },
@@ -47,11 +46,7 @@ export async function sendMessage(
             parameters: [
               {
                 type: "text",
-                text: event_name,
-              },
-              {
-                type: "text",
-                text: sender,
+                text: guest_name,
               },
             ],
           },
@@ -95,6 +90,7 @@ export async function sendMessage(
 export async function createLogs(
   jwtToken: string,
   to: string,
+  guest_name: string,
   event_name: string,
   sender: string,
   invitation_link: string,
@@ -103,10 +99,20 @@ export async function createLogs(
   try {
     const { payload } = await jwtVerify(jwtToken, secret);
 
+    console.log(
+      "dari service",
+      to,
+      clientId,
+      guest_name,
+      event_name,
+      sender,
+      invitation_link
+    );
+
     const logs = await prisma.logTestMessage.create({
       data: {
         clientId: clientId,
-        clientName: faker.person.fullName(),
+        clientName: guest_name,
         phoneNumber: to,
         eventName: event_name,
         senderName: sender,
@@ -115,6 +121,8 @@ export async function createLogs(
         updatedAt: new Date(),
       },
     });
+
+    console.log("data dari service", logs);
 
     return getSuccessReponse(logs, 200, "Logs created successfully");
   } catch (error) {
@@ -126,21 +134,25 @@ export async function createQuestion(
   jwtToken: string,
   questionLog: string,
   guestLog: string,
-  type: string
+  type: string,
+  flag?: string
 ) {
   try {
     const { payload } = await jwtVerify(jwtToken, secret);
-    console.log("dari service", questionLog, guestLog, type);
+    console.log("dari service", questionLog, guestLog, type, flag);
 
     const question = await prisma.logTestQuestion.create({
       data: {
         question: questionLog,
         type: type,
         idLogTestMessage: Number(guestLog),
+        flag: flag,
         createdAt: new Date(),
         updatedAt: new Date(),
       },
     });
+
+    console.log("data dari service", question);
 
     return getSuccessReponse(question, 200, "Question created successfully");
   } catch (error) {
@@ -174,14 +186,12 @@ export async function invitationGuest(clientId: string) {
         id: true,
         clientId: true,
         eventName: true,
-        senderName: true,
+        clientName: true,
       },
       where: {
         clientId: clientId,
       },
     });
-
-    console.log("data dari service", response);
 
     if (!response) {
       return getErrorResponse("Invitation guest not found", 404);
@@ -192,9 +202,14 @@ export async function invitationGuest(clientId: string) {
         id: true,
         question: true,
         answer: true,
+        type: true,
+        flag: true,
       },
       where: {
         idLogTestMessage: response?.id,
+      },
+      orderBy: {
+        id: "asc",
       },
     });
 
@@ -212,7 +227,6 @@ export async function invitationGuest(clientId: string) {
 }
 
 export const updateAnsware = async (questionId: string, answer: string) => {
-  console.log("dari service", questionId, answer.length);
   try {
     const response = await prisma.logTestQuestion.update({
       where: {
@@ -220,11 +234,11 @@ export const updateAnsware = async (questionId: string, answer: string) => {
       },
       data: {
         answer: answer,
+        updatedAt: new Date(),
       },
     });
-    console.log("data dari service", response);
 
-    return getSuccessReponse(response, 200, "Answer submitted successfully");
+    return getSuccessReponse(response, 200, "Answer submitted successfullyss");
   } catch (error) {
     return getErrorResponse("Failed to create question", 500);
   }

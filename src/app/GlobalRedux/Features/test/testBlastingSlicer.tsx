@@ -4,12 +4,15 @@ interface TestBlasting {
   data: any[] | "";
   logs: any[] | "";
   detailLogs: any[] | "";
-  invitation: any[] | "";
+  invitation: any | "";
+  invitationConfirm: any[] | "";
   answer: any[] | "";
+  answers: any | "";
   status: "idle" | "loading" | "failed" | "success";
   statusLogs: "idle" | "loading" | "failed" | "success";
   statusAnswer: "idle" | "loading" | "failed" | "success";
   statusDetailLogs: "idle" | "loading" | "failed" | "success";
+  statusInvitationConfirm: "idle" | "loading" | "failed" | "success";
   error: any | null;
 }
 
@@ -18,17 +21,21 @@ const initialState: TestBlasting = {
   logs: [],
   detailLogs: [],
   invitation: [],
+  invitationConfirm: [],
   answer: [],
+  answers: [],
   status: "idle",
   statusLogs: "idle",
   statusAnswer: "idle",
   statusDetailLogs: "idle",
+  statusInvitationConfirm: "idle",
   error: null,
 };
 
 export const sendMessage = createAsyncThunk(
   "testBlasting/sendMessage",
   async (data: any) => {
+    console.log(data);
     const getToken = await fetch("/api/auth/session")
       .then((res) => res.json())
       .then((data) => {
@@ -127,6 +134,40 @@ export const getDetailLogs = createAsyncThunk(
   }
 );
 
+export const confirmInvitation = createAsyncThunk(
+  "testBlasting/confirmInvitation",
+  async (data: any) => {
+    const response = await fetch(`/api/test/invitation/${data.questionId}`, {
+      method: "PUT",
+      body: JSON.stringify({
+        questionId: data.questionId,
+        answer: data.confirm_invitation,
+      }),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    const res = await response.json();
+    return res;
+  }
+);
+
+export const putAnswer = createAsyncThunk(
+  "testBlasting/putAnswer",
+  async (data: any) => {
+    const response = await fetch(`/api/test/invitation/${data.questionId}`, {
+      method: "PUT",
+      body: JSON.stringify(data),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    const res = await response.json();
+    console.log("put answer", res);
+    return res;
+  }
+);
+
 export const testBlastingSlice = createSlice({
   name: "testBlasting",
   initialState,
@@ -192,6 +233,31 @@ export const testBlastingSlice = createSlice({
       })
       .addCase(getDetailLogs.rejected, (state, action) => {
         state.statusDetailLogs = "failed";
+        state.error = action.error.message;
+      })
+
+      .addCase(confirmInvitation.pending, (state) => {
+        state.statusInvitationConfirm = "loading";
+      })
+      .addCase(confirmInvitation.fulfilled, (state, action) => {
+        console.log("action.payload confirmation", action.payload);
+        state.statusInvitationConfirm = "success";
+        state.invitationConfirm = action.payload;
+      })
+      .addCase(confirmInvitation.rejected, (state, action) => {
+        state.statusInvitationConfirm = "failed";
+        state.error = action.error.message;
+      })
+
+      .addCase(putAnswer.pending, (state) => {
+        state.statusAnswer = "loading";
+      })
+      .addCase(putAnswer.fulfilled, (state, action) => {
+        state.statusAnswer = "success";
+        state.answers = action.payload;
+      })
+      .addCase(putAnswer.rejected, (state, action) => {
+        state.statusAnswer = "failed";
         state.error = action.error.message;
       });
   },

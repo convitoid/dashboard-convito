@@ -21,10 +21,9 @@ export async function GET(
 
 export async function PUT(req: NextRequest) {
   const { questionId, answer } = await req.json();
-
   try {
     const response = await updateAnsware(questionId, answer);
-    return NextResponse.json({ message: response.message }, { status: 200 });
+    return NextResponse.json(response, { status: response.status });
   } catch (error) {
     return NextResponse.json(
       { error: "Failed to create question" },
