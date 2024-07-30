@@ -134,21 +134,25 @@ export async function createQuestion(
   jwtToken: string,
   questionLog: string,
   guestLog: string,
-  type: string
+  type: string,
+  flag?: string
 ) {
   try {
     const { payload } = await jwtVerify(jwtToken, secret);
-    console.log("dari service", questionLog, guestLog, type);
+    console.log("dari service", questionLog, guestLog, type, flag);
 
     const question = await prisma.logTestQuestion.create({
       data: {
         question: questionLog,
         type: type,
         idLogTestMessage: Number(guestLog),
+        flag: flag,
         createdAt: new Date(),
         updatedAt: new Date(),
       },
     });
+
+    console.log("data dari service", question);
 
     return getSuccessReponse(question, 200, "Question created successfully");
   } catch (error) {
@@ -198,6 +202,8 @@ export async function invitationGuest(clientId: string) {
         id: true,
         question: true,
         answer: true,
+        type: true,
+        flag: true,
       },
       where: {
         idLogTestMessage: response?.id,

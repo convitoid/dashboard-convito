@@ -69,32 +69,39 @@ export async function POST(req: NextRequest) {
         question:
           "Please confirm your attendance, YES (joyfully accept), NO (regretfully decline)",
         type: "radio",
+        flag: "confirm_question",
       },
       {
         question:
           "This invitation is valid for 2 Guest(s), how many guest will attend?",
         type: "number",
+        flag: "normal_question",
       },
       {
         question:
           "Are any guest vegetarian? (Optional) Example: Bambang - Vegetarian / Adeline Vegetarian",
         type: "text",
+        flag: "normal_question",
       },
       {
         question:
           "You are also invited in The Holy Matrimony of Mr. Convito & Ms. Convito for 2 Guest(s), how many guest will attend?",
         type: "number",
+        flag: "normal_question",
       },
     ];
 
     // loop questionData
     questionData.map(async (question) => {
-      await createQuestion(
+      const questionCreate = await createQuestion(
         jwtToken as string,
         question.question,
         lastId.toString(),
-        question.type
+        question.type,
+        question.flag
       );
+
+      console.log("questionCreate", questionCreate);
     });
 
     const response = await sendMessage(

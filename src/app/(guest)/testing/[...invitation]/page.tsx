@@ -1,17 +1,11 @@
 "use client";
 
-import {
-  fetchInvitation,
-  putAnswerInvitation,
-} from "@/app/GlobalRedux/Features/test/testBlastingSlicer";
+import { fetchInvitation } from "@/app/GlobalRedux/Features/test/testBlastingSlicer";
 import NotFound from "@/app/not-found";
 import { AppDispatch, RootState } from "@/app/store";
-import { Card } from "@/components/card";
 import { InvitationHome } from "@/components/page/invitationHome";
-import Image from "next/image";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import Swal from "sweetalert2";
 
 interface Invitation {
   data: {

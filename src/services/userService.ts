@@ -72,7 +72,7 @@ export async function createUser(
   updatedBy: string
 ) {
   try {
-    const { payload } = await jwtVerify(jwtToken, secret);
+    // const { payload } = await jwtVerify(jwtToken, secret);
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const data = {

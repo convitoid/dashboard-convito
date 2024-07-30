@@ -5,7 +5,7 @@ import {
 } from "@/app/GlobalRedux/Features/test/testBlastingSlicer";
 import { AppDispatch } from "@/app/store";
 import prisma from "@/libs/prisma";
-import { Dancing_Script } from "next/font/google";
+import { Dancing_Script, Pacifico } from "next/font/google";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
@@ -21,7 +21,14 @@ const dancingScript = Dancing_Script({
   subsets: ["latin"],
 });
 
+const paficifo = Pacifico({
+  weight: ["400"],
+  display: "swap",
+  subsets: ["latin"],
+});
+
 export const InvitationHome = ({ invitations }: InvitationHomeProps) => {
+  console.log("invitations", invitations);
   const [isConfirm, setIsConfirm] = useState<boolean>(false);
   const splitTitle = invitations.data.eventName.split(" of ");
   console.log(invitations);
@@ -31,7 +38,9 @@ export const InvitationHome = ({ invitations }: InvitationHomeProps) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const questionId = invitations?.data?.questions
-      .slice(0, 1)
+      .filter(
+        (question: { flag: string }) => question.flag === "confirm_question"
+      )
       .map((question: any) => question.id);
 
     const data = Object.fromEntries(formData.entries());
@@ -63,10 +72,39 @@ export const InvitationHome = ({ invitations }: InvitationHomeProps) => {
       });
   };
 
-  const checkConfirm = invitations?.data?.questions
-    .slice(0, 1)
-    .filter((question: { answer: string }) => question.answer === "yes");
-  console.log("filteredData", checkConfirm);
+  const checkConfirm = invitations?.data?.questions.filter(
+    (question: { answer: string; flag: string }) =>
+      question.answer === "yes" && question.flag === "confirm_question"
+  );
+
+  const submitAnswer = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    const dataForm = Object.fromEntries(formData.entries());
+    const getIdKey = Object.keys(dataForm).filter((key) =>
+      key.includes("question_")
+    );
+    const getId = getIdKey.map((key) => key.split("_")[1]);
+
+    console.log("data", getId);
+
+    const newData = getId.map((id) => {
+      return {
+        questionId: id,
+        answer: dataForm[`question_${id}`],
+      };
+    });
+
+    newData.map(async (data) => {
+      await fetch(`/api/test/invitation/${data.questionId}`, {
+        method: "PUT",
+        body: JSON.stringify(data),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+    });
+  };
 
   useEffect(() => {
     if (checkConfirm.length > 0) {
@@ -79,29 +117,42 @@ export const InvitationHome = ({ invitations }: InvitationHomeProps) => {
   return (
     <>
       {isConfirm ? (
-        <div className="">
-          <div className="bg-slate-900 bg-opacity-55 backdrop-blur-lg h-full text-slate-100">
-            <Image
-              src={"/assets/images/wedding-image.jpg"}
-              width={150}
-              height={90}
-              className="w-full h-full shadow-slate-900/50 shadow-sm fade-in"
-              alt="wedding-foto"
-            />
-            <h1>{`Dear, ${invitations.data.clientName}`}</h1>
+        <div className="h-full text-slate-100">
+          <div className="bg-[url('/assets/images/wedding-image.jpg')] w-full h-56 bg-cover bg-center bg-no-repeat relative">
+            <div className="absolute inset-0 bg-gray-900 bg-opacity-60 backdrop-blur-sm flex items-center justify-center">
+              <div className={`text-center ${dancingScript.className} fade-in`}>
+                <h2 className="text-[20px] mb-1">{splitTitle[0]} of</h2>
+                <h2 className="text-xl font-semibold mb-1">{splitTitle[1]}</h2>
+              </div>
+            </div>
+          </div>
+          <form onSubmit={submitAnswer} className="px-4 py-6">
             {invitations.data.questions
               .filter(
-                (question: { answer: string }) => question.answer !== "yes"
+                (question: { answer: string; flag: string }) =>
+                  question.answer !== "yes" &&
+                  question.flag !== "confirm_question"
               )
               .map((question: any, index: number) => (
-                <div key={question.id}>
-                  <label htmlFor={`question${question.id}`}>
+                <div key={question.id} className="mb-5 flex flex-col">
+                  <label
+                    htmlFor={`question${question.id}`}
+                    className="mb-3 text-md slide-up"
+                  >
                     {question.question}
                   </label>
-                  <input type={question.type} name={question.id} />
+                  <input
+                    type={`${question.type}`}
+                    name={`question_${question.id}`}
+                    className="text-slate-900 py-2 px-3 rounded-md slide-up"
+                    autoFocus={index === 0 ? true : false}
+                  />
                 </div>
               ))}
-          </div>
+            <button className="bg-blue-600 text-slate-100 px-4 py-3 rounded-md slide-up w-full">
+              Submit
+            </button>
+          </form>
         </div>
       ) : (
         <div className="flex flex-col items-center justify-center h-full">
@@ -140,7 +191,10 @@ export const InvitationHome = ({ invitations }: InvitationHomeProps) => {
               onSubmit={submitConfirm}
             >
               {invitations.data.questions
-                .slice(0, 1)
+                .filter(
+                  (question: { flag: string }) =>
+                    question.flag === "confirm_question"
+                )
                 .map((question: any, index: number) => (
                   <div key={question.id} className="flex flex-col w-3/4">
                     <label
