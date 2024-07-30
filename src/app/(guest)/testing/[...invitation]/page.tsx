@@ -4,30 +4,27 @@ import { fetchInvitation } from "@/app/GlobalRedux/Features/test/testBlastingSli
 import NotFound from "@/app/not-found";
 import { AppDispatch, RootState } from "@/app/store";
 import { InvitationHome } from "@/components/page/invitationHome";
+import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
-interface Invitation {
-  data: {
-    eventName: string;
-    clientId: string;
-    statusCode: number;
-    questions: any[];
-  };
-}
-
-function isInvitation(obj: any): obj is Invitation {
-  return obj && typeof obj === "object" && "data" in obj;
-}
-
 const GuestTestingPage = ({ params }: { params: { invitation: string } }) => {
   const [selectConfirmation, setSelectConfirmation] = useState("");
+  const router = useRouter();
+
   const clientId = params.invitation[0];
   const dispatch = useDispatch<AppDispatch>();
   const invitations = useSelector(
     (state: RootState) => state.testBlasting.invitation
   );
+
   const status = useSelector((state: RootState) => state.testBlasting.status);
+  console.log("invitations", invitations);
+
+  if (invitations?.status === 404) {
+    // return
+    router.push("/404");
+  }
 
   useEffect(() => {
     dispatch(fetchInvitation(clientId));
@@ -50,9 +47,7 @@ const GuestTestingPage = ({ params }: { params: { invitation: string } }) => {
               </div>
             ) : (
               <>
-                {isInvitation(invitations) && (
-                  <InvitationHome invitations={invitations} />
-                )}
+                <InvitationHome invitations={invitations} />
               </>
             )}
           </div>

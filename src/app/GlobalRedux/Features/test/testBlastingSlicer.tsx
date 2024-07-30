@@ -4,7 +4,7 @@ interface TestBlasting {
   data: any[] | "";
   logs: any[] | "";
   detailLogs: any[] | "";
-  invitation: any[] | "";
+  invitation: any | "";
   invitationConfirm: any[] | "";
   answer: any[] | "";
   status: "idle" | "loading" | "failed" | "success";

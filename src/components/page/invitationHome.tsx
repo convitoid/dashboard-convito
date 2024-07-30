@@ -30,7 +30,7 @@ const paficifo = Pacifico({
 export const InvitationHome = ({ invitations }: InvitationHomeProps) => {
   console.log("invitations", invitations);
   const [isConfirm, setIsConfirm] = useState<boolean>(false);
-  const splitTitle = invitations.data.eventName.split(" of ");
+  const splitTitle = invitations?.data?.eventName.split(" of ");
   console.log(invitations);
   const dispatch = useDispatch<AppDispatch>();
 
@@ -107,12 +107,12 @@ export const InvitationHome = ({ invitations }: InvitationHomeProps) => {
   };
 
   useEffect(() => {
-    if (checkConfirm.length > 0) {
+    if (checkConfirm?.length > 0) {
       setIsConfirm(true);
     } else {
       setIsConfirm(false);
     }
-  }, [checkConfirm.length]);
+  }, [checkConfirm?.length]);
 
   return (
     <>
@@ -167,12 +167,12 @@ export const InvitationHome = ({ invitations }: InvitationHomeProps) => {
             <h1
               className={`${dancingScript.className} text-xl text-white mb-1 slide-up`}
             >
-              {splitTitle[0]} of
+              {splitTitle ? `${splitTitle[0]} of` : ""}
             </h1>
             <h2
               className={`${dancingScript.className} text-2xl text-white font-semibold mb-1 text-center slide-up`}
             >
-              {splitTitle[1]}
+              {splitTitle ? splitTitle[1] : ""}
             </h2>
             <h2
               className={`${dancingScript.className} text-[13px] text-white slide-up`}
@@ -184,62 +184,68 @@ export const InvitationHome = ({ invitations }: InvitationHomeProps) => {
             <h1
               className={`${dancingScript.className} text-white font-bold mb-7 slide-up text-xl`}
             >
-              Dear, Mr.{invitations.data.clientName}
+              Dear, Mr.{invitations ? invitations?.data?.clientName : ""}
             </h1>
             <form
               className="flex flex-col items-center"
               onSubmit={submitConfirm}
             >
-              {invitations.data.questions
-                .filter(
-                  (question: { flag: string }) =>
-                    question.flag === "confirm_question"
-                )
-                .map((question: any, index: number) => (
-                  <div key={question.id} className="flex flex-col w-3/4">
-                    <label
-                      htmlFor="confirmation_of_attendance"
-                      className="text-white mb-3 slide-up text-center text-[13px] font-semibold"
-                    >
-                      {question.question}
-                    </label>
-                    <div className="flex flex-row items-center justify-center gap-5 slide-up">
-                      <div className="form-control flex flex-row items-center gap-2">
-                        <input
-                          type="radio"
-                          className="radio radio-info radio-sm"
-                          name="confirm_invitation"
-                          id="yes"
-                          value={"yes"}
-                        />
+              {invitations ? (
+                <>
+                  {invitations?.data?.questions
+                    .filter(
+                      (question: { flag: string }) =>
+                        question.flag === "confirm_question"
+                    )
+                    .map((question: any, index: number) => (
+                      <div key={question.id} className="flex flex-col w-3/4">
                         <label
-                          htmlFor="yes"
-                          className="label-text text-white font-semibold"
+                          htmlFor="confirmation_of_attendance"
+                          className="text-white mb-3 slide-up text-center text-[13px] font-semibold"
                         >
-                          Yes
+                          {question.question}
                         </label>
+                        <div className="flex flex-row items-center justify-center gap-5 slide-up">
+                          <div className="form-control flex flex-row items-center gap-2">
+                            <input
+                              type="radio"
+                              className="radio radio-info radio-sm"
+                              name="confirm_invitation"
+                              id="yes"
+                              value={"yes"}
+                            />
+                            <label
+                              htmlFor="yes"
+                              className="label-text text-white font-semibold"
+                            >
+                              Yes
+                            </label>
+                          </div>
+                          <div className="form-control flex flex-row items-center gap-2">
+                            <input
+                              type="radio"
+                              className="radio radio-info radio-sm"
+                              name="confirm_invitation"
+                              id="no"
+                              value={"no"}
+                            />
+                            <label
+                              htmlFor="no"
+                              className="label-text text-white font-semibold"
+                            >
+                              No
+                            </label>
+                          </div>
+                        </div>
+                        <button className="bg-blue-600 text-slate-100 px-4 py-3 rounded-md mt-8 slide-up w-full">
+                          Confirm
+                        </button>
                       </div>
-                      <div className="form-control flex flex-row items-center gap-2">
-                        <input
-                          type="radio"
-                          className="radio radio-info radio-sm"
-                          name="confirm_invitation"
-                          id="no"
-                          value={"no"}
-                        />
-                        <label
-                          htmlFor="no"
-                          className="label-text text-white font-semibold"
-                        >
-                          No
-                        </label>
-                      </div>
-                    </div>
-                    <button className="bg-blue-600 text-slate-100 px-4 py-3 rounded-md mt-8 slide-up w-full">
-                      Confirm
-                    </button>
-                  </div>
-                ))}
+                    ))}
+                </>
+              ) : (
+                ""
+              )}
             </form>
           </div>
         </div>
