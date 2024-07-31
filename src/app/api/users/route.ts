@@ -9,7 +9,7 @@ import {
 import { createValidation } from "@/utils/formValidation/user/createValidation";
 
 export async function GET(req: NextRequest) {
-  const token = req.headers.get("authorization");
+const token = req.headers.get("authorization");
   const jwtToken = token?.split(" ")[1];
   const response = await fetchUsers(jwtToken as string);
   return NextResponse.json(response, { status: response.status });

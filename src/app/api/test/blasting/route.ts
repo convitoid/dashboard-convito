@@ -22,14 +22,6 @@ export async function POST(req: NextRequest) {
   const jwtToken = token?.split(" ")[1];
 
   try {
-    console.log("data", {
-      access_token,
-      target_phone_number,
-      event_name,
-      sender,
-      guest_name,
-      invitation_link,
-    });
     const logs = await prisma.logTestMessage.findMany({
       orderBy: {
         id: "desc",
@@ -42,9 +34,7 @@ export async function POST(req: NextRequest) {
       newClientId = "CL-0001";
     } else {
       const lastData = logs[0].clientId.split("-")[1];
-      console.log("lastData", lastData);
       const increment = parseInt(lastData, 10) + 1;
-      console.log("increment", increment);
       newClientId = `CL-${increment.toString().padStart(4, "0")}`;
     }
     console.log("newClientId", newClientId);
