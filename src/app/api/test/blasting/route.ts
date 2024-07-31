@@ -27,7 +27,8 @@ export async function POST(req: NextRequest) {
         id: "desc",
       },
     });
-    console.log("logs", logs);
+
+    console.log("logs", logs.length === 0);
 
     let newClientId;
     if (logs.length === 0) {
@@ -37,22 +38,8 @@ export async function POST(req: NextRequest) {
       const increment = parseInt(lastData, 10) + 1;
       newClientId = `CL-${increment.toString().padStart(4, "0")}`;
     }
+
     console.log("newClientId", newClientId);
-
-    await createLogs(
-      jwtToken as string,
-      target_phone_number,
-      guest_name,
-      event_name,
-      sender,
-      invitation_link,
-      newClientId
-    );
-
-    const getLogs = await prisma.logTestMessage.findMany();
-    const lastId = getLogs[getLogs.length - 1].id;
-    const invitationLink = getLogs[getLogs.length - 1].invitationLink;
-    console.log("lastId", invitationLink);
 
     const questionData = [
       {
@@ -60,49 +47,69 @@ export async function POST(req: NextRequest) {
           "Please confirm your attendance, YES (joyfully accept), NO (regretfully decline)",
         type: "radio",
         flag: "confirm_question",
+        position: 1,
       },
       {
         question:
           "This invitation is valid for 2 Guest(s), how many guest will attend?",
         type: "number",
         flag: "normal_question",
+        position: 2,
       },
       {
         question:
           "Are any guest vegetarian? (Optional) Example: Bambang - Vegetarian / Adeline Vegetarian",
         type: "text",
         flag: "normal_question",
+        position: 3,
       },
       {
         question:
           "You are also invited in The Holy Matrimony of Mr. Convito & Ms. Convito for 2 Guest(s), how many guest will attend?",
         type: "number",
         flag: "normal_question",
+        position: 4,
       },
     ];
-
-    // loop questionData
-    questionData.map(async (question) => {
-      const questionCreate = await createQuestion(
-        jwtToken as string,
-        question.question,
-        lastId.toString(),
-        question.type,
-        question.flag
-      );
-
-      console.log("questionCreate", questionCreate);
-    });
 
     const response = await sendMessage(
       jwtToken as string,
       access_token,
       target_phone_number,
       guest_name,
-      invitationLink
+      invitation_link
     );
 
-    return NextResponse.json(response, { status: 200 });
+    if (response?.error?.code === 190) {
+      console.log("masuk error", response);
+      return NextResponse.json(response, { status: 400 });
+    } else {
+      await createLogs(
+        jwtToken as string,
+        target_phone_number,
+        guest_name,
+        event_name,
+        sender,
+        invitation_link,
+        newClientId
+      );
+
+      const getLogs = await prisma.logTestMessage.findMany();
+      const lastId = getLogs[getLogs.length - 1].id;
+
+      questionData.map(async (question) => {
+        await createQuestion(
+          jwtToken as string,
+          question.question,
+          lastId.toString(),
+          question.type,
+          question.flag,
+          question.position
+        );
+      });
+    }
+
+    return NextResponse.json("", { status: 200 });
   } catch (error) {
     console.log("error", error);
     return NextResponse.json({ error: error }, { status: 500 });

@@ -87,13 +87,13 @@ const DetailLogsPage = ({ params }: { params: { clientId: string } }) => {
                     <td className="border-b-[1px] py-2 px-4">
                       {itemData.question}
                     </td>
-                    <td className="border-b-[1px] py-2 px-4">
+                    <td className="border-b-[1px] py-2 px-4 capitalize">
                       {itemData.answer === null ? (
                         <span className="text-red-500">No Answer</span>
                       ) : itemData.answer ? (
-                        "Yes"
+                        itemData.answer
                       ) : (
-                        "No"
+                        "No Answer"
                       )}
                     </td>
                   </tr>

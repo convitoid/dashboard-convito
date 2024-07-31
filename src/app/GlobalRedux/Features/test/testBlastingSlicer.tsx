@@ -157,13 +157,15 @@ export const putAnswer = createAsyncThunk(
   async (data: any) => {
     const response = await fetch(`/api/test/invitation/${data.questionId}`, {
       method: "PUT",
-      body: JSON.stringify(data),
+      body: JSON.stringify({
+        questionId: data.questionId,
+        answer: data.answer,
+      }),
       headers: {
         "Content-Type": "application/json",
       },
     });
     const res = await response.json();
-    console.log("put answer", res);
     return res;
   }
 );
