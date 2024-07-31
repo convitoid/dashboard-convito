@@ -6,10 +6,10 @@ import { useSession } from "next-auth/react";
 import { DataTablesComponent } from "@/components/datatables";
 import { PlusCircleIcon } from "@/components/icons/plusCircle";
 import { ModalComponent } from "@/components/modal";
-import { ModalAddCustomer } from "@/components/page/modalAddCustomer";
+import { ModalAddClient } from "@/components/page/modalAddClient";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/app/store";
-import { fetchClients } from "@/app/GlobalRedux/Features/clients/clientSlice";
+import { fetchClients } from "@/app/GlobalRedux/Thunk/clients/clientThunk";
 import moment from "moment";
 
 interface Client {
@@ -31,9 +31,9 @@ const tableHead = [
   "No",
   "ID",
   "Name",
+  "Event Name",
   "Event Date",
-  "Location Type",
-  "Event Location",
+  "Event Type",
   "Created At",
   "Created By",
   "Actions",
@@ -42,7 +42,7 @@ const tableHead = [
 const ClientPage = () => {
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const [customersPerPage, setCustomersPerPage] = useState(5);
+  const [clientsPerPage, setClientsPerPage] = useState(10);
 
   const clients = useSelector((state: RootState) => state.clients.clients);
   const status = useSelector((state: RootState) => state.clients.status);
@@ -52,11 +52,9 @@ const ClientPage = () => {
     dispatch(fetchClients());
   }, [dispatch]);
 
-  console.log("clients data", clients);
-
   // pagination
-  const indexOfLastCustomer = currentPage * customersPerPage;
-  const indexOfFirstCustomer = indexOfLastCustomer - customersPerPage;
+  const indexOfLastClient = currentPage * clientsPerPage;
+  const indexOfFirstClient = indexOfLastClient - clientsPerPage;
   const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
 
   useEffect(() => {
@@ -70,7 +68,7 @@ const ClientPage = () => {
       </div>
       <div className="overflow-x-auto pt-3">
         <div className="flex items-center justify-between mb-3">
-          <ModalAddCustomer modalId="add_customer" title="Add client" />
+          <ModalAddClient modalId="add_client" title="Add client" />
           <input
             type="text"
             className="border-[1px] border-slate-300 rounded-md px-3 py-2"
@@ -97,7 +95,7 @@ const ClientPage = () => {
                       .toLocaleLowerCase()
                       .includes(search.toLocaleLowerCase());
                   })
-                  .slice(indexOfFirstCustomer, indexOfLastCustomer)
+                  .slice(indexOfFirstClient, indexOfLastClient)
                   .map((client, index) => (
                     <tr key={index}>
                       <td className="border-b-[1px] py-2 px-4 w-[3%]">
@@ -110,20 +108,20 @@ const ClientPage = () => {
                         {client?.client_name}
                       </td>
                       <td className="border-b-[1px] py-2 px-4 ">
+                        {client?.event_name}
+                      </td>
+                      <td className="border-b-[1px] py-2 px-4 ">
                         {moment(client?.event_date).format(
                           "dddd, DD MMMM YYYY"
                         )}
                       </td>
                       <td className="border-b-[1px] py-2 px-4 ">
-                        {client?.location_type}
+                        {client?.event_type}
                       </td>
                       <td className="border-b-[1px] py-2 px-4 ">
-                        {client?.event_location}
+                        {moment(client?.created_at).format("DD MMMM YYYY")}
                       </td>
-                      <td className="border-b-[1px] py-2 px-4 ">
-                        {moment(client?.created_at).format("DD-MM-YYYY")}
-                      </td>
-                      <td className="border-b-[1px] py-2 px-4 ">
+                      <td className="border-b-[1px] py-2 px-4 capitalize">
                         {client?.createdBy}
                       </td>
                       <td className="border-b-[1px] py-2 px-4 flex items-center gap-2">
@@ -146,7 +144,7 @@ const ClientPage = () => {
             </>
           )}
         </DataTablesComponent>
-        {/* <div className="flex justify-end mt-4">
+        <div className="flex justify-end mt-4">
           <div className="join">
             <button
               className="join-item btn"
@@ -156,21 +154,27 @@ const ClientPage = () => {
               «
             </button>
             <button className="join-item btn">
-              {currentPage} of{" "}
-              {Math.ceil(filteredCustomers.length / customersPerPage)}
+              {clients ? (
+                <>
+                  {currentPage} of {Math.ceil(clients?.length / clientsPerPage)}
+                </>
+              ) : (
+                "0 of 0"
+              )}
             </button>
             <button
               className="join-item btn"
               onClick={() => paginate(currentPage + 1)}
               disabled={
-                currentPage ===
-                Math.ceil(filteredCustomers.length / customersPerPage)
+                clients
+                  ? currentPage === Math.ceil(clients?.length / clientsPerPage)
+                  : true
               }
             >
               »
             </button>
           </div>
-        </div> */}
+        </div>
       </div>
     </>
   );

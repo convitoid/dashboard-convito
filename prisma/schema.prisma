@@ -8,17 +8,16 @@ datasource db {
 }
 
 model Client {
-  id             Int      @id @default(autoincrement())
-  client_id      String   @unique
-  client_name    String
-  event_date     DateTime
-  location_type  String
-  event_location String
-  photos         String?
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-  createdBy      String
-  updatedBy      String
+  id          Int       @id @default(autoincrement())
+  client_id   String    @unique
+  client_name String
+  event_name  String
+  event_date  DateTime
+  event_type  String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime? @updatedAt()
+  createdBy   String
+  updatedBy   String
 }
 
 model User {

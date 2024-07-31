@@ -1,37 +1,24 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import {
+  fetchClients,
+  createCLient,
+} from "@/app/GlobalRedux/Thunk/clients/clientThunk";
 
 interface Client {
-  clients: any[] | "";
+  clients: any | "";
+  client: any | "";
   status: "idle" | "loading" | "failed" | "success";
+  statusAdd: "idle" | "loading" | "failed" | "success";
   error: any | null;
 }
 
 const initialState: Client = {
   clients: [],
+  client: [],
   status: "idle",
+  statusAdd: "idle",
   error: null,
 };
-
-export const fetchClients = createAsyncThunk(
-  "client/fetchClients",
-  async () => {
-    const getToken = await fetch("/api/auth/session")
-      .then((res) => res.json())
-      .then((data) => {
-        return data;
-      });
-
-    const response = await fetch("/api/clients", {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${getToken.user.jwt}`,
-      },
-    });
-
-    const data = await response.json();
-    return data;
-  }
-);
 
 export const clientSlice = createSlice({
   name: "client",
@@ -48,6 +35,18 @@ export const clientSlice = createSlice({
       })
       .addCase(fetchClients.rejected, (state, action) => {
         state.status = "failed";
+        state.error = action.error.message;
+      })
+
+      .addCase(createCLient.pending, (state) => {
+        state.statusAdd = "loading";
+      })
+      .addCase(createCLient.fulfilled, (state, action) => {
+        state.statusAdd = "success";
+        state.client = action.payload;
+      })
+      .addCase(createCLient.rejected, (state, action) => {
+        state.statusAdd = "failed";
         state.error = action.error.message;
       });
   },
