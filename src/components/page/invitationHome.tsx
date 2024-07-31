@@ -3,11 +3,11 @@ import {
   fetchInvitation,
   putAnswer,
 } from "@/app/GlobalRedux/Features/test/testBlastingSlicer";
-import { AppDispatch } from "@/app/store";
+import { AppDispatch, RootState } from "@/app/store";
 import { Roboto } from "next/font/google";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import Swal from "sweetalert2";
 
 interface InvitationHomeProps {
@@ -30,6 +30,7 @@ export const InvitationHome = ({ invitations }: InvitationHomeProps) => {
   const eventName = invitations?.data?.eventName || "";
   const [firstLine, ...secondLine] = eventName.split(" of ");
   const dispatch = useDispatch<AppDispatch>();
+  const status = useSelector((state: RootState) => state.testBlasting.status);
 
   const submitAnswer = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -262,8 +263,15 @@ export const InvitationHome = ({ invitations }: InvitationHomeProps) => {
                   </div>
                 )
               )}
-              <button className="bg-[#1C1C1C] text-slate-100 w-full px-4 py-2 rounded-md mt-3">
-                Submit
+              <button
+                className="bg-[#1C1C1C] text-slate-100 w-full px-4 py-2 rounded-md mt-3"
+                disabled={status === "loading" ? true : false}
+              >
+                {status === "loading" ? (
+                  <div className="loader"></div>
+                ) : (
+                  "Submit"
+                )}
               </button>
             </form>
           </>

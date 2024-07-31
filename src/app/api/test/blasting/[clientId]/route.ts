@@ -6,7 +6,6 @@ export async function GET(
   { params }: { params: { clientId: string } }
 ) {
   const id = params.clientId;
-  console.log(id);
 
   const log = await prisma.logTestMessage.findMany({
     where: {
@@ -24,7 +23,6 @@ export async function GET(
     ...log[0],
     questionLog: questionLog,
   };
-  console.log("dari server", newJson);
 
   return NextResponse.json(newJson, { status: 200 });
 }
