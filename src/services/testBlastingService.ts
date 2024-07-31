@@ -135,7 +135,8 @@ export async function createQuestion(
   questionLog: string,
   guestLog: string,
   type: string,
-  flag?: string
+  flag?: string,
+  position?: number
 ) {
   try {
     const { payload } = await jwtVerify(jwtToken, secret);
@@ -147,6 +148,7 @@ export async function createQuestion(
         type: type,
         idLogTestMessage: Number(guestLog),
         flag: flag,
+        position: position,
         createdAt: new Date(),
         updatedAt: new Date(),
       },
@@ -204,12 +206,13 @@ export async function invitationGuest(clientId: string) {
         answer: true,
         type: true,
         flag: true,
+        position: true,
       },
       where: {
         idLogTestMessage: response?.id,
       },
       orderBy: {
-        id: "asc",
+        position: "asc",
       },
     });
 

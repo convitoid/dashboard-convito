@@ -1,83 +1,35 @@
 "use client";
 import {
-  confirmInvitation,
   fetchInvitation,
   putAnswer,
 } from "@/app/GlobalRedux/Features/test/testBlastingSlicer";
-import { AppDispatch, RootState } from "@/app/store";
-import prisma from "@/libs/prisma";
-import { Dancing_Script, Pacifico } from "next/font/google";
+import { AppDispatch } from "@/app/store";
+import { Roboto } from "next/font/google";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import Swal from "sweetalert2";
 
 interface InvitationHomeProps {
   invitations: any;
 }
 
-const dancingScript = Dancing_Script({
-  weight: ["400", "500", "600", "700"],
-  display: "swap",
-  subsets: ["latin"],
-});
-
-const paficifo = Pacifico({
-  weight: ["400"],
+const robotoFont = Roboto({
+  weight: ["100", "300", "400", "500", "700", "900"],
   display: "swap",
   subsets: ["latin"],
 });
 
 export const InvitationHome = ({ invitations }: InvitationHomeProps) => {
-  console.log("invitations", invitations);
-  const [isConfirm, setIsConfirm] = useState<boolean>(false);
+  console.log(invitations);
   const [isAnswer, setIsAnswer] = useState<boolean>(false);
-  const [isAnswerYes, setIsAnswerYes] = useState<boolean>(false);
-  const splitTitle = invitations?.data?.eventName.split(" of ");
+  const [disabled, setDisabled] = useState<boolean>(true);
+  const [formValues, setFormValues] = useState<any>({});
+  const [isInvalid, setIsInvalid] = useState<any>({});
+
+  const eventName = invitations?.data?.eventName || "";
+  const [firstLine, ...secondLine] = eventName.split(" of ");
   const dispatch = useDispatch<AppDispatch>();
-
-  const submitConfirm = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    const questionId = invitations?.data?.questions
-      .filter(
-        (question: { flag: string }) => question.flag === "confirm_question"
-      )
-      .map((question: any) => question.id);
-
-    const data = Object.fromEntries(formData.entries());
-    const newData = {
-      ...data,
-      questionId: questionId[0],
-    };
-
-    if (!data?.confirm_invitation) {
-      Swal.fire({
-        icon: "error",
-        title: "Failed",
-        text: "Please select your confirmation",
-      });
-      return;
-    }
-
-    dispatch(confirmInvitation(newData as any))
-      .unwrap()
-      .then((res) => {
-        console.log(res);
-        Swal.fire({
-          icon: "success",
-          title: "Success",
-          text: "Your confirmation has been sent",
-        });
-
-        dispatch(fetchInvitation(invitations.data.clientId));
-      });
-  };
-
-  const checkConfirm = invitations?.data?.questions.filter(
-    (question: { answer: string; flag: string }) =>
-      question.answer === "yes" && question.flag === "confirm_question"
-  );
 
   const submitAnswer = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -87,235 +39,240 @@ export const InvitationHome = ({ invitations }: InvitationHomeProps) => {
       key.includes("question_")
     );
     const getId = getIdKey.map((key) => key.split("_")[1]);
+    console.log(getId);
 
-    const newData = getId.map((id) => {
-      return {
-        questionId: id,
-        answer: dataForm[`question_${id}`],
-      };
-    });
+    // jika terdapat jawaban no
+    const isNo = getId.some((id) => dataForm[`question_${id}`] === "no");
 
-    newData.map(async (data) => {
-      dispatch(putAnswer(data as any))
-        .unwrap()
-        .then((res) => {
-          console.log(res);
-          Swal.fire({
-            icon: "success",
-            title: "Success",
-            text: "Thank you for your answer",
+    if (isNo) {
+      const newData = getId.map((id) => {
+        return {
+          questionId: id,
+          answer: dataForm[`question_${id}`],
+        };
+      });
+
+      newData.map(async (data) => {
+        dispatch(putAnswer(data as any))
+          .unwrap()
+          .then((res) => {
+            console.log("res", res);
+            Swal.fire({
+              icon: "success",
+              title: "Success",
+              text: "Thank you for your answer",
+            });
+            dispatch(fetchInvitation(invitations.data.clientId));
+          })
+          .catch((err) => {
+            console.log(err);
+            Swal.fire({
+              icon: "error",
+              title: "Failed",
+              text: "Please try again",
+            });
           });
-          dispatch(fetchInvitation(invitations.data.clientId));
-        })
-        .catch((err) => {
-          console.log(err);
-          Swal.fire({
-            icon: "error",
-            title: "Failed",
-            text: "Please try again",
-          });
+      });
+    } else {
+      const missingFields = getId.filter((id) => dataForm[`question_${id}`]);
+
+      console.log(missingFields.length, invitations?.data?.questions?.length);
+      if (missingFields.length !== invitations?.data?.questions?.length) {
+        return Swal.fire({
+          icon: "error",
+          title: "Failed",
+          text: "Please fill all fields",
         });
-    });
+      }
+
+      const newData = getId.map((id) => {
+        return {
+          questionId: id,
+          answer: dataForm[`question_${id}`],
+        };
+      });
+
+      console.log("tidak sama dengan no", newData);
+      newData.map(async (data) => {
+        dispatch(putAnswer(data as any))
+          .unwrap()
+          .then((res) => {
+            console.log(res);
+            Swal.fire({
+              icon: "success",
+              title: "Success",
+              text: "Thank you for your answer",
+            });
+            dispatch(fetchInvitation(invitations.data.clientId));
+          })
+          .catch((err) => {
+            console.log(err);
+            Swal.fire({
+              icon: "error",
+              title: "Failed",
+              text: "Please try again",
+            });
+          });
+      });
+    }
   };
 
   useEffect(() => {
-    if (checkConfirm?.length > 0) {
-      setIsConfirm(true);
-    } else {
-      setIsConfirm(false);
-    }
-  }, [checkConfirm?.length]);
-
-  useEffect(() => {
-    invitations?.data?.questions.filter(
-      (question: { answer: string; flag: string }) => {
-        if (question.answer !== "yes" && question.flag !== "confirm_question") {
-          invitations?.data?.questions.filter(
-            (question: { answer: string; question: string }) => {
-              if (question.answer === null) {
-                setIsAnswer(false);
-              } else {
-                setIsAnswer(true);
-              }
-            }
-          );
-        }
-      }
+    const filterByAnswer = invitations?.data?.questions?.filter(
+      (answer: { answer: string }) => answer.answer === null
     );
+
+    if (filterByAnswer?.length === invitations?.data?.questions?.length) {
+      setIsAnswer(true);
+    }
   }, [invitations?.data?.questions]);
 
-  const isAnswerYesY = invitations?.data?.questions.filter(
-    (question: { answer: string; flag: string }) => question.answer === "no"
-  );
+  const handleChangeRadio = (e: React.ChangeEvent<HTMLInputElement>) => {
+    e.target.value === "no" ? setDisabled(true) : setDisabled(false);
+  };
+
+  const handleChangeInput =
+    (type: string) => (event: React.ChangeEvent<HTMLInputElement>) => {
+      const value = event.target.value;
+      const name = event.target.name;
+      let valid = true;
+
+      if (type === "number") {
+        // Validasi input hanya berupa angka tanpa karakter "-", "+", atau "e"
+        if (!/^\d*$/.test(value)) {
+          valid = false;
+        }
+
+        // Batasi panjang input angka hingga 3 digit
+        if (value.length > 3) {
+          valid = false;
+        }
+
+        // Potong nilai ke 3 digit jika panjang lebih dari 3
+        const trimmedValue = value.slice(0, 3);
+
+        // Set value to 0 if the value is not valid or parseInt is NaN
+        const parsedValue = parseInt(trimmedValue);
+        setFormValues({
+          ...formValues,
+          [name]: isNaN(parsedValue) ? 0 : parsedValue,
+        });
+      } else if (type === "text") {
+        // Validasi input hanya berupa teks (tanpa angka) boleh - dan /
+        if (!/^[a-zA-Z\s-\/]*$/.test(value)) {
+          valid = false;
+        }
+
+        setFormValues({
+          ...formValues,
+          [name]: value,
+        });
+      }
+
+      setIsInvalid({
+        ...isInvalid,
+        [name]: !valid,
+      });
+    };
 
   return (
-    <>
-      {isAnswerYesY.length > 0 ? (
-        <div className="flex flex-col items-center justify-center h-screen">
-          <h1 className={`text-2xl text-white ${dancingScript.className}`}>
-            Thank you for your answer
-          </h1>
-        </div>
-      ) : (
-        <>
-          {isAnswer ? (
-            <div className="flex flex-col items-center justify-center h-screen">
-              <h1 className={`text-2xl text-white ${dancingScript.className}`}>
-                Thank you for your answer
-              </h1>
-            </div>
-          ) : (
-            <>
-              {isConfirm ? (
-                <div className="flex flex-col items-center h-full text-slate-100">
-                  <div className="max-w-md">
-                    <div className="bg-[url('/assets/images/wedding-image.jpg')] w-full h-56 bg-cover bg-center bg-no-repeat relative">
-                      <div className="absolute inset-0 bg-gray-900 bg-opacity-60 backdrop-blur-sm flex items-center justify-center">
-                        <div
-                          className={`text-center ${dancingScript.className} fade-in`}
-                        >
-                          <h2 className="text-[20px] mb-1">
-                            {splitTitle[0]} of
-                          </h2>
-                          <h2 className="text-xl font-semibold mb-1">
-                            {splitTitle[1]}
-                          </h2>
+    <div className={`max-w-md ${robotoFont.className}`}>
+      <Image
+        src={"/assets/images/wedding-couple-image.jpg"}
+        alt="wedding"
+        width={500}
+        height={500}
+        priority={true}
+        className="w-full h-64 object-cover mb-3"
+      />
+      <div className={`bg-[#E2DCD0] mx-3 mt-3 px-4 py-5 rounded-md`}>
+        <h1 className="text-center flex flex-col gap-1">
+          <span>{firstLine} of </span>
+          <span className="text-lg font-semibold">
+            {secondLine.join(" of ")}
+          </span>
+        </h1>
+        <div className="border-b-2 border-slate-900 w-1/2 mx-auto mt-3 mb-10"></div>
+
+        {isAnswer ? (
+          <>
+            <h5 className="text-md mb-7">
+              Dear, {""}
+              <span className="font-semibold">
+                {invitations?.data?.clientName}
+              </span>
+            </h5>
+
+            <form onSubmit={submitAnswer}>
+              {invitations?.data?.questions?.map(
+                (question: any, index: number) => (
+                  <div className="flex flex-col mb-5" key={question.id}>
+                    <label htmlFor="" className="mb-1">
+                      {question.question}
+                    </label>
+                    {question.type === "radio" ? (
+                      <div className="flex items-center gap-4">
+                        <div className="flex items-center gap-2">
+                          <input
+                            className="radio radio-sm radio-info"
+                            type={question.type}
+                            name={`question_${question.id}`}
+                            id={`question_yes_${question.id}`}
+                            value={`yes`}
+                            onChange={handleChangeRadio}
+                          />
+                          <label htmlFor={`question_yes_${question.id}`}>
+                            Yes
+                          </label>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <input
+                            className="radio radio-sm radio-info"
+                            type={question.type}
+                            name={`question_${question.id}`}
+                            id={`question_no_${question.id}`}
+                            value={`no`}
+                            onChange={handleChangeRadio}
+                          />
+                          <label htmlFor={`question_no_${question.id}`}>
+                            No
+                          </label>
                         </div>
                       </div>
-                    </div>
-                    <form onSubmit={submitAnswer} className="px-4 py-6">
-                      {invitations.data.questions
-                        .filter(
-                          (question: { answer: string; flag: string }) =>
-                            question.answer !== "yes" &&
-                            question.flag !== "confirm_question"
-                        )
-                        .map((question: any, index: number) => (
-                          <div key={question.id} className="mb-5 flex flex-col">
-                            <label
-                              htmlFor={`question${question.id}`}
-                              className="mb-3 text-md slide-up"
-                            >
-                              {question.question}
-                            </label>
-                            <input
-                              type={`${question.type}`}
-                              name={`question_${question.id}`}
-                              className="text-slate-900 py-2 px-3 rounded-md slide-up"
-                              autoFocus={index === 0 ? true : false}
-                            />
-                          </div>
-                        ))}
-                      <button className="bg-blue-600 text-slate-100 px-4 py-3 rounded-md slide-up w-full">
-                        Submit
-                      </button>
-                    </form>
+                    ) : (
+                      <input
+                        type="text" // Menggunakan text untuk mencegah perilaku input number HTML default
+                        className={`rounded-md px-3 py-2 ${
+                          isInvalid[`question_${question.id}`]
+                            ? "border-red-500 border"
+                            : ""
+                        }`}
+                        name={`question_${question.id}`}
+                        disabled={disabled}
+                        onChange={handleChangeInput(question.type)}
+                        value={formValues[`question_${question.id}`] || ""}
+                        inputMode={
+                          question.type === "number" ? "numeric" : undefined
+                        }
+                        pattern={
+                          question.type === "number" ? "\\d*" : undefined
+                        }
+                      />
+                    )}
                   </div>
-                </div>
-              ) : (
-                <div className="flex flex-col items-center justify-center h-full">
-                  <div className="flex flex-col items-center mb-14">
-                    <Image
-                      src={"/assets/images/wedding-couple.jpg"}
-                      width={200}
-                      height={200}
-                      className="h-[15rem] w-[11rem] object-center rounded-lg shadow-black shadow-md mb-4 fade-in"
-                      alt="wedding-foto"
-                    />
-                    <h1
-                      className={`${dancingScript.className} text-xl text-white mb-1 slide-up`}
-                    >
-                      {splitTitle ? `${splitTitle[0]} of` : ""}
-                    </h1>
-                    <h2
-                      className={`${dancingScript.className} text-2xl text-white font-semibold mb-1 text-center slide-up`}
-                    >
-                      {splitTitle ? splitTitle[1] : ""}
-                    </h2>
-                    <h2
-                      className={`${dancingScript.className} text-[13px] text-white slide-up`}
-                    >
-                      Sunday, 12 December 2024
-                    </h2>
-                  </div>
-                  <div className="flex flex-col items-center justify-center">
-                    <h1
-                      className={`${dancingScript.className} text-white font-bold mb-7 slide-up text-xl`}
-                    >
-                      Dear, Mr.
-                      {invitations ? invitations?.data?.clientName : ""}
-                    </h1>
-                    <form
-                      className="flex flex-col items-center"
-                      onSubmit={submitConfirm}
-                    >
-                      {invitations ? (
-                        <>
-                          {invitations?.data?.questions
-                            .filter(
-                              (question: { flag: string }) =>
-                                question.flag === "confirm_question"
-                            )
-                            .map((question: any, index: number) => (
-                              <div
-                                key={question.id}
-                                className="flex flex-col w-3/4"
-                              >
-                                <label
-                                  htmlFor="confirmation_of_attendance"
-                                  className="text-white mb-3 slide-up text-center text-[13px] font-semibold"
-                                >
-                                  {question.question}
-                                </label>
-                                <div className="flex flex-row items-center justify-center gap-5 slide-up">
-                                  <div className="form-control flex flex-row items-center gap-2">
-                                    <input
-                                      type="radio"
-                                      className="radio radio-info radio-sm"
-                                      name="confirm_invitation"
-                                      id="yes"
-                                      value={"yes"}
-                                    />
-                                    <label
-                                      htmlFor="yes"
-                                      className="label-text text-white font-semibold"
-                                    >
-                                      Yes
-                                    </label>
-                                  </div>
-                                  <div className="form-control flex flex-row items-center gap-2">
-                                    <input
-                                      type="radio"
-                                      className="radio radio-info radio-sm"
-                                      name="confirm_invitation"
-                                      id="no"
-                                      value={"no"}
-                                    />
-                                    <label
-                                      htmlFor="no"
-                                      className="label-text text-white font-semibold"
-                                    >
-                                      No
-                                    </label>
-                                  </div>
-                                </div>
-                                <button className="bg-blue-600 text-slate-100 px-4 py-3 rounded-md mt-8 slide-up w-full">
-                                  Confirm
-                                </button>
-                              </div>
-                            ))}
-                        </>
-                      ) : (
-                        ""
-                      )}
-                    </form>
-                  </div>
-                </div>
+                )
               )}
-            </>
-          )}
-        </>
-      )}
-    </>
+              <button className="bg-[#1C1C1C] text-slate-100 w-full px-4 py-2 rounded-md mt-3">
+                Submit
+              </button>
+            </form>
+          </>
+        ) : (
+          <div className="h-1/2 pt-5 pb-10 text-center">
+            <h1 className="text-md font-semibold">Thanks for your answer</h1>
+          </div>
+        )}
+      </div>
+    </div>
   );
 };
