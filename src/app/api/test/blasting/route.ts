@@ -31,15 +31,16 @@ export async function POST(req: NextRequest) {
     console.log("logs", logs.length === 0);
 
     let newClientId;
+    let invitationLink;
     if (logs.length === 0) {
       newClientId = "CL-0001";
+      invitationLink = `${invitation_link}/${newClientId}`;
     } else {
       const lastData = logs[0].clientId.split("-")[1];
       const increment = parseInt(lastData, 10) + 1;
       newClientId = `CL-${increment.toString().padStart(4, "0")}`;
+      invitationLink = `${invitation_link}/${newClientId}`;
     }
-
-    console.log("newClientId", newClientId);
 
     const questionData = [
       {
@@ -77,7 +78,7 @@ export async function POST(req: NextRequest) {
       access_token,
       target_phone_number,
       guest_name,
-      invitation_link
+      invitationLink
     );
 
     if (response?.error?.code === 190) {
