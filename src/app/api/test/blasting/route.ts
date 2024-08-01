@@ -45,28 +45,28 @@ export async function POST(req: NextRequest) {
     const questionData = [
       {
         question:
-          "Please confirm your attendance, YES (joyfully accept), NO (regretfully decline)",
+          "<p>Please confirm your attendance, <strong>YES</strong> (joyfully accept), <strong>NO</strong> (regretfully decline)</p>",
         type: "radio",
         flag: "confirm_question",
         position: 1,
       },
       {
         question:
-          "This invitation is valid for 2 Guest(s), how many guest will attend?",
+          "<p>This invitation is valid for <strong>2 Guest(s)</strong>, how many guest will attend?</p>",
         type: "number",
         flag: "normal_question",
         position: 2,
       },
       {
         question:
-          "Are any guest vegetarian? (Optional) Example: Bambang - Vegetarian / Adeline Vegetarian",
+          "<p>Are any guest vegetarian? (Optional) Example: Bambang - Vegetarian / Adeline Vegetarian</p>",
         type: "text",
         flag: "normal_question",
         position: 3,
       },
       {
         question:
-          "You are also invited in The Holy Matrimony of Mr. Convito & Ms. Convito for 2 Guest(s), how many guest will attend?",
+          "<p>You are also invited in <strong>The Holy Matrimony of Mr. Convito & Ms. Convito</strong> for <strong>2 Guest(s)</strong>, how many guest will attend?</p>",
         type: "number",
         flag: "normal_question",
         position: 4,
