@@ -34,9 +34,9 @@ const GuestTestingPage = ({ params }: { params: { invitation: string } }) => {
 
   return (
     <div className="relative z-10">
-      <div className="h-screen flex justify-center">
+      <div className="flex justify-center mb-3">
         {status === "loading" || status === "idle" ? (
-          <div className="flex flex-col justify-center items-center h-full">
+          <div className="flex flex-col justify-center items-center h-screen">
             <div className="loader"></div>
           </div>
         ) : (

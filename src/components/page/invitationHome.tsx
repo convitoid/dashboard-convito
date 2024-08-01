@@ -176,10 +176,16 @@ export const InvitationHome = ({ invitations }: InvitationHomeProps) => {
       });
     };
 
+  const rawHTML = `
+    <p>
+      Please confirm your attendance, <strong>YES</strong> (joyfully accept), NO (regretfully decline)
+    </p>
+    `;
+
   return (
     <div className={`max-w-md ${robotoFont.className}`}>
       <Image
-        src={"/assets/images/wedding-couple-image.jpg"}
+        src={"/assets/images/foto-wedding.jpg"}
         alt="wedding"
         width={500}
         height={500}
@@ -187,16 +193,15 @@ export const InvitationHome = ({ invitations }: InvitationHomeProps) => {
         className="w-full h-64 object-cover mb-3"
       />
       <div className={`bg-[#E2DCD0] mx-3 mt-3 px-4 py-5 rounded-md`}>
-        <h1 className="text-center flex flex-col gap-1">
-          <span>{firstLine} of </span>
-          <span className="text-lg font-semibold">
-            {secondLine.join(" of ")}
-          </span>
-        </h1>
-        <div className="border-b-2 border-slate-900 w-1/2 mx-auto mt-3 mb-10"></div>
-
         {isAnswer ? (
           <>
+            <h1 className="text-center flex flex-col gap-1">
+              <span>{firstLine} of </span>
+              <span className="text-lg font-semibold">
+                {secondLine.join(" of ")}
+              </span>
+            </h1>
+            <div className="border-b-2 border-slate-900 w-1/2 mx-auto mt-3 mb-10"></div>
             <h5 className="text-md mb-7">
               Dear, {""}
               <span className="font-semibold">
@@ -208,14 +213,16 @@ export const InvitationHome = ({ invitations }: InvitationHomeProps) => {
               {invitations?.data?.questions?.map(
                 (question: any, index: number) => (
                   <div className="flex flex-col mb-5" key={question.id}>
-                    <label htmlFor="" className="mb-1">
-                      {question.question}
-                    </label>
+                    <label
+                      htmlFor=""
+                      className="mb-1"
+                      dangerouslySetInnerHTML={{ __html: question.question }}
+                    ></label>
                     {question.type === "radio" ? (
                       <div className="flex items-center gap-4">
                         <div className="flex items-center gap-2">
                           <input
-                            className="radio radio-sm radio-info"
+                            className="radio radio-sm checked:bg-[#1C1C1C] border-[#1C1C1C]"
                             type={question.type}
                             name={`question_${question.id}`}
                             id={`question_yes_${question.id}`}
@@ -228,7 +235,7 @@ export const InvitationHome = ({ invitations }: InvitationHomeProps) => {
                         </div>
                         <div className="flex items-center gap-2">
                           <input
-                            className="radio radio-sm radio-info"
+                            className="radio radio-sm checked:bg-[#1C1C1C] border-[#1C1C1C]"
                             type={question.type}
                             name={`question_${question.id}`}
                             id={`question_no_${question.id}`}
@@ -264,8 +271,8 @@ export const InvitationHome = ({ invitations }: InvitationHomeProps) => {
                 )
               )}
               <button
-                className="bg-[#1C1C1C] text-slate-100 w-full px-4 py-2 rounded-md mt-3"
-                disabled={status === "loading" ? true : false}
+                className="bg-[#1C1C1C] text-slate-100 w-full px-4 py-2 rounded-md mt-4 mb-2"
+                disabled={status === "loading"}
               >
                 {status === "loading" ? (
                   <div className="loader"></div>
@@ -273,11 +280,50 @@ export const InvitationHome = ({ invitations }: InvitationHomeProps) => {
                   "Submit"
                 )}
               </button>
+              <div className="flex flex-col items-center justify-center gap-2 my-6">
+                <h1 className="text-xs">Powered by</h1>
+                <Image
+                  src={"/assets/images/convito-logo.png"}
+                  width={500}
+                  height={500}
+                  alt="powered by convito"
+                  className="w-28"
+                  priority={true}
+                />
+              </div>
             </form>
           </>
         ) : (
           <div className="h-1/2 pt-5 pb-10 text-center">
-            <h1 className="text-md font-semibold">Thanks for your answer</h1>
+            <h1 className="text-md font-semibold">
+              <Image
+                src={"/assets/images/checkmark.png"}
+                width={500}
+                height={500}
+                alt="checkmark"
+                className="w-24 inline-block mb-3"
+              />
+            </h1>
+            <h1 className="text-[1.4rem] font-semibold mb-3">
+              Thank You for Your RSVP!
+            </h1>
+            <p className="text-[13px]">
+              Thank you for confirming your attendance.
+            </p>
+            <p className="text-[13px] mb-44">
+              We have successfully received your RSVP
+            </p>
+            <div className="flex flex-col items-center justify-center gap-2">
+              <h1 className="text-xs">Powered by</h1>
+              <Image
+                src={"/assets/images/convito-logo.png"}
+                width={500}
+                height={500}
+                alt="powered by convito"
+                className="w-28"
+                priority={true}
+              />
+            </div>
           </div>
         )}
       </div>
