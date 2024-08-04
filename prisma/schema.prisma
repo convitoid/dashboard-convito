@@ -8,14 +8,15 @@ datasource db {
 }
 
 model Client {
-  id          Int       @id @default(autoincrement())
-  client_id   String    @unique
+  id          Int           @id @default(autoincrement())
+  client_id   String        @unique
   client_name String
   event_name  String
   event_date  DateTime
   event_type  String
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime? @updatedAt()
+  image       ClientImage[]
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime?     @updatedAt()
   createdBy   String
   updatedBy   String
 }
@@ -55,4 +56,15 @@ model LogTestQuestion {
   idLogTestMessage Int
   createdAt        DateTime       @default(now())
   updatedAt        DateTime       @updatedAt
+}
+
+model ClientImage {
+  id                Int      @id @default(autoincrement())
+  clientId          Int
+  Client            Client   @relation(fields: [clientId], references: [id])
+  imageName         String
+  imagePath         String
+  imageOriginalPath String
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
 }
