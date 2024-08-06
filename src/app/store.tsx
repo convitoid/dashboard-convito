@@ -5,6 +5,7 @@ import userReducer from "@/app/GlobalRedux/Features/user/userSlicer";
 import authReducer from "@/app/GlobalRedux/Features/auth/authSlicer";
 import testBlastingReducer from "@/app/GlobalRedux/Features/test/testBlastingSlicer";
 import clientReducer from "@/app/GlobalRedux/Features/clients/clientSlice";
+import clientUploadImage from "@/app/GlobalRedux/Features/clients/clientUploadImageSlice";
 
 const rootReducer = combineReducers({
   counter: counterReducer,
@@ -12,6 +13,7 @@ const rootReducer = combineReducers({
   auth: authReducer,
   testBlasting: testBlastingReducer,
   clients: clientReducer,
+  uploadImage: clientUploadImage,
   //add all your reducers here
 });
 
@@ -19,5 +21,5 @@ export const store = configureStore({
   reducer: rootReducer,
 });
 
-export type RootState = ReturnType<typeof rootReducer>;
+export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;

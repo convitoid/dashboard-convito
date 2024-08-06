@@ -2,6 +2,7 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import {
   fetchClients,
   createCLient,
+  deleteClient,
 } from "@/app/GlobalRedux/Thunk/clients/clientThunk";
 
 interface Client {
@@ -43,10 +44,22 @@ export const clientSlice = createSlice({
       })
       .addCase(createCLient.fulfilled, (state, action) => {
         state.statusAdd = "success";
-        state.client = action.payload;
+        state.client = action.payload.data;
       })
       .addCase(createCLient.rejected, (state, action) => {
         state.statusAdd = "failed";
+        state.error = action.error.message;
+      })
+
+      .addCase(deleteClient.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(deleteClient.fulfilled, (state, action) => {
+        state.status = "success";
+        state.client = action.payload.data;
+      })
+      .addCase(deleteClient.rejected, (state, action) => {
+        state.status = "failed";
         state.error = action.error.message;
       });
   },

@@ -42,11 +42,17 @@ export async function POST(req: NextRequest) {
   const jwtToken = token?.split(" ")[1];
 
   if (file && (file as Blob).size === 0) {
-    return NextResponse.json({ error: "Empty file found" }, { status: 400 });
+    return NextResponse.json(
+      { status: 400, error: "Empty file found" },
+      { status: 400 }
+    );
   }
 
   if (!file || !(file instanceof Blob)) {
-    return NextResponse.json({ error: "No file found" }, { status: 400 });
+    return NextResponse.json(
+      { status: 400, error: "No file found" },
+      { status: 400 }
+    );
   }
 
   const buffer = Buffer.from(await file.arrayBuffer());
@@ -83,6 +89,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json(response, { status: response.status });
   } catch (error) {
+    console.log("error file upload", error);
     const errorMessage = error as Error;
     return NextResponse.json({ error: errorMessage.message }, { status: 500 });
   }
@@ -115,7 +122,10 @@ export async function PUT(req: NextRequest) {
     }
 
     if (!file || !(file instanceof Blob)) {
-      return NextResponse.json({ error: "No file found" }, { status: 400 });
+      return NextResponse.json(
+        { status: 400, error: "No file found" },
+        { status: 400 }
+      );
     }
 
     const buffer = Buffer.from(await file.arrayBuffer());

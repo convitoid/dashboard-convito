@@ -220,7 +220,7 @@ const UsersPage = () => {
                               deleteHandler(user.id, user.username)
                             }
                           >
-                            <DeleteIcon/>
+                            <DeleteIcon />
                           </button>
                         </div>
                       </td>

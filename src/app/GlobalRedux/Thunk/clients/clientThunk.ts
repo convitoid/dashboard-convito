@@ -17,29 +17,51 @@ export const fetchClients = createAsyncThunk(
     });
 
     const data = await response.json();
-    console.log("data", data);
     return data;
   }
 );
 
 export const createCLient = createAsyncThunk(
   "client/createClient",
-  async (data: any) => {
-    console.log("data from thunk", data);
+  async (values: any) => {
+    console.log("values from thunk", values);
     const getToken = await fetch("/api/auth/session")
       .then((res) => res.json())
-      .then((data) => {
-        console.log("data", data);
-        return data;
+      .then((values) => {
+        return values;
       });
     const response = await fetch("/api/clients", {
       method: "POST",
       headers: {
         Authorization: `Bearer ${getToken.user.jwt}`,
       },
-      body: JSON.stringify(data),
+      body: JSON.stringify(values),
     });
-    const result = await response.json();
-    return result;
+    const data = await response.json();
+    return data;
+  }
+);
+
+export const deleteClient = createAsyncThunk(
+  "client/deleteClient",
+  async (id: any) => {
+    console.log("id from thunk", id);
+    const getToken = await fetch("/api/auth/session")
+      .then((res) => res.json())
+      .then((values) => {
+        return values;
+      });
+    const response = await fetch(`/api/clients/`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${getToken.user.jwt}`,
+      },
+      body: JSON.stringify({
+        client_id: id,
+      }),
+    });
+    const data = await response.json();
+    console.log("data from thunk", data);
+    return data;
   }
 );
