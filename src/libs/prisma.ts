@@ -5,7 +5,7 @@ dotenv.config();
 
 const isDevelopment = process.env.NODE_ENV === 'development';
 const prisma = new PrismaClient({
-    log: isDevelopment ? ['query', 'info', 'warn', 'error'] : ['error'],
+   log: isDevelopment ? ['query', 'info', 'warn', 'error'] : ['error'],
 });
 
 export default prisma;

@@ -8,17 +8,17 @@ import clientReducer from '@/app/GlobalRedux/Features/clients/clientSlice';
 import clientUploadImage from '@/app/GlobalRedux/Features/clients/clientUploadImageSlice';
 
 const rootReducer = combineReducers({
-    counter: counterReducer,
-    users: userReducer,
-    auth: authReducer,
-    testBlasting: testBlastingReducer,
-    clients: clientReducer,
-    uploadImage: clientUploadImage,
-    //add all your reducers here
+   counter: counterReducer,
+   users: userReducer,
+   auth: authReducer,
+   testBlasting: testBlastingReducer,
+   clients: clientReducer,
+   uploadImage: clientUploadImage,
+   //add all your reducers here
 });
 
 export const store = configureStore({
-    reducer: rootReducer,
+   reducer: rootReducer,
 });
 
 export type RootState = ReturnType<typeof store.getState>;
