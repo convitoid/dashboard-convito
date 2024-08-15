@@ -46,7 +46,7 @@ const authOptions: NextAuthOptions = {
                      name: user.username,
                      email: user.email,
                      jwt: jwt.sign(user, process.env.NEXTAUTH_SECRET || 'secret', {
-                        expiresIn: '1h',
+                        expiresIn: '1d',
                      }),
                   };
                } else {

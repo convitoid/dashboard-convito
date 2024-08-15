@@ -62,6 +62,7 @@ model ClientImage {
   id                Int      @id @default(autoincrement())
   clientId          Int
   Client            Client   @relation(fields: [clientId], references: [id])
+  flag              String
   imageName         String
   imagePath         String
   imageOriginalPath String
