@@ -6,6 +6,7 @@ import authReducer from '@/app/GlobalRedux/Features/auth/authSlicer';
 import testBlastingReducer from '@/app/GlobalRedux/Features/test/testBlastingSlicer';
 import clientReducer from '@/app/GlobalRedux/Features/clients/clientSlice';
 import clientUploadImage from '@/app/GlobalRedux/Features/clients/clientUploadImageSlice';
+import guestReducer from '@/app/GlobalRedux/Features/guests/guestsSlice';
 
 const rootReducer = combineReducers({
    counter: counterReducer,
@@ -14,6 +15,7 @@ const rootReducer = combineReducers({
    testBlasting: testBlastingReducer,
    clients: clientReducer,
    uploadImage: clientUploadImage,
+   guests: guestReducer,
    //add all your reducers here
 });
 

@@ -34,6 +34,7 @@ export async function POST(req: NextRequest) {
    const file = formData.get('client_image');
    const clientCode = formData.get('client_code');
    const clientId = formData.get('client_id');
+   const imageFlag = formData.get('image_flag');
 
    const token = req.headers.get('authorization');
    const jwtToken = token?.split(' ')[1];
@@ -58,17 +59,21 @@ export async function POST(req: NextRequest) {
          imageName: customFileName,
          imagePath: '/uploads/clients/images/' + customFileName,
          imageOriginalPath: filePath,
+         imageFlag: imageFlag,
       });
-
-      console.log('response', response);
 
       if (response.status === 401) {
          return NextResponse.json({ mesage: 'unauthorized' }, { status: response.status });
       }
 
+      if (response.status === 400) {
+         return NextResponse.json(response, { status: response.status });
+      }
+
       await fs.mkdir(join(process.cwd(), 'public/uploads/clients/images'), {
          recursive: true,
       });
+
       await fs.writeFile(filePath, new Uint8Array(buffer));
 
       return NextResponse.json(response, { status: response.status });
@@ -79,64 +84,64 @@ export async function POST(req: NextRequest) {
    }
 }
 
-export async function PUT(req: NextRequest) {
-   const formData = await req.formData();
-   const file = formData.get('client_image');
-   const clientCode = formData.get('client_code');
-   const clientId = formData.get('client_id');
+// export async function PUT(req: NextRequest) {
+//    const formData = await req.formData();
+//    const file = formData.get('client_image');
+//    const clientCode = formData.get('client_code');
+//    const clientId = formData.get('client_id');
 
-   const token = req.headers.get('authorization');
-   const jwtToken = token?.split(' ')[1];
+//    const token = req.headers.get('authorization');
+//    const jwtToken = token?.split(' ')[1];
 
-   try {
-      const findImage = await getDataImagesByClientId(jwtToken as string, clientId as string);
+//    try {
+//       const findImage = await getDataImagesByClientId(jwtToken as string, clientId as string);
 
-      if (findImage.status === 401) {
-         return NextResponse.json({ mesage: 'unauthorized' }, { status: findImage.status });
-      }
+//       if (findImage.status === 401) {
+//          return NextResponse.json({ mesage: 'unauthorized' }, { status: findImage.status });
+//       }
 
-      if (file && (file as Blob).size === 0) {
-         return NextResponse.json({ error: 'Empty file found' }, { status: 400 });
-      }
+//       if (file && (file as Blob).size === 0) {
+//          return NextResponse.json({ error: 'Empty file found' }, { status: 400 });
+//       }
 
-      if (!file || !(file instanceof Blob)) {
-         return NextResponse.json({ status: 400, error: 'No file found' }, { status: 400 });
-      }
+//       if (!file || !(file instanceof Blob)) {
+//          return NextResponse.json({ status: 400, error: 'No file found' }, { status: 400 });
+//       }
 
-      const buffer = Buffer.from(await file.arrayBuffer());
-      const unixTimestamp = Date.now();
-      const uniqueIdentifier = Math.random().toString(36).substring(2, 15);
-      const customFileName = `${unixTimestamp}-${clientCode}-${uniqueIdentifier}-${file.name}`;
-      const newFilePath = join(process.cwd(), 'public/uploads/clients/images', customFileName);
+//       const buffer = Buffer.from(await file.arrayBuffer());
+//       const unixTimestamp = Date.now();
+//       const uniqueIdentifier = Math.random().toString(36).substring(2, 15);
+//       const customFileName = `${unixTimestamp}-${clientCode}-${uniqueIdentifier}-${file.name}`;
+//       const newFilePath = join(process.cwd(), 'public/uploads/clients/images', customFileName);
 
-      if ('data' in findImage) {
-         const dataImage = findImage.data?.imageName;
-         // find image on the server
-         const filePath = join(process.cwd(), 'public/uploads/clients/images', dataImage as string);
+//       if ('data' in findImage) {
+//          const dataImage = findImage.data?.imageName;
+//          // find image on the server
+//          const filePath = join(process.cwd(), 'public/uploads/clients/images', dataImage as string);
 
-         // update database
-         const response = await updateDataImage(jwtToken as string, {
-            id: findImage.data?.id,
-            clientId,
-            imageName: customFileName,
-            imagePath: '/uploads/clients/images/' + customFileName,
-            imageOriginalPath: newFilePath,
-         });
+//          // update database
+//          const response = await updateDataImage(jwtToken as string, {
+//             id: findImage.data?.id,
+//             clientId,
+//             imageName: customFileName,
+//             imagePath: '/uploads/clients/images/' + customFileName,
+//             imageOriginalPath: newFilePath,
+//          });
 
-         if ('data' in response) {
-            await fs.unlink(filePath);
-            await fs.mkdir(join(process.cwd(), 'public/uploads/clients/images'), {
-               recursive: true,
-            });
-            await fs.writeFile(response.data.imageOriginalPath, new Uint8Array(buffer));
-            return NextResponse.json(response, { status: 200 });
-         }
-      }
-   } catch (error) {
-      const errorMessage = error as Error;
-      return NextResponse.json({ error: errorMessage.message }, { status: 500 });
-   }
-}
+//          if ('data' in response) {
+//             await fs.unlink(filePath);
+//             await fs.mkdir(join(process.cwd(), 'public/uploads/clients/images'), {
+//                recursive: true,
+//             });
+//             await fs.writeFile(response.data.imageOriginalPath, new Uint8Array(buffer));
+//             return NextResponse.json(response, { status: 200 });
+//          }
+//       }
+//    } catch (error) {
+//       const errorMessage = error as Error;
+//       return NextResponse.json({ error: errorMessage.message }, { status: 500 });
+//    }
+// }
 
 export async function DELETE(req: NextRequest) {
    const { clientId } = await req.json();
@@ -144,8 +149,10 @@ export async function DELETE(req: NextRequest) {
    const token = req.headers.get('authorization');
    const jwtToken = token?.split(' ')[1];
 
+   console.log('clientId', clientId);
+
    try {
-      const images = await getDataImagesByClientId(jwtToken as string, clientId);
+      const images = await deleteDataImage(jwtToken as string, clientId);
 
       if (images.status === 401) {
          return NextResponse.json({ message: 'unauthorized' }, { status: images.status });
@@ -157,18 +164,23 @@ export async function DELETE(req: NextRequest) {
 
       if ('data' in images) {
          const imageOriginalPath = images.data?.imageOriginalPath;
-         const deleteImage = await deleteDataImage(jwtToken as string, {
-            id: images.data?.id,
-            clientId: images.data?.clientId,
-         });
+         console.log('imageOriginalPath', imageOriginalPath);
+         await fs.unlink(imageOriginalPath);
 
-         if ('data' in deleteImage) {
-            await fs.unlink(imageOriginalPath);
-            return NextResponse.json(deleteImage, {
-               status: deleteImage.status,
-            });
-         }
+         // const deleteImage = await deleteDataImage(jwtToken as string, {
+         //    id: images.data?.id,
+         //    clientId: images.data?.clientId,
+         // });
+
+         // if ('data' in deleteImage) {
+         //    await fs.unlink(imageOriginalPath);
+         //    return NextResponse.json(deleteImage, {
+         //       status: deleteImage.status,
+         //    });
+         // }
       }
+
+      return NextResponse.json(images, { status: images.status });
    } catch (error) {
       const errorMessage = error as Error;
       return NextResponse.json({ error: errorMessage.message }, { status: 500 });

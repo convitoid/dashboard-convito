@@ -37,7 +37,7 @@ const CustomerDetailPage = ({ params }: { params: { slug: string } }) => {
             </Link>
             <BreadcrumbsComponent data={breadcrumbsData} />
          </div>
-         <Tab />
+         <Tab clientId={params.slug} />
       </>
    );
 };

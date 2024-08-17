@@ -4,13 +4,16 @@ import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '@/app/store';
 import { closeModal } from '@/app/GlobalRedux/Features/clients/clientUploadImageSlice';
 import Image from 'next/image';
+import Swal from 'sweetalert2';
+import { getClientImages, uploadImage } from '@/app/GlobalRedux/Thunk/clients/clientUploadImageThunk';
 
 type ModalUploadImageProps = {
    modalId?: string;
    title: string;
+   clientId?: string;
 };
 
-export const ModalUploadImage = ({ modalId, title }: ModalUploadImageProps) => {
+export const ModalUploadImage = ({ modalId, title, clientId }: ModalUploadImageProps) => {
    const [formData, setFormData] = useState({
       imageFlag: '',
    });
@@ -22,6 +25,7 @@ export const ModalUploadImage = ({ modalId, title }: ModalUploadImageProps) => {
    const fileInputRef = useRef<HTMLInputElement>(null);
 
    const dispatch = useDispatch<AppDispatch>();
+   const status = useSelector((state: RootState) => state.uploadImage.status);
 
    const closeModalUploadImage = () => {
       const modal = document.getElementById(modalId ?? '') as HTMLDialogElement;
@@ -38,6 +42,7 @@ export const ModalUploadImage = ({ modalId, title }: ModalUploadImageProps) => {
       setIsLoadingUpload(false);
       setUploadProgress(0);
       setUploadImageUrl('');
+      setFormData({ imageFlag: '' });
    };
 
    const handleInputChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -64,11 +69,12 @@ export const ModalUploadImage = ({ modalId, title }: ModalUploadImageProps) => {
                      setUploadImageName(file.name);
                      const convertToMb = (file.size / 1024 / 1024).toFixed(2);
                      setUploadImageSize(parseFloat(convertToMb));
+
                      return 100;
                   }
                   return prevProgress + 10;
                });
-            }, 1000);
+            }, 200);
          };
 
          reader.readAsDataURL(file);
@@ -84,8 +90,70 @@ export const ModalUploadImage = ({ modalId, title }: ModalUploadImageProps) => {
       };
 
       window.addEventListener('keydown', handleKeyDown);
-      //   if()
+      setFormData({ imageFlag: '' });
    }, []);
+
+   const submitForm = async (e: React.FormEvent<HTMLFormElement>) => {
+      e.preventDefault();
+      const data = new FormData();
+      data.append('image_flag', formData.imageFlag);
+      data.append('client_image', fileInputRef.current?.files?.[0] as Blob);
+      data.append('client_code', 'CLI-0001');
+      data.append('client_id', '1');
+
+      if (formData.imageFlag === '') {
+         Swal.fire({
+            icon: 'info',
+            title: 'Error',
+            text: 'Please select image type',
+            target: document.getElementById(modalId ?? ''),
+         });
+         return;
+      }
+
+      if (!uploadImageUrl) {
+         Swal.fire({
+            icon: 'info',
+            title: 'Error',
+            text: 'Please upload image',
+            target: document.getElementById(modalId ?? ''),
+         });
+         return;
+      }
+
+      try {
+         await dispatch(uploadImage(data))
+            .unwrap()
+            .then((res) => {
+               if (res.status === 400) {
+                  Swal.fire({
+                     icon: 'warning',
+                     text: res.error,
+                     target: document.getElementById(modalId ?? ''),
+                  });
+               }
+
+               if (res.status === 201) {
+                  Swal.fire({
+                     icon: 'success',
+                     title: 'Success',
+                     text: 'Image uploaded successfully',
+                     target: document.getElementById(modalId ?? ''),
+                  }).then(() => {
+                     dispatch(getClientImages(clientId?.[0]?.toString() ?? ''));
+                     closeModalUploadImage();
+                  });
+               }
+            });
+      } catch (error) {
+         Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Failed to upload image',
+            target: document.getElementById(modalId ?? ''),
+         });
+      }
+   };
 
    return (
       <ModalComponent
@@ -96,7 +164,7 @@ export const ModalUploadImage = ({ modalId, title }: ModalUploadImageProps) => {
          modalBodyStyle="pt-3 px-6 pb-6"
          closeModal={closeModalUploadImage}
       >
-         <form action="">
+         <form onSubmit={submitForm}>
             <div className="mb-3">
                <label htmlFor="imageFlag" className="label font-semibold mb-1">
                   Image type
@@ -158,8 +226,17 @@ export const ModalUploadImage = ({ modalId, title }: ModalUploadImageProps) => {
                </div>
             )}
             <div className="flex items-center justify-end gap-2 mt-2 border-t-[1px] border-slate-300 pt-3">
-               <button className="btn btn-neutral">Cancel</button>
-               <button className="btn bg-blue-500 text-white">Submit</button>
+               <button
+                  type="button"
+                  className="btn btn-neutral"
+                  disabled={isLoadingUpload || status === 'loading'}
+                  onClick={closeModalUploadImage}
+               >
+                  Cancel
+               </button>
+               <button className="btn bg-blue-500 text-white" disabled={isLoadingUpload || status === 'loading'}>
+                  {status === 'loading' ? <span className="loading loading-spinner loading-sm"></span> : 'Submit'}
+               </button>
             </div>
          </form>
       </ModalComponent>

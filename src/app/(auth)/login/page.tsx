@@ -3,7 +3,7 @@ import { Card } from '@/components/card';
 import { FormIinput } from '@/components/formInput';
 import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { sanitizeHtml } from '@/utils/sanitizeHtml';
 import InputErrorMessage from '@/components/error/inputErrorMessage';
 import { loginValidation } from '@/utils/formValidation';
@@ -59,6 +59,10 @@ const LoginPage = () => {
          console.error('An error occurred:', error);
       }
    };
+
+   useEffect(() => {
+      window.document.title = 'Convito - Login';
+   }, []);
 
    return (
       <Card cardWrapper="bg-slate-950 w-full 2md:w-2/4 lg:w-1/4 xl:w-1/4 shadow-xl px-2 py-4">

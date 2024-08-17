@@ -1,6 +1,7 @@
 import prisma from '@/libs/prisma';
 import { getErrorResponse, getSuccessReponse } from '@/utils/response/successResponse';
 import { jwtVerify } from 'jose';
+import { NextResponse } from 'next/server';
 
 interface JWTError extends Error {
    code?: string;
@@ -36,7 +37,7 @@ export async function getDataImagesByClientId(jwtToken: string, clientId: string
    try {
       const { payload } = await jwtVerify(jwtToken, secret);
 
-      const images = await prisma.clientImage.findFirst({
+      const images = await prisma.clientImage.findMany({
          where: {
             clientId: Number(clientId),
          },
@@ -62,8 +63,19 @@ export async function getDataImagesByClientId(jwtToken: string, clientId: string
 }
 
 export async function createDataImage(jwtToken: string, data: any) {
+   // console.log('data', data);
    try {
-      const { payload } = await jwtVerify(jwtToken, secret);
+      // const { payload } = await jwtVerify(jwtToken, secret);
+
+      const checkFlag = await prisma.clientImage.findFirst({
+         where: {
+            flag: data.imageFlag,
+         },
+      });
+
+      if (checkFlag) {
+         return getErrorResponse('Image type already exists', 400);
+      }
 
       const response = await prisma.clientImage.create({
          data: {
@@ -71,12 +83,13 @@ export async function createDataImage(jwtToken: string, data: any) {
             imageName: data.imageName,
             imagePath: data.imagePath,
             imageOriginalPath: data.imageOriginalPath,
+            flag: data.imageFlag,
             createdAt: new Date(),
             updatedAt: new Date(),
          },
       });
 
-      return getSuccessReponse(response, 201, 'Image added successfully');
+      return getSuccessReponse(checkFlag, 201, 'Image added successfully');
    } catch (error) {
       const jwtError = error as JWTError;
       if (jwtError.code === 'ERR_JWT_EXPIRED') {
@@ -129,8 +142,7 @@ export async function deleteDataImage(jwtToken: string, data: any) {
 
       const response = await prisma.clientImage.delete({
          where: {
-            id: data.id,
-            clientId: Number(data.clientId),
+            id: Number(data),
          },
       });
 
@@ -140,11 +152,9 @@ export async function deleteDataImage(jwtToken: string, data: any) {
       if (jwtError.code === 'ERR_JWT_EXPIRED') {
          return { error: error as string, status: 401 };
       }
-
       if (jwtError.code === 'ERR_JWS_INVALID') {
          return getErrorResponse('unauthorized', 401);
       }
-
       return { error: 'Failed to fetch images', status: 500 };
    }
 }

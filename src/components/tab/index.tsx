@@ -12,7 +12,11 @@ import { BroadcastTemplateTab } from './BroadcastTemplateTab';
 import { ScenarioTab } from './ScenarioTab';
 import { DocumentText } from '../icons/documentText';
 
-export const Tab = () => {
+interface TabProps {
+   clientId?: string;
+}
+
+export const Tab = ({ clientId }: TabProps) => {
    const tabs = [
       {
          name: 'Dashboard',
@@ -23,13 +27,13 @@ export const Tab = () => {
       {
          name: 'Gallery',
          icon: <Photo />,
-         content: <GalleryTab />,
+         content: <GalleryTab clientId={clientId} />,
          disabled: false,
       },
       {
          name: 'Data',
          icon: <Data />,
-         content: <DataTab />,
+         content: <DataTab clientId={clientId} />,
          disabled: false,
       },
       {
@@ -61,7 +65,7 @@ export const Tab = () => {
    };
 
    return (
-      <div>
+      <>
          <div className="border-b-[1px] border-gray-200 dark:border-gray-900">
             <ul className="flex flex-wrap -mb-px text-sm font-medium text-center text-gray-900 dark:text-gray-900">
                {tabs.map((tab) => (
@@ -111,6 +115,6 @@ export const Tab = () => {
                </div>
             </div>
          </div>
-      </div>
+      </>
    );
 };

@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "GuestDetail" ALTER COLUMN "createdAt" SET DATA TYPE TIMESTAMPTZ;
