@@ -5,7 +5,7 @@ type DataTablesComponentProps = {
    modalHeader?: string;
    children?: React.ReactNode;
    modalBodyStyle?: string;
-   closeModal: () => void;
+   closeModal?: () => void;
 };
 
 export const ModalComponent = ({

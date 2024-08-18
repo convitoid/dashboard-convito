@@ -34,8 +34,6 @@ export const DataTab = ({ clientId }: DataTabProps) => {
    const status = useSelector((state: RootState) => state.guests.status);
    const statusUpload = useSelector((state: RootState) => state.guests.statusGuestsUpload);
 
-   console.log('guests', guests);
-
    useEffect(() => {
       dispatch(fetchGuests(clientId?.toString() ?? ''));
    }, [dispatch]);

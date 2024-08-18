@@ -39,13 +39,13 @@ export const Tab = ({ clientId }: TabProps) => {
       {
          name: 'Questions',
          icon: <Question />,
-         content: <QuestionTab />,
+         content: <QuestionTab clientId={clientId} />,
          disabled: false,
       },
       {
          name: 'Broadcast Template',
          icon: <ChatBubleLeftRight />,
-         content: <BroadcastTemplateTab />,
+         content: <BroadcastTemplateTab clientId={clientId} />,
          disabled: false,
       },
       {
