@@ -8,6 +8,7 @@ import clientReducer from '@/app/GlobalRedux/Features/clients/clientSlice';
 import clientUploadImage from '@/app/GlobalRedux/Features/clients/clientUploadImageSlice';
 import guestReducer from '@/app/GlobalRedux/Features/guests/guestsSlice';
 import questionReducer from '@/app/GlobalRedux/Features/question/questionSlice';
+import broadcastTemplateReducer from '@/app/GlobalRedux/Features/broadcastTemplate/broadcastTemplateSlice';
 
 const rootReducer = combineReducers({
    counter: counterReducer,
@@ -18,6 +19,7 @@ const rootReducer = combineReducers({
    uploadImage: clientUploadImage,
    guests: guestReducer,
    questions: questionReducer,
+   broadcastTemplate: broadcastTemplateReducer,
    //add all your reducers here
 });
 

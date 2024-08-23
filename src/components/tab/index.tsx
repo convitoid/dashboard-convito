@@ -51,7 +51,7 @@ export const Tab = ({ clientId }: TabProps) => {
       {
          name: 'Scenario',
          icon: <DocumentText />,
-         content: <ScenarioTab />,
+         content: <ScenarioTab clientId={clientId} />,
          disabled: false,
       },
    ];
@@ -79,8 +79,7 @@ export const Tab = ({ clientId }: TabProps) => {
                         : activeTab === tab.name
                           ? 'text-blue-600 border-blue-600 dark:text-blue-500 dark:border-blue-500'
                           : 'border-transparent hover:text-blue-600 hover:border-blue-300 dark:hover:text-blue-500'
-                  }
-                `}
+                  }`}
                         disabled={tab.disabled}
                         aria-current={activeTab === tab.name ? 'page' : undefined}
                      >
