@@ -1,3 +1,5 @@
+import slugify from 'slugify';
+
 export const convertToJson = async (header: string[], data: any[]): Promise<any[]> => {
    const rows: any[] = [];
 
@@ -8,6 +10,11 @@ export const convertToJson = async (header: string[], data: any[]): Promise<any[
          row.forEach((element: any, index: number) => {
             rowData[header[index]] = element;
          });
+
+         if (rowData.SCENARIO) {
+            rowData.SCENARIO_SLUG = slugify(rowData.SCENARIO, { lower: true, replacement: '-' });
+         }
+
          rows.push(rowData);
       })
    );

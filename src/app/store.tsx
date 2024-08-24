@@ -9,6 +9,8 @@ import clientUploadImage from '@/app/GlobalRedux/Features/clients/clientUploadIm
 import guestReducer from '@/app/GlobalRedux/Features/guests/guestsSlice';
 import questionReducer from '@/app/GlobalRedux/Features/question/questionSlice';
 import broadcastTemplateReducer from '@/app/GlobalRedux/Features/broadcastTemplate/broadcastTemplateSlice';
+import scenarioReducer from '@/app/GlobalRedux/Features/scenario/scenarioSlice';
+import videoReducer from '@/app/GlobalRedux/Features/video/videoSlice';
 
 const rootReducer = combineReducers({
    counter: counterReducer,
@@ -20,6 +22,8 @@ const rootReducer = combineReducers({
    guests: guestReducer,
    questions: questionReducer,
    broadcastTemplate: broadcastTemplateReducer,
+   scenario: scenarioReducer,
+   video: videoReducer,
    //add all your reducers here
 });
 

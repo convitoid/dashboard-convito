@@ -23,6 +23,7 @@ model Client {
   Question          Question[]
   BroadcastTemplate BroadcastTemplate[]
   Scenario          Scenario[]
+  ClientVideo       ClientVideo[]
 }
 
 model User {
@@ -74,16 +75,27 @@ model ClientImage {
   updatedAt         DateTime @updatedAt
 }
 
+model ClientVideo {
+  id        Int      @id @default(autoincrement())
+  clientId  Int
+  Client    Client   @relation(fields: [clientId], references: [id])
+  flag      String
+  video     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
 model Guest {
-  id          Int           @id @default(autoincrement())
-  guestId     String
-  name        String
-  scenario    String
-  clientId    Int
-  client      Client        @relation(fields: [clientId], references: [id])
-  GuestDetail GuestDetail[]
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
+  id            Int           @id @default(autoincrement())
+  guestId       String
+  name          String
+  scenario      String
+  scenario_slug String?
+  clientId      Int
+  client        Client        @relation(fields: [clientId], references: [id])
+  GuestDetail   GuestDetail[]
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
 }
 
 model GuestDetail {
@@ -121,6 +133,7 @@ model BroadcastTemplate {
 model Scenario {
   id                        Int                         @id @default(autoincrement())
   scenario_name             String                      @unique
+  scenario_slug             String?
   client_id                 Int
   Client                    Client                      @relation(fields: [client_id], references: [id])
   createdAt                 DateTime                    @default(now())

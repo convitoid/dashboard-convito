@@ -1,7 +1,6 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 
 export const fetchGuests = createAsyncThunk('guest/fetchGuest', async (clientId: string) => {
-   console.log('clientId', clientId);
    const getToken = await fetch('/api/auth/session')
       .then((res) => res.json())
       .then((data) => {

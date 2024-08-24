@@ -45,6 +45,8 @@ export const createGuests = async (jwtToken: string, clientId: string, file: any
          },
       });
 
+      console.log(newJson);
+
       if (guests.length > 0) {
          //  delete existing data
          const deleteGuestDetail = await prisma.guestDetail.deleteMany({
@@ -74,12 +76,11 @@ export const createGuests = async (jwtToken: string, clientId: string, file: any
                },
             });
 
-            console.log('getClient', getClient);
-
             const guestData: any = {
                guestId: guestId,
                name: element.NAME,
                scenario: element.SCENARIO,
+               scenario_slug: element.SCENARIO_SLUG,
                createdAt: new Date(),
                updatedAt: new Date(),
             };
@@ -124,12 +125,11 @@ export const createGuests = async (jwtToken: string, clientId: string, file: any
                },
             });
 
-            console.log('getClient', getClient);
-
             const guestData: any = {
                guestId: guestId,
                name: element.NAME,
                scenario: element.SCENARIO,
+               scenario_slug: element.SCENARIO_SLUG,
                createdAt: new Date(),
                updatedAt: new Date(),
             };

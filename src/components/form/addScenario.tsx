@@ -4,6 +4,14 @@ import { AppDispatch, RootState } from '@/app/store';
 import { getAllQuestions } from '@/app/GlobalRedux/Thunk/questions/questionThunk';
 import { getAllBroadcastTemplates } from '@/app/GlobalRedux/Thunk/broadcastTemplate/broadcastTemplateThunk';
 import Swal from 'sweetalert2';
+import {
+   createScenario,
+   getAllScenario,
+   getScenarioById,
+   updateScenario,
+} from '@/app/GlobalRedux/Thunk/scenario/scenarioThunk';
+import { resetData, resetStatus } from '@/app/GlobalRedux/Features/broadcastTemplate/broadcastTemplateSlice';
+import { setIsAddScenario } from '@/app/GlobalRedux/Features/scenario/scenarioSlice';
 
 interface Question {
    id: string;
@@ -13,7 +21,7 @@ interface Question {
 
 interface BroadcastTemplate {
    id: string;
-   template_name: string;
+   name: string;
    status: boolean;
 }
 
@@ -41,6 +49,10 @@ export const AddScenario = ({ clientId }: AddScenarioProps) => {
    const broadcastTemplates = useSelector((state: RootState) => state.broadcastTemplate.datas);
    const loading = useSelector((state: RootState) => state.questions.status);
    const broadcastLoading = useSelector((state: RootState) => state.broadcastTemplate.status);
+   const formStatus = useSelector((state: RootState) => state.scenario.formStatus);
+   const scenarioId = useSelector((state: RootState) => state.scenario.scenarioId);
+   const scenarioDetail = useSelector((state: RootState) => state.scenario.data);
+   const statusScenario = useSelector((state: RootState) => state.scenario.status);
 
    useEffect(() => {
       if (clientId) {
@@ -48,6 +60,41 @@ export const AddScenario = ({ clientId }: AddScenarioProps) => {
          dispatch(getAllBroadcastTemplates(clientId));
       }
    }, [dispatch, clientId]);
+
+   useEffect(() => {
+      if (formStatus === 'edit') {
+         dispatch(getScenarioById({ clientId: clientId ?? '', scenarioId: scenarioId ?? '' }));
+      }
+   }, [dispatch, clientId]);
+
+   useEffect(() => {
+      if (formStatus === 'edit' && scenarioDetail) {
+         setFormData({
+            scenario_name: scenarioDetail.scenario_name,
+            broadcast_template: [],
+            question: [],
+         });
+
+         if (statusScenario === 'success') {
+            dispatch(resetStatus());
+            setSelectedQuestions(
+               scenarioDetail?.ScenarioQuestion?.map((question: any) => ({
+                  id: question.question_id,
+                  name: question.scenario_question,
+                  status: true,
+               }))
+            );
+
+            setSelectedBroadcastTemplate(
+               scenarioDetail?.ScenarioBroadcastTemplate?.map((broadcastTemplate: any) => ({
+                  id: broadcastTemplate.broadcast_template_id,
+                  name: broadcastTemplate.broadcast_template_scenario,
+                  status: true,
+               }))
+            );
+         }
+      }
+   }, [scenarioDetail, formStatus]);
 
    const handleCheckboxChange = (
       e: React.ChangeEvent<HTMLInputElement>,
@@ -79,6 +126,8 @@ export const AddScenario = ({ clientId }: AddScenarioProps) => {
             title: 'Oops...',
             text: 'Please select question and broadcast template',
          });
+
+         return;
       }
 
       if (
@@ -90,6 +139,8 @@ export const AddScenario = ({ clientId }: AddScenarioProps) => {
             title: 'Oops...',
             text: 'Please select question and broadcast template',
          });
+
+         return;
       }
 
       if (formData.scenario_name.length === 0) {
@@ -98,9 +149,70 @@ export const AddScenario = ({ clientId }: AddScenarioProps) => {
             title: 'Oops...',
             text: 'Please input scenario name',
          });
+
+         return;
       }
 
-      console.log(formData);
+      if (formStatus === 'edit') {
+         const data = {
+            id: scenarioId,
+            scenario_name: formData.scenario_name,
+            question: formData.question.filter((item: any) => item.status === true),
+            broadcast_template: formData.broadcast_template.filter((item: any) => item.status === true),
+            clientId: Array.isArray(clientId) ? clientId[0] : clientId,
+         };
+         dispatch(updateScenario({ clientId: clientId ?? '', data: data }))
+            .unwrap()
+            .then((res) => {
+               console.log('res', res);
+               if (res.status === 201) {
+                  Swal.fire({
+                     icon: 'success',
+                     title: 'Success',
+                     text: 'Scenario updated successfully',
+                  }).then(() => {
+                     dispatch(setIsAddScenario(false));
+                     dispatch(resetStatus());
+                     dispatch(resetData());
+                     dispatch(getAllScenario(clientId ?? ''));
+                  });
+               }
+            });
+      } else {
+         const data = {
+            clientId: Array.isArray(clientId) ? clientId[0] : clientId,
+            scenario_name: formData.scenario_name,
+            question: formData.question.filter((item: any) => item.status === true),
+            broadcast_template: formData.broadcast_template.filter((item: any) => item.status === true),
+         };
+
+         dispatch(createScenario({ clientId: clientId ?? '', data: data }))
+            .unwrap()
+            .then((res) => {
+               console.log('res', res);
+
+               if (res.message.code === 'P2002') {
+                  Swal.fire({
+                     icon: 'warning',
+                     title: 'Oops...',
+                     text: 'Name scenario already exist, please use another name',
+                  });
+               }
+
+               if (res.status === 201) {
+                  Swal.fire({
+                     icon: 'success',
+                     title: 'Success',
+                     text: 'Scenario created successfully',
+                  }).then(() => {
+                     dispatch(setIsAddScenario(false));
+                     dispatch(resetStatus());
+                     dispatch(resetData());
+                     dispatch(getAllScenario(clientId ?? ''));
+                  });
+               }
+            });
+      }
    };
 
    return (
@@ -141,14 +253,14 @@ export const AddScenario = ({ clientId }: AddScenarioProps) => {
                   <div className="col-span-1 w-[20%] flex flex-col items-center">
                      <h1 className="text-[16px] font-semibold mb-3 pb-3">Active</h1>
                      <div className="flex flex-col gap-5">
-                        {questions.map((question: Question) => (
+                        {questions.map((question: any) => (
                            <input
                               key={question.id}
                               type="checkbox"
-                              name={`question${question.id}`}
+                              name={`q${question.position}`}
                               id={`question${question.id}`}
                               className="checkbox checkbox-accent"
-                              checked={selectedQuestions.some((q) => q.id === question.id && q.status)}
+                              checked={selectedQuestions?.some((q) => q.id === question.id && q.status)}
                               onChange={(e) => handleCheckboxChange(e, question.id, 'question')}
                            />
                         ))}
@@ -167,7 +279,7 @@ export const AddScenario = ({ clientId }: AddScenarioProps) => {
                         {broadcastLoading === 'loading'
                            ? 'Loading...'
                            : broadcastTemplates.length > 0
-                             ? broadcastTemplates.map((broadcastTemplate: BroadcastTemplate) => (
+                             ? broadcastTemplates.map((broadcastTemplate: any) => (
                                   <label htmlFor={`broadcast${broadcastTemplate.id}`} key={broadcastTemplate.id}>
                                      {broadcastTemplate.template_name}
                                   </label>
@@ -178,14 +290,14 @@ export const AddScenario = ({ clientId }: AddScenarioProps) => {
                   <div className="col-span-1 w-[20%] flex flex-col items-center">
                      <h1 className="text-[16px] font-semibold mb-3 pb-3">Active</h1>
                      <div className="flex flex-col gap-5">
-                        {broadcastTemplates.map((broadcastTemplate: BroadcastTemplate) => (
+                        {broadcastTemplates.map((broadcastTemplate: any) => (
                            <input
                               key={broadcastTemplate.id}
                               type="checkbox"
-                              name={`broadcast${broadcastTemplate.id}`}
+                              name={`${broadcastTemplate.template_name}`}
                               id={`broadcast${broadcastTemplate.id}`}
                               className="checkbox checkbox-accent"
-                              checked={selectedBroadcastTemplate.some(
+                              checked={selectedBroadcastTemplate?.some(
                                  (bt) => bt.id === broadcastTemplate.id && bt.status
                               )}
                               onChange={(e) => handleCheckboxChange(e, broadcastTemplate.id, 'broadcast_template')}
@@ -198,11 +310,11 @@ export const AddScenario = ({ clientId }: AddScenarioProps) => {
          </div>
 
          <div className="flex items-center gap-3 justify-end">
-            <button className="bg-white border-[1px] border-slate-900 px-5 py-3 rounded-md hover:bg-slate-900 hover:text-white transition duration-100 ease-in">
-               Cancel
-            </button>
-            <button className="bg-blue-500 text-white px-5 py-3 hover:bg-blue-600 transition duration-100 ease-in rounded-md">
-               Submit
+            <button
+               className={`bg-blue-500 text-white px-5 py-3 hover:bg-blue-600 transition duration-100 ease-in rounded-md ${statusScenario === 'loading' ? 'bg-gray-600 hover:bg-gray-700 cursor-not-allowed' : ''}`}
+               disabled={statusScenario === 'loading'}
+            >
+               {statusScenario === 'loading' ? <span className="loading loading-spinner loading-sm"></span> : 'Submit'}
             </button>
          </div>
       </form>

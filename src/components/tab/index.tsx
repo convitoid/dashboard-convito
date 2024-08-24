@@ -11,6 +11,8 @@ import { ChatBubleLeftRight } from '../icons/chatBubleLeftRight';
 import { BroadcastTemplateTab } from './BroadcastTemplateTab';
 import { ScenarioTab } from './ScenarioTab';
 import { DocumentText } from '../icons/documentText';
+import { PaperAirplane } from '../icons/paperAirplane';
+import { SendBroadcastTab } from './SendBroadcastTab';
 
 interface TabProps {
    clientId?: string;
@@ -52,6 +54,12 @@ export const Tab = ({ clientId }: TabProps) => {
          name: 'Scenario',
          icon: <DocumentText />,
          content: <ScenarioTab clientId={clientId} />,
+         disabled: false,
+      },
+      {
+         name: 'Send Broadcast',
+         icon: <PaperAirplane />,
+         content: <SendBroadcastTab clientId={clientId} />,
          disabled: false,
       },
    ];
@@ -102,7 +110,7 @@ export const Tab = ({ clientId }: TabProps) => {
          </div>
          <div className="p-4">
             <div className="card bg-slate-50 text-slate-900 w-full shadow-md">
-               <div className="card-body">
+               <div className="card-body overflow-x-auto">
                   {tabs.map(
                      (tab) =>
                         activeTab === tab.name && (

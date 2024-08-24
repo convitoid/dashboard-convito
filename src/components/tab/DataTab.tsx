@@ -148,9 +148,17 @@ export const DataTab = ({ clientId }: DataTabProps) => {
       });
    };
 
+   const handleDownloadTemplate = () => {
+      // download template from public/template/guest_upload/guest_upload_template.xlsx
+      const link = document.createElement('a');
+      link.href = '/template/guest_upload/guest_upload_template.xlsx';
+      link.download = 'guest_upload_template.xlsx';
+      link.click();
+   };
+
    return (
       <>
-         <div className="mb-3">
+         <div className="mb-3 flex items-center gap-2">
             <button
                className="btn bg-blue-500 text-white px-5 py-3 rounded-md hover:bg-blue-600 transition duration-100 ease-in text-[14px] font-semibold"
                onClick={handleImportGuestData}
@@ -164,6 +172,12 @@ export const DataTab = ({ clientId }: DataTabProps) => {
                ) : (
                   'Import Guest Data'
                )}
+            </button>
+            <button
+               className="btn bg-sky-500 text-white px-5 py-3 rounded-md hover:bg-sky-600 transition duration-100 ease-in text-[14px] font-semibold"
+               onClick={handleDownloadTemplate}
+            >
+               Download Template
             </button>
          </div>
          <div className="flex items-center justify-between mb-3">
@@ -179,28 +193,40 @@ export const DataTab = ({ clientId }: DataTabProps) => {
             <div className="skeleton h-[20rem] w-full"></div>
          ) : data.length > 0 ? (
             <>
-               <table className="border-[1px] w-full">
+               <table
+                  className="border-[1px] w-full"
+                  {...{
+                     style: {
+                        width: '100%',
+                     },
+                  }}
+               >
                   <thead className="uppercase">
-                     {table.getHeaderGroups().map((headerGroup) => (
-                        <tr key={headerGroup.id}>
-                           {headerGroup.headers.map((header) => (
-                              <th key={header.id} className="text-start h-10 px-4 py-2 bg-slate-800 text-white text-sm">
-                                 {header.isPlaceholder
-                                    ? null
-                                    : flexRender(header.column.columnDef.header, header.getContext())}
-                              </th>
-                           ))}
+                     {table.getHeaderGroups().map((headerGroup, index) => (
+                        <tr key={index}>
+                           {headerGroup.headers
+                              .filter((header) => header.column.columnDef.header !== 'Scenario_slug')
+                              .map((header, index) => (
+                                 <th key={index} className="text-start h-10 px-4 py-2 bg-slate-800 text-white text-sm">
+                                    {header.isPlaceholder
+                                       ? null
+                                       : flexRender(header.column.columnDef.header, header.getContext())}
+                                 </th>
+                              ))}
                         </tr>
                      ))}
                   </thead>
                   <tbody>
-                     {table.getRowModel().rows.map((row) => (
-                        <tr key={row.id}>
-                           {row.getVisibleCells().map((cell) => (
-                              <td key={cell.id} className="px-4 py-2 border-b-[1px] border-slate-300">
-                                 {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                              </td>
-                           ))}
+                     {table.getRowModel().rows.map((row, index) => (
+                        <tr key={index}>
+                           {row
+                              .getVisibleCells()
+                              .filter((cell) => cell.column.columnDef.header !== 'Scenario_slug')
+                              .map((cell, index) => (
+                                 <td key={index} className="px-4 py-2 border-b-[1px] border-slate-300">
+                                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                                 </td>
+                              ))}
                         </tr>
                      ))}
                   </tbody>
