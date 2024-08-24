@@ -62,7 +62,7 @@ export async function GET(req: NextRequest, { params }: { params: { clientId: st
 }
 
 export async function POST(req: NextRequest, { params }: { params: { clientId: string } }) {
-   let { name } = await req.json();
+   let { name, template_type } = await req.json();
    const token = req.headers.get('Authorization');
    const jwtToken = token?.split(' ')[1];
 
@@ -97,6 +97,7 @@ export async function POST(req: NextRequest, { params }: { params: { clientId: s
          data: {
             client_id: Number(client?.id),
             template_name: name,
+            template_type: template_type,
          },
       });
 
@@ -104,7 +105,10 @@ export async function POST(req: NextRequest, { params }: { params: { clientId: s
          {
             status: 201,
             message: 'Broadcast template created successfully',
-            data: response,
+            data: {
+               name,
+               template_type,
+            },
          },
          { status: 201 }
       );
@@ -133,7 +137,7 @@ export async function POST(req: NextRequest, { params }: { params: { clientId: s
 }
 
 export async function PUT(req: NextRequest, { params }: { params: { clientId: string } }) {
-   let { id, name } = await req.json();
+   let { id, name, template_type } = await req.json();
    const token = req.headers.get('Authorization');
    const jwtToken = token?.split(' ')[1];
 
@@ -172,6 +176,7 @@ export async function PUT(req: NextRequest, { params }: { params: { clientId: st
          },
          data: {
             template_name: name,
+            template_type: template_type,
          },
       });
 
@@ -179,7 +184,11 @@ export async function PUT(req: NextRequest, { params }: { params: { clientId: st
          {
             status: 201,
             message: 'Broadcast template updated successfully',
-            data: response,
+            data: {
+               id,
+               name,
+               template_type,
+            },
          },
          { status: 201 }
       );

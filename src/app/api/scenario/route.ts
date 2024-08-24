@@ -54,7 +54,7 @@ export async function POST(req: NextRequest) {
       const scenario = await prisma.scenario.create({
          data: {
             scenario_name: body.scenario_name.toLowerCase(),
-            scenario_slug: slugify(body.scenario_name, { lower: true, replacement: '_' }),
+            scenario_slug: slugify(body.scenario_name, { lower: true, replacement: '-' }),
             client_id: Number(client?.id),
             createdAt: new Date(),
          },
@@ -141,7 +141,7 @@ export async function PUT(req: NextRequest) {
          },
          data: {
             scenario_name: body.scenario_name.toLowerCase(),
-            scenario_slug: slugify(body.scenario_name, { lower: true, replacement: '_' }),
+            scenario_slug: slugify(body.scenario_name, { lower: true, replacement: '-' }),
          },
       });
 

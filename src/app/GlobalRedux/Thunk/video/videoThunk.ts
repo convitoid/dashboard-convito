@@ -46,8 +46,6 @@ export const createVideo = createAsyncThunk('video/createVideo', async (payload:
 });
 
 export const deleteVideo = createAsyncThunk('video/deleteVideo', async (payload: any) => {
-   console.log('payload', payload);
-
    try {
       const getToken = await fetch('/api/auth/session')
          .then((res) => res.json())

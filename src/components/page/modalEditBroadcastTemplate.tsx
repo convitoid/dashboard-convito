@@ -18,6 +18,7 @@ export const ModalEditBroadcastTemplate = ({ modalId, clientId }: ModalEditBroad
    const [formData, setFormData] = useState<any>({
       id: '',
       template_name: '',
+      template_type: '',
    });
    const dispatch = useDispatch<AppDispatch>();
    const status = useSelector((state: RootState) => state.broadcastTemplate.status);
@@ -35,8 +36,17 @@ export const ModalEditBroadcastTemplate = ({ modalId, clientId }: ModalEditBroad
       setFormData({ ...formData, template_name: e.target.value });
    };
 
+   const handleSelectChange = (e: any) => {
+      console.log(e.target.value);
+      setFormData({ ...formData, template_type: e.target.value });
+   };
+
    useEffect(() => {
-      setFormData({ template_name: template?.template_name ?? '', id: template?.id ?? '' });
+      setFormData({
+         template_name: template?.template_name ?? '',
+         id: template?.id ?? '',
+         template_type: template?.template_type ?? '',
+      });
 
       return () => {
          dispatch(resetStatus());
@@ -59,6 +69,7 @@ export const ModalEditBroadcastTemplate = ({ modalId, clientId }: ModalEditBroad
          .unwrap()
          .then((res) => {
             if (res.status === 201) {
+               console.log(res);
                Swal.fire({
                   icon: 'success',
                   title: 'Success',
@@ -78,7 +89,7 @@ export const ModalEditBroadcastTemplate = ({ modalId, clientId }: ModalEditBroad
    return (
       <ModalComponent
          modalId={modalId}
-         modalHeader="Edit client"
+         modalHeader="Edit Broadcast Template"
          modalWrapper="p-0 w-full max-w-xl"
          backgroundColorHeader="bg-blue-500 px-6 py-5 text-white"
          modalBodyStyle="pt-3 px-6 pb-6"
@@ -98,6 +109,25 @@ export const ModalEditBroadcastTemplate = ({ modalId, clientId }: ModalEditBroad
                   value={formData.template_name}
                   onChange={handleChange}
                />
+            </div>
+            <div className="flex flex-col gap-2">
+               <label htmlFor="template_type" className="text-[16px] font-semibold">
+                  Template Type
+               </label>
+               <select
+                  name="template_type"
+                  id="template_type"
+                  onChange={handleSelectChange}
+                  className="border-[1px] border-gray-300 rounded-md px-3 py-2"
+                  value={formData.template_type}
+               >
+                  <option value="" disabled>
+                     Select template type
+                  </option>
+                  <option value="no_header">No Header</option>
+                  <option value="header_image">Header Image</option>
+                  <option value="header_video">Header Video</option>
+               </select>
             </div>
             <div className="flex items-center justify-end mt-3 gap-3">
                <button

@@ -28,6 +28,7 @@ export const createBroadcastTemplate = createAsyncThunk(
    async (data: any) => {
       const jsonBody = {
          name: data.formData.template_name,
+         template_type: data.formData.template_type,
       };
       try {
          const getToken = await fetch('/api/auth/session')
@@ -81,6 +82,7 @@ export const updateBroadcastTemplate = createAsyncThunk(
       const jsonBody = {
          id: data.formData.id,
          name: data.formData.template_name,
+         template_type: data.formData.template_type,
       };
 
       console.log('data', data);

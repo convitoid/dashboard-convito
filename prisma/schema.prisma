@@ -123,6 +123,7 @@ model Question {
 model BroadcastTemplate {
   id                        Int                         @id @default(autoincrement())
   template_name             String
+  template_type             String?
   client_id                 Int
   Client                    Client                      @relation(fields: [client_id], references: [id])
   createdAt                 DateTime                    @default(now())

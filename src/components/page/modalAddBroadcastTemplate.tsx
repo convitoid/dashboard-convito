@@ -17,6 +17,7 @@ type ModalAddBroadcastTemplateProps = {
 export const ModalAddBroadcastTemplate = ({ clientId, modalId }: ModalAddBroadcastTemplateProps) => {
    const [formData, setFormData] = useState<any>({
       template_name: '',
+      template_type: '',
    });
 
    const dispatch = useDispatch<AppDispatch>();
@@ -26,12 +27,17 @@ export const ModalAddBroadcastTemplate = ({ clientId, modalId }: ModalAddBroadca
       setFormData({ ...formData, template_name: e.target.value });
    };
 
+   const handleSelectChange = (e: any) => {
+      console.log(e.target.value);
+      setFormData({ ...formData, template_type: e.target.value });
+   };
+
    const closeModal = () => {
       const modal = document.getElementById(`${modalId}`);
       if (modal) {
          (modal as HTMLDialogElement).close();
       }
-      setFormData({ template_name: '' });
+      setFormData({ template_name: '', template_type: '' });
    };
 
    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -49,6 +55,7 @@ export const ModalAddBroadcastTemplate = ({ clientId, modalId }: ModalAddBroadca
       dispatch(createBroadcastTemplate({ clientId, formData }))
          .unwrap()
          .then((res) => {
+            console.log(res);
             if (res.status !== 400) {
                Swal.fire({
                   icon: 'warning',
@@ -78,15 +85,15 @@ export const ModalAddBroadcastTemplate = ({ clientId, modalId }: ModalAddBroadca
    return (
       <ModalComponent
          modalId={modalId}
-         modalHeader="Edit client"
+         modalHeader="Add Broadcast Template"
          modalWrapper="p-0 w-full max-w-xl"
          backgroundColorHeader="bg-blue-500 px-6 py-5 text-white"
          modalBodyStyle="pt-3 px-6 pb-6"
          closeModal={closeModal}
       >
          <form onSubmit={handleSubmit}>
-            <div className="flex flex-col gap-2">
-               <label htmlFor="question" className="text-[16px] font-semibold">
+            <div className="flex flex-col gap-2 mb-4">
+               <label htmlFor="template_name" className="text-[16px] font-semibold">
                   Template Name
                </label>
                <input
@@ -98,6 +105,25 @@ export const ModalAddBroadcastTemplate = ({ clientId, modalId }: ModalAddBroadca
                   value={formData.template_name}
                   onChange={handleChange}
                />
+            </div>
+            <div className="flex flex-col gap-2">
+               <label htmlFor="template_type" className="text-[16px] font-semibold">
+                  Template Type
+               </label>
+               <select
+                  name="template_type"
+                  id="template_type"
+                  onChange={handleSelectChange}
+                  className="border-[1px] border-gray-300 rounded-md px-3 py-2"
+                  value={formData.template_type}
+               >
+                  <option value="" disabled>
+                     Select template type
+                  </option>
+                  <option value="no_header">No Header</option>
+                  <option value="header_image">Header Image</option>
+                  <option value="header_video">Header Video</option>
+               </select>
             </div>
             <div className="flex items-center justify-end mt-3 gap-3">
                <button

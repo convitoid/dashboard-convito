@@ -46,6 +46,7 @@ export const BroadcastTemplateTab = ({ clientId }: BroadcastTemplateTabProps) =>
    }, [dispatch]);
 
    const openModal = () => {
+      console.log('openModal');
       const modal = document.getElementById('ModalAddBroadcastTemplate');
       if (modal) {
          (modal as HTMLDialogElement).showModal();
@@ -110,6 +111,10 @@ export const BroadcastTemplateTab = ({ clientId }: BroadcastTemplateTabProps) =>
                accessorKey: 'template_name',
             },
             {
+               header: 'Template Type',
+               accessorKey: 'template_type',
+            },
+            {
                header: 'Actions',
                accessorKey: 'actions',
                cell: (info: any) => {
@@ -147,6 +152,7 @@ export const BroadcastTemplateTab = ({ clientId }: BroadcastTemplateTabProps) =>
             return {
                id: template.id,
                template_name: template.template_name,
+               template_type: template.template_type,
             };
          });
 
@@ -180,7 +186,7 @@ export const BroadcastTemplateTab = ({ clientId }: BroadcastTemplateTabProps) =>
       <>
          <button
             className="btn bg-blue-500 text-white px-5 py-3 rounded-md hover:bg-blue-600 transition duration-100 ease-in text-[14px] font-semibold mb-4"
-            onClick={openModal}
+            onClick={() => openModal()}
          >
             Add Broadcast Template
          </button>

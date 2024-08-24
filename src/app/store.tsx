@@ -11,6 +11,7 @@ import questionReducer from '@/app/GlobalRedux/Features/question/questionSlice';
 import broadcastTemplateReducer from '@/app/GlobalRedux/Features/broadcastTemplate/broadcastTemplateSlice';
 import scenarioReducer from '@/app/GlobalRedux/Features/scenario/scenarioSlice';
 import videoReducer from '@/app/GlobalRedux/Features/video/videoSlice';
+import sendBlastingReducer from '@/app/GlobalRedux/Features/sendBlasting/sendBlastingSlice';
 
 const rootReducer = combineReducers({
    counter: counterReducer,
@@ -24,6 +25,7 @@ const rootReducer = combineReducers({
    broadcastTemplate: broadcastTemplateReducer,
    scenario: scenarioReducer,
    video: videoReducer,
+   sendBlasting: sendBlastingReducer,
    //add all your reducers here
 });
 

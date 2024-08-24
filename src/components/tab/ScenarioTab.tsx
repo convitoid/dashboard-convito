@@ -70,7 +70,6 @@ export const ScenarioTab = ({ clientId }: ScenarioTabProps) => {
             )
                .unwrap()
                .then((res) => {
-                  console.log(res);
                   if (res.status === 200) {
                      Swal.fire({
                         title: 'Deleted!',
@@ -80,6 +79,9 @@ export const ScenarioTab = ({ clientId }: ScenarioTabProps) => {
                         dispatch(resetData());
                         dispatch(resetStatus());
                         dispatch(getAllScenario(clientId ?? ''));
+                        setData([]);
+                        setPagination((prev) => ({ ...prev, pageIndex: 0 }));
+                        setGlobalFilter('');
                      });
                   } else {
                      Swal.fire({
