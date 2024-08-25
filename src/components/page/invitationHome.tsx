@@ -88,7 +88,6 @@ export const InvitationHome = ({ invitations }: InvitationHomeProps) => {
             };
          });
 
-         console.log('tidak sama dengan no', newData);
          newData.map(async (data) => {
             dispatch(putAnswer(data as any))
                .unwrap()
