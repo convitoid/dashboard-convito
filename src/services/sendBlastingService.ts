@@ -39,7 +39,7 @@ export const sendBlastingService = async (data: any, clientId: any, clientCode: 
 
          const createJWT = (data: any) => {
             return jwt.sign(data, secret, {
-               expiresIn: '1h',
+               expiresIn: '30d',
             });
          };
 

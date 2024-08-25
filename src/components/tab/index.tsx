@@ -23,7 +23,7 @@ export const Tab = ({ clientId }: TabProps) => {
       {
          name: 'Dashboard',
          icon: <PresentationChartLine />,
-         content: <DashboardTab />,
+         content: <DashboardTab clientId={clientId} />,
          disabled: false,
       },
       {
