@@ -13,6 +13,7 @@ import scenarioReducer from '@/app/GlobalRedux/Features/scenario/scenarioSlice';
 import videoReducer from '@/app/GlobalRedux/Features/video/videoSlice';
 import sendBlastingReducer from '@/app/GlobalRedux/Features/sendBlasting/sendBlastingSlice';
 import invitationReducers from '@/app/GlobalRedux/Features/invitation/invitationSlice';
+import clientDashboardReducers from '@/app/GlobalRedux/Features/clients/dashboard/clientDashboardSlice';
 
 const rootReducer = combineReducers({
    counter: counterReducer,
@@ -28,6 +29,7 @@ const rootReducer = combineReducers({
    video: videoReducer,
    sendBlasting: sendBlastingReducer,
    invitations: invitationReducers,
+   clientDashboard: clientDashboardReducers,
    //add all your reducers here
 });
 
