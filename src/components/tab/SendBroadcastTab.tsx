@@ -164,6 +164,7 @@ export const SendBroadcastTab = ({ clientId }: SendBroadcastTabProps) => {
       dispatch(sendBlasting({ clientId: clientId?.toString() ?? '', data: selectedRowsData }))
          .unwrap()
          .then((res) => {
+            console.log('res', res);
             if (res.status === 200) {
                Swal.fire({
                   icon: 'success',

@@ -24,6 +24,7 @@ model Client {
   BroadcastTemplate BroadcastTemplate[]
   Scenario          Scenario[]
   ClientVideo       ClientVideo[]
+  Invitations       Invitations[]
 }
 
 model User {
@@ -96,6 +97,7 @@ model Guest {
   GuestDetail   GuestDetail[]
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
+  Invitations   Invitations[]
 }
 
 model GuestDetail {
@@ -118,6 +120,7 @@ model Question {
   createdAt        DateTime           @default(now())
   updatedAt        DateTime           @updatedAt
   ScenarioQuestion ScenarioQuestion[]
+  Invitations      Invitations[]
 }
 
 model BroadcastTemplate {
@@ -165,4 +168,18 @@ model ScenarioBroadcastTemplate {
   status                      Boolean
   createdAt                   DateTime          @default(now())
   updatedAt                   DateTime          @updatedAt
+}
+
+model Invitations {
+  id         Int      @id @default(autoincrement())
+  clientId   Int
+  Client     Client   @relation(fields: [clientId], references: [id])
+  guestId    Int
+  Guest      Guest    @relation(fields: [guestId], references: [id])
+  questionId Int
+  Question   Question @relation(fields: [questionId], references: [id])
+  answer     String?
+  token      String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 }

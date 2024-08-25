@@ -1,14 +1,42 @@
+import prisma from '@/libs/prisma';
+
 type WhatsappBlastBodyProps = {
    data: any;
    broadcastTemplate: any;
    image?: any;
    video?: any;
    clientCode?: any;
+   link?: any;
 };
 
-export const WhatsappBlastBody = ({ data, broadcastTemplate, image, video, clientCode }: WhatsappBlastBodyProps) => {
+export const WhatsappBlastBody = async ({
+   data,
+   broadcastTemplate,
+   image,
+   video,
+   clientCode,
+   link,
+}: WhatsappBlastBodyProps) => {
+   const invitation = await prisma.invitations.findMany({
+      select: {
+         guestId: true,
+         token: true,
+      },
+      where: {
+         guestId: data.guest_id,
+      },
+   });
+
+   const uniqueData = Object.values(
+      invitation.reduce((acc: any, item) => {
+         acc[item.guestId] = item;
+         return acc;
+      }, {})
+   );
+
    switch (broadcastTemplate.template_type) {
       case 'no_header':
+         const token_no_header = uniqueData.filter((t: any) => t.guestId === data.id).map((t: any) => t.token);
          const body = {
             messaging_product: 'whatsapp',
             to: data.phone_number,
@@ -35,17 +63,19 @@ export const WhatsappBlastBody = ({ data, broadcastTemplate, image, video, clien
                      parameters: [
                         {
                            type: 'text',
-                           text: `invitation/${clientCode}/${data.id}`,
+                           text: `invitation/${token_no_header[0]}`,
                         },
                      ],
                   },
                ],
             },
          };
+
          return body;
          break;
 
       case 'header_image':
+         const token_header_image = uniqueData.filter((t: any) => t.guestId === data.id).map((t: any) => t.token);
          const bodyImage = {
             messaging_product: 'whatsapp',
             to: data.phone_number,
@@ -84,7 +114,7 @@ export const WhatsappBlastBody = ({ data, broadcastTemplate, image, video, clien
                      parameters: [
                         {
                            type: 'text',
-                           text: `invitation/${clientCode}/${data.id}`,
+                           text: `invitation/${token_header_image[0]}`,
                         },
                      ],
                   },
@@ -95,7 +125,6 @@ export const WhatsappBlastBody = ({ data, broadcastTemplate, image, video, clien
          break;
 
       case 'header_video':
-         console.log('template_type', 'header_video');
          const bodyVideo = {
             messaging_product: 'whatsapp',
             to: data.phone_number,
