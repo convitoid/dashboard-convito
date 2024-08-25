@@ -8,16 +8,23 @@ datasource db {
 }
 
 model Client {
-  id          Int       @id @default(autoincrement())
-  client_id   String    @unique
-  client_name String
-  event_name  String
-  event_date  DateTime
-  event_type  String
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime? @updatedAt()
-  createdBy   String
-  updatedBy   String
+  id                Int                 @id @default(autoincrement())
+  client_id         String              @unique
+  client_name       String
+  event_name        String
+  event_date        DateTime
+  event_type        String
+  image             ClientImage[]
+  guest             Guest[]
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime?           @updatedAt()
+  createdBy         String
+  updatedBy         String
+  Question          Question[]
+  BroadcastTemplate BroadcastTemplate[]
+  Scenario          Scenario[]
+  ClientVideo       ClientVideo[]
+  Invitations       Invitations[]
 }
 
 model User {
@@ -55,4 +62,124 @@ model LogTestQuestion {
   idLogTestMessage Int
   createdAt        DateTime       @default(now())
   updatedAt        DateTime       @updatedAt
+}
+
+model ClientImage {
+  id                Int      @id @default(autoincrement())
+  clientId          Int
+  Client            Client   @relation(fields: [clientId], references: [id])
+  flag              String
+  imageName         String
+  imagePath         String
+  imageOriginalPath String
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+
+model ClientVideo {
+  id        Int      @id @default(autoincrement())
+  clientId  Int
+  Client    Client   @relation(fields: [clientId], references: [id])
+  flag      String
+  video     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Guest {
+  id            Int           @id @default(autoincrement())
+  guestId       String
+  name          String
+  scenario      String
+  scenario_slug String?
+  clientId      Int
+  client        Client        @relation(fields: [clientId], references: [id])
+  GuestDetail   GuestDetail[]
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  Invitations   Invitations[]
+}
+
+model GuestDetail {
+  id         Int      @id @default(autoincrement())
+  guestId    Int
+  guest      Guest    @relation(fields: [guestId], references: [id])
+  detail_key String
+  detail_val String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model Question {
+  id               Int                @id @default(autoincrement())
+  question         String
+  type             String
+  position         Int
+  client_id        Int
+  Client           Client             @relation(fields: [client_id], references: [id])
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+  ScenarioQuestion ScenarioQuestion[]
+  Invitations      Invitations[]
+}
+
+model BroadcastTemplate {
+  id                        Int                         @id @default(autoincrement())
+  template_name             String
+  template_type             String?
+  client_id                 Int
+  Client                    Client                      @relation(fields: [client_id], references: [id])
+  createdAt                 DateTime                    @default(now())
+  updatedAt                 DateTime                    @updatedAt
+  ScenarioBroadcastTemplate ScenarioBroadcastTemplate[]
+}
+
+model Scenario {
+  id                        Int                         @id @default(autoincrement())
+  scenario_name             String                      @unique
+  scenario_slug             String?
+  client_id                 Int
+  Client                    Client                      @relation(fields: [client_id], references: [id])
+  createdAt                 DateTime                    @default(now())
+  updatedAt                 DateTime                    @updatedAt
+  ScenarioQuestion          ScenarioQuestion[]
+  ScenarioBroadcastTemplate ScenarioBroadcastTemplate[]
+}
+
+model ScenarioQuestion {
+  id                Int      @id @default(autoincrement())
+  scenario_question String
+  question_id       Int
+  Question          Question @relation(fields: [question_id], references: [id])
+  scenario_id       Int
+  Scenario          Scenario @relation(fields: [scenario_id], references: [id])
+  status            Boolean
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+
+model ScenarioBroadcastTemplate {
+  id                          Int               @id @default(autoincrement())
+  broadcast_template_scenario String
+  broadcast_template_id       Int
+  BroadcastTemplate           BroadcastTemplate @relation(fields: [broadcast_template_id], references: [id])
+  scenario_id                 Int
+  Scenario                    Scenario          @relation(fields: [scenario_id], references: [id])
+  status                      Boolean
+  createdAt                   DateTime          @default(now())
+  updatedAt                   DateTime          @updatedAt
+}
+
+model Invitations {
+  id         Int      @id @default(autoincrement())
+  clientId   Int
+  Client     Client   @relation(fields: [clientId], references: [id])
+  guestId    Int
+  Guest      Guest    @relation(fields: [guestId], references: [id])
+  questionId Int
+  Question   Question @relation(fields: [questionId], references: [id])
+  answer     String?
+  token      String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 }

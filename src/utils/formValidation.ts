@@ -1,15 +1,15 @@
 type LoginValidationProps = {
-  input: string;
+   input: string;
 };
 
 export const loginValidation = ({ input }: LoginValidationProps) => {
-  if (!input) {
-    return {
-      isValidate: false,
-    };
-  }
+   if (!input) {
+      return {
+         isValidate: false,
+      };
+   }
 
-  return {
-    isValidate: true,
-  };
+   return {
+      isValidate: true,
+   };
 };
