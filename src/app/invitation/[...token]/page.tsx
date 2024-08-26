@@ -36,6 +36,7 @@ export default function InvitationPage({ params }: { params: { token: string } }
    const [formValues, setFormValues] = useState<any>({});
    const [isInvalid, setIsInvalid] = useState<any>({});
    const [answerData, setAnswerData] = useState<any>([]);
+   const [guestId, setGuestId] = useState('');
    const router = useRouter();
 
    const decodeToken = jwt.decode(token[0]);
@@ -44,12 +45,12 @@ export default function InvitationPage({ params }: { params: { token: string } }
       dispatch(getInvitation(token[0]))
          .unwrap()
          .then((res) => {
-            // console.log(res.data.id);
             setGuestDetail(res.data.GuestDetail);
             setFormValues({
                ...formValues,
                id: res.data.id,
             });
+            setGuestId(res.data.id);
          });
       dispatch(resetStatus());
    }, [dispatch, token]);
@@ -179,27 +180,29 @@ export default function InvitationPage({ params }: { params: { token: string } }
             };
          });
 
-         dispatch(updateAnswer({ guestId: invitations?.id, data: newData }))
-            .unwrap()
-            .then((res) => {
-               if (res.status === 201) {
-                  Swal.fire({
-                     icon: 'success',
-                     title: 'Success',
-                     text: res.message,
-                  }).then(() => {
-                     router.refresh();
-                     dispatch(getInvitation(token[0]));
-                     dispatch(getAnswer({ data: decodeToken }));
-                  });
-               } else {
-                  Swal.fire({
-                     icon: 'warning',
-                     title: 'Failed',
-                     text: res.message,
-                  });
-               }
-            });
+         console.log(guestId);
+
+         // dispatch(updateAnswer({ guestId: invitations?.id, data: newData }))
+         //    .unwrap()
+         //    .then((res) => {
+         //       if (res.status === 201) {
+         //          Swal.fire({
+         //             icon: 'success',
+         //             title: 'Success',
+         //             text: res.message,
+         //          }).then(() => {
+         //             router.refresh();
+         //             dispatch(getInvitation(token[0]));
+         //             dispatch(getAnswer({ data: decodeToken }));
+         //          });
+         //       } else {
+         //          Swal.fire({
+         //             icon: 'warning',
+         //             title: 'Failed',
+         //             text: res.message,
+         //          });
+         //       }
+         //    });
 
          //  dispatch(updateAnswer(newData));
       } else {
