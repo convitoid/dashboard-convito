@@ -44,7 +44,6 @@ export default function InvitationPage({ params }: { params: { token: string } }
       dispatch(getInvitation(token[0]))
          .unwrap()
          .then((res) => {
-            // console.log(res.data.GuestDetail);
             setGuestDetail(res.data.GuestDetail);
          });
       dispatch(resetStatus());
@@ -66,8 +65,6 @@ export default function InvitationPage({ params }: { params: { token: string } }
 
       setGuestDetailFormated(newGuestDetail);
    }, [guestDetail]);
-
-   console.log(guestDetail);
 
    useEffect(() => {
       if (invitations) {
@@ -104,8 +101,6 @@ export default function InvitationPage({ params }: { params: { token: string } }
 
       return question;
    }
-
-   console.log(dynamicQuestion('This invitation is valid for {{PAX}} guest(s), how many guest(s) will attend?'))
 
    const handleChangeRadio = (e: React.ChangeEvent<HTMLInputElement>) => {
       const { name, value } = e.target;
