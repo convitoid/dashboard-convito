@@ -180,29 +180,29 @@ export default function InvitationPage({ params }: { params: { token: string } }
             };
          });
 
-         console.log(guestId);
+         // console.log(guestId);
 
-         // dispatch(updateAnswer({ guestId: invitations?.id, data: newData }))
-         //    .unwrap()
-         //    .then((res) => {
-         //       if (res.status === 201) {
-         //          Swal.fire({
-         //             icon: 'success',
-         //             title: 'Success',
-         //             text: res.message,
-         //          }).then(() => {
-         //             router.refresh();
-         //             dispatch(getInvitation(token[0]));
-         //             dispatch(getAnswer({ data: decodeToken }));
-         //          });
-         //       } else {
-         //          Swal.fire({
-         //             icon: 'warning',
-         //             title: 'Failed',
-         //             text: res.message,
-         //          });
-         //       }
-         //    });
+         dispatch(updateAnswer({ guestId: guestId, data: newData }))
+            .unwrap()
+            .then((res) => {
+               if (res.status === 201) {
+                  Swal.fire({
+                     icon: 'success',
+                     title: 'Success',
+                     text: res.message,
+                  }).then(() => {
+                     router.refresh();
+                     dispatch(getInvitation(token[0]));
+                     dispatch(getAnswer({ data: decodeToken }));
+                  });
+               } else {
+                  Swal.fire({
+                     icon: 'warning',
+                     title: 'Failed',
+                     text: res.message,
+                  });
+               }
+            });
 
          //  dispatch(updateAnswer(newData));
       } else {
@@ -222,7 +222,7 @@ export default function InvitationPage({ params }: { params: { token: string } }
             };
          });
 
-         dispatch(updateAnswer({ guestId: invitations?.id, data: newData }))
+         dispatch(updateAnswer({ guestId: guestId, data: newData }))
             .unwrap()
             .then((res) => {
                if (res.status === 201) {
