@@ -46,7 +46,7 @@ export default function InvitationPage({ params }: { params: { token: string } }
    }, [dispatch, token]);
 
    useEffect(() => {
-      setGuestDetail(invitations?.data?.GuestDetail);
+      setGuestDetail(invitations?.GuestDetail);
       const newGuestDetail = guestDetail?.reduce((acc: any, item: any) => {
          acc[item.detail_key.toUpperCase()] = item.detail_val;
          return acc;
@@ -55,7 +55,7 @@ export default function InvitationPage({ params }: { params: { token: string } }
       setGuestDetailFormated(newGuestDetail);
       setFormValues({
          ...formValues,
-         id: invitations?.data?.id,
+         id: invitations?.id,
       });
    }, [invitations]);
 
@@ -79,12 +79,27 @@ export default function InvitationPage({ params }: { params: { token: string } }
       }
    }, [answer]);
 
-   const dynamicQuestion = (question: any) => {
-      if (guestDetailFormated) {
+   useEffect(() => {
+      console.log(invitations?.client?.Scenario[0].ScenarioQuestion);
+   }, [invitations]);
+
+   // const dynamicQuestion = (question: any) => {
+   //    if (guestDetailFormated) {
+   //       question = Mustache.render(question, guestDetailFormated);
+   //    }
+   //    return question;
+   // };
+
+   function dynamicQuestion(question: any) {
+      console.log('question', question);
+      console.log('guestDetailFormated', guestDetailFormated);
+      if (guestDetailFormated !== undefined) {
          question = Mustache.render(question, guestDetailFormated);
       }
+      return Mustache.render(question, guestDetailFormated);
+
       return question;
-   };
+   }
 
    const handleChangeRadio = (e: React.ChangeEvent<HTMLInputElement>) => {
       const { name, value } = e.target;
@@ -173,7 +188,7 @@ export default function InvitationPage({ params }: { params: { token: string } }
             };
          });
 
-         dispatch(updateAnswer({ guestId: invitations?.data?.id, data: newData }))
+         dispatch(updateAnswer({ guestId: invitations?.id, data: newData }))
             .unwrap()
             .then((res) => {
                if (res.status === 201) {
@@ -198,7 +213,7 @@ export default function InvitationPage({ params }: { params: { token: string } }
          //  dispatch(updateAnswer(newData));
       } else {
          const missingFields = getId.filter((id) => dataForm[`question_${id}`]);
-         if (missingFields.length !== invitations?.data?.client?.Scenario[0]?.ScenarioQuestion?.length) {
+         if (missingFields.length !== invitations?.client?.Scenario[0]?.ScenarioQuestion?.length) {
             return Swal.fire({
                icon: 'warning',
                title: 'Failed',
@@ -213,7 +228,7 @@ export default function InvitationPage({ params }: { params: { token: string } }
             };
          });
 
-         dispatch(updateAnswer({ guestId: invitations?.data?.id, data: newData }))
+         dispatch(updateAnswer({ guestId: invitations?.id, data: newData }))
             .unwrap()
             .then((res) => {
                if (res.status === 201) {
@@ -252,8 +267,8 @@ export default function InvitationPage({ params }: { params: { token: string } }
                </div>
             ) : (
                <div className={`max-w-md ${robotoFont.className}`}>
-                  {invitations?.data?.client?.image?.length > 0 &&
-                     invitations?.data?.client?.image?.map((img: any) => (
+                  {invitations?.client?.image?.length > 0 &&
+                     invitations?.client?.image?.map((img: any) => (
                         <Image
                            key={img.id}
                            src={img.imagePath}
@@ -295,71 +310,71 @@ export default function InvitationPage({ params }: { params: { token: string } }
                         <>
                            <h1 className="text-center flex flex-col gap-1">
                               <span>The Wedding of</span>
-                              <span className="text-lg font-semibold">{invitations?.data?.client?.event_name}</span>
+                              <span className="text-lg font-semibold">{invitations?.client?.event_name}</span>
                            </h1>
                            <div className="border-b-2 border-slate-900 w-1/2 mx-auto mt-3 mb-10"></div>
                            <h5 className="text-md mb-7">
                               Dear, {''}
-                              <span className="font-semibold">{invitations?.data?.name}</span>
+                              <span className="font-semibold">{invitations?.name}</span>
                            </h5>
 
                            <form onSubmit={submitAnswer}>
-                              {invitations?.data?.client?.Scenario[0].ScenarioQuestion?.map(
-                                 (question: any, index: any) => (
-                                    <div className="flex flex-col mb-5" key={question.id}>
+                              {invitations?.client?.Scenario[0].ScenarioQuestion?.map((question: any, index: any) => (
+                                 <div className="flex flex-col mb-5" key={question.id}>
+                                    {question?.Question?.question && (
                                        <label
                                           htmlFor=""
                                           className="mb-3"
                                           dangerouslySetInnerHTML={{
-                                             __html: dynamicQuestion(question?.Question?.question),
+                                             __html: Mustache.render(question.Question.question, guestDetailFormated),
                                           }}
                                        ></label>
-                                       {question?.Question?.type === 'radio' ? (
-                                          <div className="flex items-center gap-4">
-                                             <div className="flex items-center gap-2">
-                                                <input
-                                                   className="radio radio-sm checked:bg-[#1C1C1C] border-[#1C1C1C]"
-                                                   type={question?.Question?.type}
-                                                   name={`question_${question?.Question?.id}`}
-                                                   id={`question_yes_${question?.Question?.id}`}
-                                                   value={`yes`}
-                                                   onChange={handleChangeRadio}
-                                                />
-                                                <label htmlFor={`question_yes_${question?.Question?.id}`}>Yes</label>
-                                             </div>
-                                             <div className="flex items-center gap-2">
-                                                <input
-                                                   className="radio radio-sm checked:bg-[#1C1C1C] border-[#1C1C1C]"
-                                                   type={question.Question.type}
-                                                   name={`question_${question?.Question?.id}`}
-                                                   id={`question_no_${question?.Question?.id}`}
-                                                   value={`no`}
-                                                   onChange={handleChangeRadio}
-                                                />
-                                                <label htmlFor={`question_no_${question.Question?.id}`}>No</label>
-                                             </div>
-                                          </div>
-                                       ) : (
-                                          <>
+                                    )}
+                                    {question?.Question?.type === 'radio' ? (
+                                       <div className="flex items-center gap-4">
+                                          <div className="flex items-center gap-2">
                                              <input
-                                                type={question.Question.type}
-                                                className={`rounded-md px-3 py-2 ${
-                                                   isInvalid[`question_${question?.Question.id}`]
-                                                      ? 'border-red-500 border'
-                                                      : ''
-                                                }`}
-                                                name={`question_${question.Question.id}`}
-                                                disabled={disabled}
-                                                onChange={handleChangeInput(question?.Question?.type)}
-                                                value={formValues[`question_${question.Question.id}`] || ''}
-                                                inputMode={question.Question.type === 'number' ? 'numeric' : undefined}
-                                                pattern={question.Question.type === 'number' ? '\\d*' : undefined}
+                                                className="radio radio-sm checked:bg-[#1C1C1C] border-[#1C1C1C]"
+                                                type={question?.Question?.type}
+                                                name={`question_${question?.Question?.id}`}
+                                                id={`question_yes_${question?.Question?.id}`}
+                                                value={`yes`}
+                                                onChange={handleChangeRadio}
                                              />
-                                          </>
-                                       )}
-                                    </div>
-                                 )
-                              )}
+                                             <label htmlFor={`question_yes_${question?.Question?.id}`}>Yes</label>
+                                          </div>
+                                          <div className="flex items-center gap-2">
+                                             <input
+                                                className="radio radio-sm checked:bg-[#1C1C1C] border-[#1C1C1C]"
+                                                type={question.Question.type}
+                                                name={`question_${question?.Question?.id}`}
+                                                id={`question_no_${question?.Question?.id}`}
+                                                value={`no`}
+                                                onChange={handleChangeRadio}
+                                             />
+                                             <label htmlFor={`question_no_${question.Question?.id}`}>No</label>
+                                          </div>
+                                       </div>
+                                    ) : (
+                                       <>
+                                          <input
+                                             type={question.Question.type}
+                                             className={`rounded-md px-3 py-2 ${
+                                                isInvalid[`question_${question?.Question.id}`]
+                                                   ? 'border-red-500 border'
+                                                   : ''
+                                             }`}
+                                             name={`question_${question.Question.id}`}
+                                             disabled={disabled}
+                                             onChange={handleChangeInput(question?.Question?.type)}
+                                             value={formValues[`question_${question.Question.id}`] || ''}
+                                             inputMode={question.Question.type === 'number' ? 'numeric' : undefined}
+                                             pattern={question.Question.type === 'number' ? '\\d*' : undefined}
+                                          />
+                                       </>
+                                    )}
+                                 </div>
+                              ))}
                               <button
                                  className="bg-[#1C1C1C] text-slate-100 w-full px-4 py-2 rounded-md mt-4 mb-2"
                                  //    disabled={status === 'loading'}

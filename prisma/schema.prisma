@@ -136,7 +136,7 @@ model BroadcastTemplate {
 
 model Scenario {
   id                        Int                         @id @default(autoincrement())
-  scenario_name             String                      @unique
+  scenario_name             String
   scenario_slug             String?
   client_id                 Int
   Client                    Client                      @relation(fields: [client_id], references: [id])

@@ -98,8 +98,8 @@ export const ModalUploadImage = ({ modalId, title, clientId }: ModalUploadImageP
       const data = new FormData();
       data.append('image_flag', formData.imageFlag);
       data.append('client_image', fileInputRef.current?.files?.[0] as Blob);
-      data.append('client_code', 'CLI-0001');
-      data.append('client_id', '1');
+      data.append('client_code', clientId?.[0]?.toString() ?? '');
+      data.append('client_id', clientId?.[0]?.toString() ?? '');
 
       if (formData.imageFlag === '') {
          Swal.fire({
