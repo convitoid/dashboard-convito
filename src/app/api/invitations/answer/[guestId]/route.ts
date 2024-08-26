@@ -6,34 +6,37 @@ export async function POST(req: NextRequest, { params }: { params: { guestId: st
    console.log('body', body);
 
    try {
-      // const updateAnswer = await Promise.all(
-      //    body.map(async (data: any) => {
-      //       const invitation = await prisma.invitations.findMany({
-      //          select: {
-      //             id: true,
-      //             questionId: true,
-      //          },
-      //          where: {
-      //             guestId: Number(params.guestId),
-      //             questionId: Number(data.questionId),
-      //          },
-      //       });
+      const updateAnswer = await Promise.all(
+         body.map(async (data: any) => {
+            const invitation = await prisma.invitations.findMany({
+               select: {
+                  id: true,
+                  questionId: true,
+               },
+               where: {
+                  guestId: Number(params.guestId),
+                  questionId: Number(data.questionId),
+               },
+            });
 
-      //       const update = await prisma.invitations.update({
-      //          where: {
-      //             id: invitation[0].id,
-      //          },
-      //          data: {
-      //             answer: data.answer,
-      //          },
-      //       });
+            console.log('debug dari api', invitation);
 
-      //       return {
-      //          invitationId: invitation[0].id,
-      //          answer: update.answer,
-      //       };
-      //    })
-      // );
+            // const update = await prisma.invitations.update({
+            //    where: {
+            //       id: invitation[0].id,
+            //    },
+            //    data: {
+            //       answer: data.answer,
+            //    },
+            // });
+
+            return {
+               invitation: invitation,
+               // invitationId: invitation[0].id,
+               // answer: update.answer,
+            };
+         })
+      );
 
       return NextResponse.json(
          {
