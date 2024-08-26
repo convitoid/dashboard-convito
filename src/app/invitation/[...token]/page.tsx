@@ -33,7 +33,7 @@ export default function InvitationPage({ params }: { params: { token: string } }
    const [guestDetailFormated, setGuestDetailFormated] = useState([]);
    const [isAnswer, setIsAnswer] = useState<boolean>(false);
    const [disabled, setDisabled] = useState<boolean>(true);
-   const [formValues, setFormValues] = useState<any>({});
+   const [formValues, setFormValues] = useState({});
    const [isInvalid, setIsInvalid] = useState<any>({});
    const [answerData, setAnswerData] = useState<any>([]);
    const router = useRouter();
@@ -45,17 +45,13 @@ export default function InvitationPage({ params }: { params: { token: string } }
          .unwrap()
          .then((res) => {
             setGuestDetail(res.data.GuestDetail);
+            setFormValues({
+               ...formValues,
+               id: invitations.id,
+            });
          });
       dispatch(resetStatus());
    }, [dispatch, token]);
-
-   useEffect(() => {
-      // setGuestDetail(invitations?.GuestDetail);
-      setFormValues({
-         ...formValues,
-         id: invitations?.id,
-      });
-   }, [invitations]);
 
    useEffect(() => {
       const newGuestDetail = guestDetail?.reduce((acc: any, item: any) => {
@@ -85,13 +81,6 @@ export default function InvitationPage({ params }: { params: { token: string } }
          }
       }
    }, [answer]);
-
-   // const dynamicQuestion = (question: any) => {
-   //    if (guestDetailFormated) {
-   //       question = Mustache.render(question, guestDetailFormated);
-   //    }
-   //    return question;
-   // };
 
    function dynamicQuestion(question: any) {
       if (guestDetailFormated !== undefined) {
