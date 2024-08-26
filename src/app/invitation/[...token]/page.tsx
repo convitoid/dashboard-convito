@@ -29,8 +29,8 @@ export default function InvitationPage({ params }: { params: { token: string } }
    const status = useSelector((state: RootState) => state.invitations.status);
    const answer = useSelector((state: RootState) => state.invitations.invitation);
 
-   const [guestDetail, setGuestDetail] = useState<Record<string, any> | undefined>(undefined);
-   const [guestDetailFormated, setGuestDetailFormated] = useState<Record<string, any> | undefined>(undefined);
+   const [guestDetail, setGuestDetail] = useState([]);
+   const [guestDetailFormated, setGuestDetailFormated] = useState([]);
    const [isAnswer, setIsAnswer] = useState<boolean>(false);
    const [disabled, setDisabled] = useState<boolean>(true);
    const [formValues, setFormValues] = useState<any>({});
@@ -41,23 +41,33 @@ export default function InvitationPage({ params }: { params: { token: string } }
    const decodeToken = jwt.decode(token[0]);
 
    useEffect(() => {
-      dispatch(getInvitation(token[0]));
+      dispatch(getInvitation(token[0]))
+         .unwrap()
+         .then((res) => {
+            // console.log(res.data.GuestDetail);
+            setGuestDetail(res.data.GuestDetail);
+         });
       dispatch(resetStatus());
    }, [dispatch, token]);
 
    useEffect(() => {
-      setGuestDetail(invitations?.GuestDetail);
+      // setGuestDetail(invitations?.GuestDetail);
+      setFormValues({
+         ...formValues,
+         id: invitations?.id,
+      });
+   }, [invitations]);
+
+   useEffect(() => {
       const newGuestDetail = guestDetail?.reduce((acc: any, item: any) => {
          acc[item.detail_key.toUpperCase()] = item.detail_val;
          return acc;
       }, {});
 
       setGuestDetailFormated(newGuestDetail);
-      setFormValues({
-         ...formValues,
-         id: invitations?.id,
-      });
-   }, [invitations]);
+   }, [guestDetail]);
+
+   console.log(guestDetail);
 
    useEffect(() => {
       if (invitations) {
@@ -79,10 +89,6 @@ export default function InvitationPage({ params }: { params: { token: string } }
       }
    }, [answer]);
 
-   useEffect(() => {
-      console.log(invitations?.client?.Scenario[0].ScenarioQuestion);
-   }, [invitations]);
-
    // const dynamicQuestion = (question: any) => {
    //    if (guestDetailFormated) {
    //       question = Mustache.render(question, guestDetailFormated);
@@ -91,8 +97,6 @@ export default function InvitationPage({ params }: { params: { token: string } }
    // };
 
    function dynamicQuestion(question: any) {
-      console.log('question', question);
-      console.log('guestDetailFormated', guestDetailFormated);
       if (guestDetailFormated !== undefined) {
          question = Mustache.render(question, guestDetailFormated);
       }
@@ -326,6 +330,7 @@ export default function InvitationPage({ params }: { params: { token: string } }
                                           htmlFor=""
                                           className="mb-3"
                                           dangerouslySetInnerHTML={{
+                                             // __html: question.Question.question,
                                              __html: Mustache.render(question.Question.question, guestDetailFormated),
                                           }}
                                        ></label>
