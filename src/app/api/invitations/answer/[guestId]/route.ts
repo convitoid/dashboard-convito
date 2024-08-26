@@ -3,36 +3,37 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(req: NextRequest, { params }: { params: { guestId: string } }) {
    const body = await req.json();
+   console.log('body', body);
 
    try {
-      const updateAnswer = await Promise.all(
-         body.map(async (data: any) => {
-            const invitation = await prisma.invitations.findMany({
-               select: {
-                  id: true,
-                  questionId: true,
-               },
-               where: {
-                  guestId: Number(params.guestId),
-                  questionId: Number(data.questionId),
-               },
-            });
+      // const updateAnswer = await Promise.all(
+      //    body.map(async (data: any) => {
+      //       const invitation = await prisma.invitations.findMany({
+      //          select: {
+      //             id: true,
+      //             questionId: true,
+      //          },
+      //          where: {
+      //             guestId: Number(params.guestId),
+      //             questionId: Number(data.questionId),
+      //          },
+      //       });
 
-            const update = await prisma.invitations.update({
-               where: {
-                  id: invitation[0].id,
-               },
-               data: {
-                  answer: data.answer,
-               },
-            });
+      //       const update = await prisma.invitations.update({
+      //          where: {
+      //             id: invitation[0].id,
+      //          },
+      //          data: {
+      //             answer: data.answer,
+      //          },
+      //       });
 
-            return {
-               invitationId: invitation[0].id,
-               answer: update.answer,
-            };
-         })
-      );
+      //       return {
+      //          invitationId: invitation[0].id,
+      //          answer: update.answer,
+      //       };
+      //    })
+      // );
 
       return NextResponse.json(
          {
