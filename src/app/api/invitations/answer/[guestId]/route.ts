@@ -4,10 +4,12 @@ import { NextRequest, NextResponse } from 'next/server';
 export async function POST(req: NextRequest, { params }: { params: { guestId: string } }) {
    const body = await req.json();
    console.log('body', body);
+   console.log('params', params);
 
    try {
       const updateAnswer = await Promise.all(
          body.map(async (data: any) => {
+            console.log('data', data);
             const invitation = await prisma.invitations.findMany({
                select: {
                   id: true,
