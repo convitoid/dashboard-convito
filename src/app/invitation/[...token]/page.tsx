@@ -86,6 +86,8 @@ export default function InvitationPage({ params }: { params: { token: string } }
       return question;
    };
 
+   console.log(dynamicQuestion('This invitation is valid for {{PAX}} guest(s), how many guest(s) will attend?'))
+
    const handleChangeRadio = (e: React.ChangeEvent<HTMLInputElement>) => {
       const { name, value } = e.target;
 
