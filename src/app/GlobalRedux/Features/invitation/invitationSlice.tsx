@@ -40,7 +40,7 @@ export const invitationSlice = createSlice({
          })
          .addCase(getInvitation.fulfilled, (state, action) => {
             state.status = 'success';
-            state.invitations = action.payload;
+            state.invitations = action.payload.data;
          })
          .addCase(getInvitation.rejected, (state, action) => {
             state.status = 'failed';

@@ -63,13 +63,22 @@ export async function getDataImagesByClientId(jwtToken: string, clientId: string
 }
 
 export async function createDataImage(jwtToken: string, data: any) {
-   // console.log('data', data);
+   console.log('data', data);
    try {
-      // const { payload } = await jwtVerify(jwtToken, secret);
+      const { payload } = await jwtVerify(jwtToken, secret);
+
+      const client = await prisma.client.findFirst({
+         where: {
+            client_id: data.clientId,
+         },
+      });
+
+      console.log('client', client?.id);
 
       const checkFlag = await prisma.clientImage.findFirst({
          where: {
             flag: data.imageFlag,
+            clientId: client?.id,
          },
       });
 
@@ -79,7 +88,7 @@ export async function createDataImage(jwtToken: string, data: any) {
 
       const response = await prisma.clientImage.create({
          data: {
-            clientId: Number(data.clientId),
+            clientId: Number(client?.id),
             imageName: data.imageName,
             imagePath: data.imagePath,
             imageOriginalPath: data.imageOriginalPath,
