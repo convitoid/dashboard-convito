@@ -39,7 +39,7 @@ export async function POST(req: NextRequest, { params }: { params: { guestId: st
          {
             status: 201,
             message: 'Answer updated successfully',
-            data: updateAnswer,
+            // data: updateAnswer,
          },
          {
             status: 201,
