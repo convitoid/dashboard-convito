@@ -11,6 +11,7 @@ type InvitationsWhereUniqueInput = {
 };
 
 export const sendBlastingService = async (data: any, clientId: any, clientCode: any) => {
+   console.log(clientCode);
    try {
       const clientImage = await prisma.clientImage.findFirst({
          where: {
@@ -52,14 +53,12 @@ export const sendBlastingService = async (data: any, clientId: any, clientCode: 
          },
       });
 
-      console.log(clientId);
-
       const invitationData = await Promise.all(
          guests.map(async (guest) => {
             const scenario = await prisma.scenario.findMany({
                where: {
                   scenario_slug: guest.scenario_slug,
-                  client_id: clientId,
+                  client_id: guest.clientId,
                },
                include: {
                   ScenarioQuestion: true,
@@ -71,7 +70,6 @@ export const sendBlastingService = async (data: any, clientId: any, clientCode: 
             });
 
             return {
-               // scenario: scenario,
                guest_id: guest.id,
                guest_code: guest.guestId,
                guest_name: guest.name,

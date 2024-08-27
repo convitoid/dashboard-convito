@@ -1,4 +1,4 @@
-import { getDashboardData } from '@/app/GlobalRedux/Thunk/clients/clientDashboardThunk';
+import { exportData, getDashboardData } from '@/app/GlobalRedux/Thunk/clients/clientDashboardThunk';
 import { AppDispatch, RootState } from '@/app/store';
 import {
    flexRender,
@@ -13,6 +13,8 @@ import { ChevronDoubleRightIcon } from '../icons/chevronDoubleRight';
 import { ChevronRightIcon } from '../icons/chevronRight';
 import { ChevronLeftIcon } from '../icons/chevronLeft';
 import { ChevronDoubleLeftIcon } from '../icons/chevronDoubleLeft';
+import { ExcelIcon } from '../icons/excel';
+import { exportToExcel } from '@/utils/exportToExcel';
 
 type DashboardTabProps = {
    clientId?: string;
@@ -26,6 +28,8 @@ export const DashboardTab = ({ clientId }: DashboardTabProps) => {
       pageSize: 10,
    });
    const [globalFilter, setGlobalFilter] = useState('');
+   const [selectedFilter, setSelectedFilter] = useState('');
+   const [filteredData, setFilteredData] = useState<any[]>([]);
 
    const dispatch = useDispatch<AppDispatch>();
    const dashboarData = useSelector((state: RootState) => state.clientDashboard.datas);
@@ -34,8 +38,6 @@ export const DashboardTab = ({ clientId }: DashboardTabProps) => {
    useEffect(() => {
       dispatch(getDashboardData({ clientId: clientId?.toString() }));
    }, [dispatch]);
-
-   console.log('dasboardData', dashboarData.length);
 
    useEffect(() => {
       if (dashboarData.length > 0) {
@@ -75,7 +77,7 @@ export const DashboardTab = ({ clientId }: DashboardTabProps) => {
                guestId: item.guestId,
                name: item.name,
                scenario: item.scenario,
-               answer: answer ? 'Answered' : 'Not Answered',
+               answer: answer ? 'Yes' : 'No',
             };
          });
 
@@ -101,36 +103,97 @@ export const DashboardTab = ({ clientId }: DashboardTabProps) => {
       },
    });
 
-   console.log(dashboarData);
+   const handleFilterDataBySelected = (e: React.ChangeEvent<HTMLSelectElement>) => {
+      const selectedScenario = e.target.value;
+      console.log(selectedScenario);
+
+      if (selectedScenario === 'all') {
+         setGlobalFilter('');
+         setSelectedFilter('');
+      } else {
+         setGlobalFilter(selectedScenario);
+         setSelectedFilter(selectedScenario);
+      }
+   };
+
+   useEffect(() => {
+      const filter = table.getRowModel().rows.map((row) => row.original.id);
+      setFilteredData(filter);
+   }, [selectedFilter]);
+
+   const handleExportToExcel = () => {
+      const data = table.getRowModel().rows.map((row) => row.original.id);
+      dispatch(exportData({ data: data, clientId: clientId?.toString() }))
+         .unwrap()
+         .then((res) => {
+            if (res.status === 200) {
+               exportToExcel(res.data, clientId?.toString());
+            }
+         });
+   };
+   // console.log(table.getRowModel().rows.map((row) => row.original.id));
 
    return (
       <div>
-         <div className="grid grid-cols-7 gap-4 mb-7">
-            <div className="bg-sky-500 p-4 rounded-md text-white">
-               <h4 className="text-md font-semibold mb-1">Total Guest</h4>
+         <div className="grid grid-cols-3 3md:grid-cols-5 lg:grid-cols-5 xl:grid-cols-7 gap-4 mb-14">
+            <div className="bg-sky-500 p-4 rounded-md text-white mb-4">
                <h2 className="text-3xl font-semibold">{dashboarData.length > 0 ? dashboarData[0].total_guests : 0}</h2>
+               <h4 className="text-md font-semibold">Total Guest</h4>
             </div>
-            <div className="bg-green-500 p-4 rounded-md text-white">
-               <h4 className="text-md font-semibold mb-1">Total Answered</h4>
+            <div className="bg-green-500 p-4 rounded-md text-white mb-4">
                <h2 className="text-3xl font-semibold">
                   {dashboarData.length > 0 ? dashboarData[0].answered_guest : 0}
                </h2>
+               <h4 className="text-md font-semibold">Total Answered</h4>
             </div>
-            <div className="bg-amber-500 p-4 rounded-md text-white">
-               <h4 className="text-md font-semibold mb-1">Total No Answered</h4>
+            <div className="bg-amber-500 p-4 rounded-md text-white mb-4">
                <h2 className="text-3xl font-semibold">
                   {dashboarData.length > 0 ? dashboarData[0].not_answered_guest : 0}
                </h2>
+               <h4 className="text-md font-semibold">Total No Answered</h4>
+            </div>
+            <div className="bg-teal-500 p-4 rounded-md text-white mb-4">
+               <h2 className="text-3xl font-semibold">{dashboarData.length > 0 ? dashboarData[0].guest_confirm : 0}</h2>
+               <h4 className="text-md font-semibold">Total Guest Confirm</h4>
+            </div>
+            <div className="bg-red-500 p-4 rounded-md text-white mb-4">
+               <h2 className="text-3xl font-semibold">{dashboarData.length > 0 ? dashboarData[0].guest_decline : 0}</h2>
+               <h4 className="text-md font-semibold">Total Guest Decline</h4>
             </div>
          </div>
-         <div className="flex items-center justify-between mb-3">
-            <h2 className="text-lg font-bold mb-2">Guest Data</h2>
-            <input
-               type="text"
-               placeholder="Search"
-               className="border-[1px] px-3 py-1 rounded-md"
-               onChange={searchChange}
-            />
+         <div className="flex justify-between mb-3">
+            <h2 className="text-lg font-bold">Guest Data</h2>
+
+            <div className="flex items-center gap-3">
+               <span className="text-sm">Filter data : </span>
+               <select
+                  name="filter_data"
+                  id="filter_data"
+                  onChange={handleFilterDataBySelected}
+                  className="select select-sm select-bordered"
+                  value={selectedFilter || 'all'}
+               >
+                  <option value="" disabled>
+                     Filtered answer
+                  </option>
+                  <option value="all">All</option>
+                  <option value="yes">Answered</option>
+                  <option value="no">Not Answered</option>
+               </select>
+               <input
+                  type="text"
+                  placeholder="Search"
+                  className="border-[1px] px-3 py-1 rounded-md"
+                  onChange={searchChange}
+               />
+               <button
+                  className="bg-white hover:bg-slate-50 transition duration-100 ease-in p-[0.30rem] border-[1px] rounded-md tooltip tooltip-left"
+                  data-tip="Export to Excel"
+                  onClick={handleExportToExcel}
+               >
+                  <ExcelIcon height="1.3em" width="1.3em" />
+               </button>
+            </div>
          </div>
          {status === 'loading' ? (
             <div className="skeleton h-[20rem] w-full"></div>

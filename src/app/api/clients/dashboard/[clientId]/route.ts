@@ -53,9 +53,33 @@ export async function GET(req: NextRequest, { params }: { params: { clientId: st
 
       const answeredGuestsCount = answeredGuests.length;
 
-      const notAnsweredGuests = guest.filter((guest) =>
-         guest.Invitations.some((invitation) => invitation.answer === null)
+      const notAnsweredGuests = guest.filter((guest) => {
+         // Count the number of unanswered invitations
+         const unansweredCount = guest.Invitations.filter((invitation) => invitation.answer === null).length;
+
+         // Count the number of "no" answers
+         const noCount = guest.Invitations.filter((invitation) => invitation.answer === 'no').length;
+
+         // Adjust the unanswered count based on the "no" answers
+         const adjustedUnansweredCount = unansweredCount - 2 * noCount;
+
+         // Keep guests where the adjusted unanswered count is greater than 0
+         return adjustedUnansweredCount > 0;
+      });
+
+      const totalGuestConfirmYes = guest.filter((guest) =>
+         guest.Invitations.some((invitation) => invitation.answer === 'yes')
       );
+
+      const guestConfirm = totalGuestConfirmYes.length;
+
+      const totalGuestConfirmNo = guest.filter((guest) =>
+         guest.Invitations.some((invitation) => invitation.answer === 'no')
+      );
+
+      console.log('totalGuestConfirmNo', totalGuestConfirmNo);
+
+      const guestDecline = totalGuestConfirmNo.length;
 
       const notAnsweredGuestsCount = notAnsweredGuests.length;
 
@@ -65,6 +89,8 @@ export async function GET(req: NextRequest, { params }: { params: { clientId: st
             answered_guest: answeredGuestsCount,
             not_answered_guest: notAnsweredGuestsCount,
             total_guests: guest.length,
+            guest_confirm: guestConfirm,
+            guest_decline: guestDecline,
             guest: guest,
          },
       ];
@@ -74,6 +100,103 @@ export async function GET(req: NextRequest, { params }: { params: { clientId: st
             status: 200,
             message: 'Dashboard data fetched successfully',
             data: statisticData,
+         },
+         { status: 200 }
+      );
+   } catch (error) {
+      const errorMessage = error as Error;
+      const jwtError = error as JWTError;
+
+      if (jwtError.code === 'ERR_JWT_EXPIRED' || jwtError.code === 'ERR_JWS_INVALID') {
+         return NextResponse.json(
+            {
+               satatus: 401,
+               message: 'unauthorized',
+            },
+            { status: 401 }
+         );
+      }
+
+      return NextResponse.json(
+         {
+            status: 500,
+            message: errorMessage.message,
+         },
+         { status: 500 }
+      );
+   }
+}
+
+export async function POST(req: NextRequest, { params }: { params: { clientId: string } }) {
+   const token = req.headers.get('authorization');
+   const jwtToken = token?.split(' ')[1];
+   const data = await req.json();
+
+   console.log('data', data);
+
+   try {
+      const { payload } = await jwtVerify(jwtToken as string, secret);
+
+      const guests = await Promise.all(
+         data.data.map(async (clientId: any) => {
+            const guest = await prisma.guest.findMany({
+               select: {
+                  id: true,
+                  guestId: true,
+                  name: true,
+                  scenario: true,
+                  GuestDetail: true,
+                  Invitations: {
+                     select: {
+                        Question: {
+                           select: {
+                              question: true,
+                           },
+                        },
+                        answer: true,
+                     },
+                  },
+               },
+               where: {
+                  id: clientId,
+               },
+            });
+
+            const formattedGuest = guest.map((guest) => {
+               const detail = guest.GuestDetail.reduce(
+                  (acc: any, detail: any) => {
+                     acc[detail.detail_key] = detail.detail_val;
+                     return acc;
+                  },
+                  { guestId: guest.guestId }
+               );
+
+               const question = guest.Invitations.map((invitation) => {
+                  return {
+                     question: invitation.Question.question,
+                     answer: invitation.answer,
+                  };
+               });
+
+               return {
+                  id: guest.id,
+                  guestId: guest.guestId,
+                  name: guest.name,
+                  scenario: guest.scenario,
+                  ...detail,
+                  questions: question,
+               };
+            });
+
+            return formattedGuest[0];
+         })
+      );
+
+      return NextResponse.json(
+         {
+            status: 200,
+            message: 'Dashboard data fetched successfully',
+            data: guests,
          },
          { status: 200 }
       );

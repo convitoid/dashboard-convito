@@ -1,9 +1,9 @@
-import { getDashboardData } from '@/app/GlobalRedux/Thunk/clients/clientDashboardThunk';
+import { exportData, getDashboardData } from '@/app/GlobalRedux/Thunk/clients/clientDashboardThunk';
 import { createSlice } from '@reduxjs/toolkit';
 
 interface ClientDashboard {
    datas: any | '';
-   status: 'idle' | 'loading' | 'failed' | 'success';
+   status: 'idle' | 'loading' | 'failed' | 'success' | 'exportLoading' | 'exportSuccess' | 'exportFailed';
    error: any | null;
 }
 
@@ -36,6 +36,16 @@ export const clientDashboardSlice = createSlice({
          .addCase(getDashboardData.rejected, (state, action) => {
             state.status = 'failed';
             state.error = action.error.message;
+         })
+
+         .addCase(exportData.pending, (state) => {
+            state.status = 'exportLoading';
+         })
+         .addCase(exportData.fulfilled, (state) => {
+            state.status = 'exportSuccess';
+         })
+         .addCase(exportData.rejected, (state) => {
+            state.status = 'exportFailed';
          });
    },
 });
