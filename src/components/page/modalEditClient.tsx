@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { FormIinput } from '../formInput';
 import { ModalComponent } from '../modal';
 import { AppDispatch, RootState } from '@/app/store';
-import { getClientById, updateClient } from '@/app/GlobalRedux/Thunk/clients/clientThunk';
+import { fetchClients, getClientById, updateClient } from '@/app/GlobalRedux/Thunk/clients/clientThunk';
 import { useEffect, useState } from 'react';
 import moment from 'moment';
 import { createValidation } from '@/utils/formValidation/user/createValidation';
@@ -66,7 +66,22 @@ export const ModalEditClient = ({ modalId, clientId, closeModal }: ModalEditClie
          });
       }
 
-      dispatch(updateClient(formData));
+      dispatch(updateClient(formData))
+         .unwrap()
+         .then((res) => {
+            console.log('res', res);
+            if (res.status === 201) {
+               Swal.fire({
+                  icon: 'success',
+                  title: 'Success',
+                  text: res.message,
+                  target: document.getElementById(`${modalId}`),
+               }).then(() => {
+                  closeModal();
+                  dispatch(fetchClients());
+               });
+            }
+         });
    };
 
    return (

@@ -175,8 +175,6 @@ export const SendBroadcastTab = ({ clientId }: SendBroadcastTabProps) => {
          });
    };
 
-   console.log('sendingStatus', sendingStatus);
-
    return (
       <>
          <button

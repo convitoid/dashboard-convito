@@ -58,9 +58,20 @@ export const updateClient = createAsyncThunk('client/updateClient', async (data:
       .then((values) => {
          return values;
       });
-   console.log('data from thunk', data);
 
-   return data;
+   const response = await fetch('/api/clients', {
+      method: 'PUT',
+      headers: {
+         'Content-Type': 'application/json',
+         Authorization: `Bearer ${getToken.user.jwt}`,
+      },
+      body: JSON.stringify(data),
+   });
+
+   const res = await response.json();
+   console.log('res from thunk', res);
+
+   return res;
 });
 
 export const deleteClient = createAsyncThunk('client/deleteClient', async (id: any) => {
