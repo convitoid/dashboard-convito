@@ -180,31 +180,12 @@ export default function InvitationPage({ params }: { params: { token: string } }
             };
          });
 
-         // console.log(guestId);
-
          dispatch(updateAnswer({ guestId: guestId, data: newData }))
             .unwrap()
             .then((res) => {
-               if (res.status === 201) {
-                  Swal.fire({
-                     icon: 'success',
-                     title: 'Success',
-                     text: res.message,
-                  }).then(() => {
-                     router.refresh();
-                     dispatch(getInvitation(token[0]));
-                     dispatch(getAnswer({ data: decodeToken }));
-                  });
-               } else {
-                  Swal.fire({
-                     icon: 'warning',
-                     title: 'Failed',
-                     text: res.message,
-                  });
-               }
+               dispatch(getInvitation(token[0]));
+               dispatch(getAnswer({ data: decodeToken }));
             });
-
-         //  dispatch(updateAnswer(newData));
       } else {
          const missingFields = getId.filter((id) => dataForm[`question_${id}`]);
          if (missingFields.length !== invitations?.client?.Scenario[0]?.ScenarioQuestion?.length) {
@@ -225,26 +206,9 @@ export default function InvitationPage({ params }: { params: { token: string } }
          dispatch(updateAnswer({ guestId: guestId, data: newData }))
             .unwrap()
             .then((res) => {
-               if (res.status === 201) {
-                  Swal.fire({
-                     icon: 'success',
-                     title: 'Success',
-                     text: res.message,
-                  }).then(() => {
-                     router.refresh();
-                     dispatch(getInvitation(token[0]));
-                     dispatch(getAnswer({ data: decodeToken }));
-                  });
-               } else {
-                  Swal.fire({
-                     icon: 'warning',
-                     title: 'Failed',
-                     text: res.message,
-                  });
-               }
+               dispatch(getInvitation(token[0]));
+               dispatch(getAnswer({ data: decodeToken }));
             });
-
-         //  newData.map(async (data) => {});
       }
    };
 
@@ -372,10 +336,13 @@ export default function InvitationPage({ params }: { params: { token: string } }
                               ))}
                               <button
                                  className="bg-[#1C1C1C] text-slate-100 w-full px-4 py-2 rounded-md mt-4 mb-2"
-                                 //    disabled={status === 'loading'}
+                                 disabled={status === 'updateAnswerLoading'}
                               >
-                                 {/* {status === 'loading' ? <div className="loader"></div> : 'Submit'} */}
-                                 Submit
+                                 {status === 'updateAnswerLoading' ? (
+                                    <span className="loading loading-spinner loading-sm"></span>
+                                 ) : (
+                                    'Submit'
+                                 )}
                               </button>
                               <div className="flex flex-col items-center justify-center gap-2 my-6">
                                  <h1 className="text-xs">Powered by</h1>
