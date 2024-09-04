@@ -39,6 +39,13 @@ export async function POST(req: NextRequest) {
       if (fs.existsSync(targetDir)) {
          // If it exists, delete the directory and its contents
          fs.rmSync(targetDir, { recursive: true, force: true });
+
+         // Remove the files from the database
+         await prisma.qrFile.deleteMany({
+            where: {
+               clientId: client?.id,
+            },
+         });
       }
 
       // Create the target directory

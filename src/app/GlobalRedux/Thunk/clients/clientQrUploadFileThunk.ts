@@ -23,10 +23,37 @@ export const uploadQrFile = createAsyncThunk('clientQrUploadFile/uploadQrFile', 
       }
 
       const response = await uploadQrFile.json();
-      console.log(response);
       return response;
    } catch (error: any) {
       // Return a serializable error object
       return { message: error.message };
+   }
+});
+
+export const getQrFiles = createAsyncThunk('clientQrUploadFile/getQrFiles', async (clientId: string) => {
+   try {
+      const getToken = await fetch('/api/auth/session')
+         .then((res) => res.json())
+         .then((data) => {
+            return data;
+         });
+
+      const qrFiles = await fetch(`/api/qr/${clientId}`, {
+         method: 'GET',
+         headers: {
+            Authorization: `Bearer ${getToken.token}`,
+         },
+      });
+
+      if (!qrFiles.ok) {
+         const errorResponse = await qrFiles.json();
+         throw new Error(errorResponse.message || 'Failed to fetch qr files');
+      }
+
+      const response = await qrFiles.json();
+
+      return response;
+   } catch (error) {
+      return error;
    }
 });

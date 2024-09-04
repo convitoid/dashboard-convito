@@ -1,5 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { uploadQrFile } from '../../Thunk/clients/clientQrUploadFileThunk';
+import { getQrFiles, uploadQrFile } from '../../Thunk/clients/clientQrUploadFileThunk';
 
 interface ClientQrUploadFile {
    files: any | '';
@@ -22,6 +22,9 @@ export const clientQrUploadFileSlice = createSlice({
       resetStatusQr: (state) => {
          state.status = 'idle';
       },
+      resetDataFiles: (state) => {
+         state.files = [];
+      },
    },
    extraReducers: (builder) => {
       builder
@@ -35,9 +38,22 @@ export const clientQrUploadFileSlice = createSlice({
          .addCase(uploadQrFile.rejected, (state, action) => {
             state.status = 'failed';
             state.error = action.error.message;
+         })
+
+         .addCase(getQrFiles.pending, (state) => {
+            state.status = 'loading';
+         })
+         .addCase(getQrFiles.fulfilled, (state, action) => {
+            console.log('dari thunk', action.payload);
+            state.status = 'success';
+            state.files = action.payload.data;
+         })
+         .addCase(getQrFiles.rejected, (state, action) => {
+            state.status = 'failed';
+            state.error = action.error.message;
          });
    },
 });
 
-export const { resetStatusQr } = clientQrUploadFileSlice.actions;
+export const { resetStatusQr, resetDataFiles } = clientQrUploadFileSlice.actions;
 export default clientQrUploadFileSlice.reducer;
