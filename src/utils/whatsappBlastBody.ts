@@ -1,4 +1,5 @@
 import prisma from '@/libs/prisma';
+import jwt from 'jsonwebtoken';
 
 type WhatsappBlastBodyProps = {
    data: any;
@@ -48,7 +49,6 @@ export const WhatsappBlastBody = async ({
    switch (template[0].template_type) {
       case 'no_header': {
          const token_no_header = uniqueData.filter((t: any) => t.guestId === data.id).map((t: any) => t.token);
-         console.log('token_no_header', token_no_header);
          const body = {
             messaging_product: 'whatsapp',
             to: data.phone_number,
@@ -87,50 +87,6 @@ export const WhatsappBlastBody = async ({
 
       case 'header_image': {
          const token_header_image = uniqueData.filter((t: any) => t.guestId === data.id).map((t: any) => t.token);
-         // const bodyImage = {
-         //    messaging_product: 'whatsapp',
-         //    to: data.phone_number,
-         //    type: 'template',
-         //    template: {
-         //       name: template[0].template_name,
-         //       language: {
-         //          code: 'en',
-         //       },
-         //       components: [
-         //          {
-         //             type: 'header',
-         //             parameters: [
-         //                {
-         //                   type: 'image',
-         //                   image: {
-         //                      link: `${process.env.NEXTAUTH_URL}${image.imagePath}`,
-         //                   },
-         //                },
-         //             ],
-         //          },
-         //          {
-         //             type: 'body',
-         //             parameters: [
-         //                {
-         //                   type: 'text',
-         //                   text: data.name,
-         //                },
-         //             ],
-         //          },
-         //          {
-         //             type: 'button',
-         //             sub_type: 'url',
-         //             index: 0,
-         //             parameters: [
-         //                {
-         //                   type: 'text',
-         //                   text: `invitation/${token_header_image[0]}`,
-         //                },
-         //             ],
-         //          },
-         //       ],
-         //    },
-         // };
 
          const bodyImage = {
             messaging_product: 'whatsapp',
