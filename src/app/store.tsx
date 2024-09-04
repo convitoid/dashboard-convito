@@ -14,6 +14,9 @@ import videoReducer from '@/app/GlobalRedux/Features/video/videoSlice';
 import sendBlastingReducer from '@/app/GlobalRedux/Features/sendBlasting/sendBlastingSlice';
 import invitationReducers from '@/app/GlobalRedux/Features/invitation/invitationSlice';
 import clientDashboardReducers from '@/app/GlobalRedux/Features/clients/dashboard/clientDashboardSlice';
+import sendBlastingLogsReducers from '@/app/GlobalRedux/Features/logs/sendBlastingLogsSlice';
+import clientQrUploadImageReducer from '@/app/GlobalRedux/Features/clients/clientQrUploadImageSlice';
+import clientQrUploadFileReducer from '@/app/GlobalRedux/Features/clients/clientQrUploadFileSlice';
 
 const rootReducer = combineReducers({
    counter: counterReducer,
@@ -30,6 +33,9 @@ const rootReducer = combineReducers({
    sendBlasting: sendBlastingReducer,
    invitations: invitationReducers,
    clientDashboard: clientDashboardReducers,
+   sendBlastingLogs: sendBlastingLogsReducers,
+   clientQrUploadImage: clientQrUploadImageReducer,
+   clientQrUploadFile: clientQrUploadFileReducer,
    //add all your reducers here
 });
 

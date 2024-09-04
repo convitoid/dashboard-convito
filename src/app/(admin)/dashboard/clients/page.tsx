@@ -13,6 +13,8 @@ import { EditIcon } from '@/components/icons/edit';
 import { DeleteIcon } from '@/components/icons/delete';
 import { DetailIcon } from '@/components/icons/detail';
 import { useRouter } from 'next/navigation';
+import { Calendar } from '@/components/icons/calendar';
+import { QrCode } from '@/components/icons/qrCode';
 
 interface Client {
    client_name: string;
@@ -129,25 +131,34 @@ const ClientPage = () => {
                                  <td className="border-b-[1px] py-2 px-4 flex items-center gap-2">
                                     <button
                                        className="btn bg-info tooltip tooltip-bottom"
-                                       data-tip="Detail"
+                                       data-tip="RSVP"
                                        onClick={() => {
                                           router.push(`/dashboard/clients/${client?.client_id}`);
                                        }}
                                     >
-                                       <DetailIcon />
+                                       <Calendar className="size-4" />
+                                    </button>
+                                    <button
+                                       className="btn bg-neutral text-white tooltip tooltip-bottom"
+                                       data-tip="QR Code"
+                                       onClick={() => {
+                                          router.push(`/dashboard/clients/qr/${client?.client_id}`);
+                                       }}
+                                    >
+                                       <QrCode className="size-4" />
                                     </button>
                                     <button
                                        className="btn bg-yellow-400 text-slate-900 tooltip tooltip-bottom"
                                        data-tip="Edit"
                                        onClick={() => handleOpenModalEdit(client?.client_id)}
                                     >
-                                       <EditIcon />
+                                       <EditIcon className="size-4" />
                                     </button>
                                     <button
                                        className="btn bg-red-500 text-slate-100 tooltip tooltip-bottom"
                                        data-tip="Delete"
                                     >
-                                       <DeleteIcon />
+                                       <DeleteIcon className="size-4" />
                                     </button>
                                  </td>
                               </tr>

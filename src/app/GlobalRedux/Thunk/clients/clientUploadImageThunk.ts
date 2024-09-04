@@ -1,7 +1,7 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 
 export const getClientImages = createAsyncThunk('clientUploadImage/getClientImages', async (clientId: string) => {
-   // console.log('clientId', clientId);
+   console.log('clientId thunk', clientId);
    const getToken = await fetch('/api/auth/session')
       .then((res) => res.json())
       .then((data) => {

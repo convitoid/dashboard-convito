@@ -25,6 +25,8 @@ model Client {
   Scenario          Scenario[]
   ClientVideo       ClientVideo[]
   Invitations       Invitations[]
+  QrGalleryImage    QrGalleryImage[]
+  QrFile            QrFile[]
 }
 
 model User {
@@ -87,17 +89,18 @@ model ClientVideo {
 }
 
 model Guest {
-  id            Int           @id @default(autoincrement())
-  guestId       String
-  name          String
-  scenario      String
-  scenario_slug String?
-  clientId      Int
-  client        Client        @relation(fields: [clientId], references: [id])
-  GuestDetail   GuestDetail[]
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
-  Invitations   Invitations[]
+  id               Int                @id @default(autoincrement())
+  guestId          String
+  name             String
+  scenario         String
+  scenario_slug    String?
+  clientId         Int
+  client           Client             @relation(fields: [clientId], references: [id])
+  GuestDetail      GuestDetail[]
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+  Invitations      Invitations[]
+  SendBlastingLogs SendBlastingLogs[]
 }
 
 model GuestDetail {
@@ -182,4 +185,34 @@ model Invitations {
   token      String?
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
+}
+
+model SendBlastingLogs {
+  id        Int      @id @default(autoincrement())
+  status    String
+  logs      String
+  guestId   Int
+  Guest     Guest    @relation(fields: [guestId], references: [id])
+  createdAt DateTime @default(now())
+}
+
+model QrGalleryImage {
+  id           Int      @id @default(autoincrement())
+  name         String
+  path         String
+  originalPath String
+  clientId     Int
+  Client       Client   @relation(fields: [clientId], references: [id])
+  createdAt    DateTime @default(now())
+}
+
+model QrFile {
+  id           Int      @id @default(autoincrement())
+  name         String
+  code         String
+  path         String
+  originalPath String
+  clientId     Int
+  Client       Client   @relation(fields: [clientId], references: [id])
+  createdAt    DateTime @default(now())
 }

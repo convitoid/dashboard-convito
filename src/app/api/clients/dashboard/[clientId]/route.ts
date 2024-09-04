@@ -41,11 +41,14 @@ export async function GET(req: NextRequest, { params }: { params: { clientId: st
                   answer: true,
                },
             },
+            SendBlastingLogs: true,
          },
          where: {
             clientId: client?.id,
          },
       });
+
+      console.log('guest', guest);
 
       const answeredGuests = guest.filter((guest) =>
          guest.Invitations.some((invitation) => invitation.answer !== null)
@@ -76,8 +79,6 @@ export async function GET(req: NextRequest, { params }: { params: { clientId: st
       const totalGuestConfirmNo = guest.filter((guest) =>
          guest.Invitations.some((invitation) => invitation.answer === 'no')
       );
-
-      console.log('totalGuestConfirmNo', totalGuestConfirmNo);
 
       const guestDecline = totalGuestConfirmNo.length;
 

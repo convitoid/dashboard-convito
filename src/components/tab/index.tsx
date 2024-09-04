@@ -16,54 +16,10 @@ import { SendBroadcastTab } from './SendBroadcastTab';
 
 interface TabProps {
    clientId?: string;
+   tabs?: any;
 }
 
-export const Tab = ({ clientId }: TabProps) => {
-   const tabs = [
-      {
-         name: 'Dashboard',
-         icon: <PresentationChartLine />,
-         content: <DashboardTab clientId={clientId} />,
-         disabled: false,
-      },
-      {
-         name: 'Gallery',
-         icon: <Photo />,
-         content: <GalleryTab clientId={clientId} />,
-         disabled: false,
-      },
-      {
-         name: 'Data',
-         icon: <Data />,
-         content: <DataTab clientId={clientId} />,
-         disabled: false,
-      },
-      {
-         name: 'Questions',
-         icon: <Question />,
-         content: <QuestionTab clientId={clientId} />,
-         disabled: false,
-      },
-      {
-         name: 'Broadcast Template',
-         icon: <ChatBubleLeftRight />,
-         content: <BroadcastTemplateTab clientId={clientId} />,
-         disabled: false,
-      },
-      {
-         name: 'Scenario',
-         icon: <DocumentText />,
-         content: <ScenarioTab clientId={clientId} />,
-         disabled: false,
-      },
-      {
-         name: 'Send Broadcast',
-         icon: <PaperAirplane />,
-         content: <SendBroadcastTab clientId={clientId} />,
-         disabled: false,
-      },
-   ];
-
+export const Tab = ({ clientId, tabs }: TabProps) => {
    const [activeTab, setActiveTab] = useState(tabs[0].name);
 
    const handleTabClick = (tabName: any, isDisabled: any) => {
@@ -76,7 +32,7 @@ export const Tab = ({ clientId }: TabProps) => {
       <>
          <div className="border-b-[1px] border-gray-200 dark:border-gray-900">
             <ul className="flex flex-wrap -mb-px text-sm font-medium text-center text-gray-900 dark:text-gray-900">
-               {tabs.map((tab) => (
+               {tabs.map((tab: any) => (
                   <li key={tab.name} className="me-5">
                      <button
                         onClick={() => handleTabClick(tab.name, tab.disabled)}
@@ -112,7 +68,7 @@ export const Tab = ({ clientId }: TabProps) => {
             <div className="card bg-slate-50 text-slate-900 w-full shadow-md">
                <div className="card-body overflow-x-auto">
                   {tabs.map(
-                     (tab) =>
+                     (tab: any) =>
                         activeTab === tab.name && (
                            <div key={tab.name} className="animate-fade-in">
                               {tab.content}

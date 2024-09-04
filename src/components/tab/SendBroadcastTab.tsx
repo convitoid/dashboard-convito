@@ -161,6 +161,17 @@ export const SendBroadcastTab = ({ clientId }: SendBroadcastTabProps) => {
 
    const handleSendBlasting = () => {
       const selectedRowsData = getSelectedRowsData();
+      const checkboxItem = Object.keys(selectedRows).filter((key: any) => selectedRows[key]);
+
+      if (checkboxItem.length === 0) {
+         Swal.fire({
+            icon: 'warning',
+            title: 'Error',
+            text: 'Please select at least one data',
+         });
+         return;
+      }
+
       dispatch(sendBlasting({ clientId: clientId?.toString() ?? '', data: selectedRowsData }))
          .unwrap()
          .then((res) => {
@@ -169,6 +180,12 @@ export const SendBroadcastTab = ({ clientId }: SendBroadcastTabProps) => {
                Swal.fire({
                   icon: 'success',
                   title: 'Success',
+                  text: res.message,
+               });
+            } else {
+               Swal.fire({
+                  icon: 'error',
+                  title: 'Error',
                   text: res.message,
                });
             }
