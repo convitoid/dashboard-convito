@@ -48,6 +48,7 @@ export const WhatsappBlastBody = async ({
    switch (template[0].template_type) {
       case 'no_header': {
          const token_no_header = uniqueData.filter((t: any) => t.guestId === data.id).map((t: any) => t.token);
+         console.log('token_no_header', token_no_header);
          const body = {
             messaging_product: 'whatsapp',
             to: data.phone_number,
@@ -81,7 +82,6 @@ export const WhatsappBlastBody = async ({
                ],
             },
          };
-         console.log('body', body);
          return body;
       }
 
