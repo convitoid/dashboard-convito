@@ -31,7 +31,7 @@ export const getScenarioById = createAsyncThunk('scenario/getScenarioById', asyn
             return data;
          });
 
-      const response = await fetch(`/api/scenario/${payload.clientId[0]}/${payload.scenarioId}`, {
+      const response = await fetch(`/api/scenario/${payload.clientId}/${payload.scenarioId}`, {
          method: 'GET',
          headers: {
             Authorization: `Bearer ${getToken.user.jwt}`,
