@@ -99,7 +99,7 @@ export const BroadcastTemplateTab = ({ clientId }: BroadcastTemplateTabProps) =>
    };
 
    useEffect(() => {
-      if (templates.length > 0) {
+      if (templates?.length > 0) {
          const dynamicColumns = [
             {
                header: 'No',

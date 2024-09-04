@@ -17,6 +17,7 @@ type GalleryTabProps = {
 };
 
 export const GalleryTab = ({ clientId }: GalleryTabProps) => {
+   console.log('clientId', clientId);
    const dispatch = useDispatch<AppDispatch>();
    const isOpenModal = useSelector((state: RootState) => state.uploadImage.isOpenModal);
    const images = useSelector((state: RootState) => state.uploadImage.clientImages);
@@ -47,11 +48,11 @@ export const GalleryTab = ({ clientId }: GalleryTabProps) => {
    });
 
    useEffect(() => {
-      dispatch(getClientImages(clientId?.[0]?.toString() ?? ''));
+      dispatch(getClientImages(clientId?.toString() ?? ''));
    }, []);
 
    useEffect(() => {
-      dispatch(getAllVideo({ clientId: clientId?.[0]?.toString() ?? '' }));
+      dispatch(getAllVideo({ clientId: clientId }));
 
       return () => {
          dispatch(clearData());
@@ -79,7 +80,7 @@ export const GalleryTab = ({ clientId }: GalleryTabProps) => {
                .unwrap()
                .then((response) => {
                   console.log('response', response);
-                  dispatch(getClientImages(clientId?.[0]?.toString() ?? ''));
+                  dispatch(getClientImages(clientId?.toString() ?? ''));
                   Swal.fire({
                      title: 'Deleted!',
                      text: 'Your file has been deleted.',
@@ -101,7 +102,7 @@ export const GalleryTab = ({ clientId }: GalleryTabProps) => {
          confirmButtonText: 'Yes, delete it!',
       }).then((result) => {
          if (result.isConfirmed) {
-            dispatch(deleteVideo({ clientId: clientId?.[0]?.toString() ?? '', id: videoId }))
+            dispatch(deleteVideo({ clientId: clientId, id: videoId }))
                .unwrap()
                .then((res) => {
                   if (res.status === 200) {
@@ -110,7 +111,7 @@ export const GalleryTab = ({ clientId }: GalleryTabProps) => {
                         text: 'Your file has been deleted.',
                         icon: 'success',
                      }).then(() => {
-                        dispatch(getAllVideo({ clientId: clientId?.[0]?.toString() ?? '' }));
+                        dispatch(getAllVideo({ clientId: clientId }));
                         dispatch(clearData());
                         dispatch(resetStatus());
                      });

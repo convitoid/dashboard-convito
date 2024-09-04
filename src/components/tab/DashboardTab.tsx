@@ -63,14 +63,41 @@ export const DashboardTab = ({ clientId }: DashboardTabProps) => {
                header: 'Answer',
                accessorKey: 'answer',
             },
+            {
+               header: 'Status Blasting',
+               accessorKey: 'status_blasting',
+               cell: (info: any) => {
+                  return (
+                     <span
+                        className={`text-sm px-2 py-1 rounded-md ${
+                           info.row.original.status_blasting === 'Success'
+                              ? 'bg-green-500 text-white'
+                              : 'bg-red-500 text-white'
+                        }`}
+                     >
+                        {info.row.original.status_blasting}
+                     </span>
+                  );
+               },
+            },
          ];
 
          setColumns(dynamicColumns);
-
-         console.log(dashboarData[0].guest);
+         //  SendBlastingLogs: [
+         //     {
+         //        id: 16,
+         //        status: 'success_send_blasting',
+         //        logs: 'Successfully sent',
+         //        guestId: 1,
+         //        createdAt: '2024-09-01T06:02:56.005Z',
+         //     },
+         //  ];
 
          const dynamicData = dashboarData[0].guest.map((item: any, index: number) => {
             const answer = item.Invitations.some((invitation: any) => invitation.answer !== null);
+            const statusBlasting = item.SendBlastingLogs.map((log: any) => log.status);
+
+            console.log(statusBlasting);
 
             return {
                id: item.id,
@@ -78,6 +105,7 @@ export const DashboardTab = ({ clientId }: DashboardTabProps) => {
                name: item.name,
                scenario: item.scenario,
                answer: answer ? 'Yes' : 'No',
+               status_blasting: statusBlasting[0] === 'success_send_blasting' ? 'Success' : 'Failed',
             };
          });
 

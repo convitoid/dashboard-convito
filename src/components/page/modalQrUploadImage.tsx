@@ -1,23 +1,19 @@
 import { useEffect, useRef, useState } from 'react';
 import { ModalComponent } from '../modal';
-import { useDispatch, useSelector } from 'react-redux';
-import { AppDispatch, RootState } from '@/app/store';
-import { closeModal } from '@/app/GlobalRedux/Features/clients/clientUploadImageSlice';
 import Image from 'next/image';
 import Swal from 'sweetalert2';
-import { getClientImages, uploadImage } from '@/app/GlobalRedux/Thunk/clients/clientUploadImageThunk';
+import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch, RootState } from '@/app/store';
+import { getQrImages, uploadQrImage } from '@/app/GlobalRedux/Thunk/clients/clientQrUploadImageThunk';
+import { resetStatusQr } from '@/app/GlobalRedux/Features/clients/clientQrUploadImageSlice';
 
-type ModalUploadImageProps = {
-   modalId?: string;
+type ModalQrUploadImageProps = {
+   modalId: string;
    title: string;
-   clientId?: string;
+   clientId: string;
 };
 
-export const ModalUploadImage = ({ modalId, title, clientId }: ModalUploadImageProps) => {
-   console.log('clientId', clientId);
-   const [formData, setFormData] = useState({
-      imageFlag: '',
-   });
+export const ModalQrUploadImage = ({ modalId, title, clientId }: ModalQrUploadImageProps) => {
    const [uploadProgress, setUploadProgress] = useState(0);
    const [isLoadingUpload, setIsLoadingUpload] = useState(false);
    const [uploadImageUrl, setUploadImageUrl] = useState('');
@@ -26,10 +22,10 @@ export const ModalUploadImage = ({ modalId, title, clientId }: ModalUploadImageP
    const fileInputRef = useRef<HTMLInputElement>(null);
 
    const dispatch = useDispatch<AppDispatch>();
-   const status = useSelector((state: RootState) => state.uploadImage.status);
+   const loading = useSelector((state: RootState) => state.clientQrUploadImage.status);
 
-   const closeModalUploadImage = () => {
-      const modal = document.getElementById(modalId ?? '') as HTMLDialogElement;
+   const closeModal = () => {
+      const modal = document.getElementById(modalId) as HTMLDialogElement;
 
       if (fileInputRef.current) {
          fileInputRef.current.value = '';
@@ -39,16 +35,9 @@ export const ModalUploadImage = ({ modalId, title, clientId }: ModalUploadImageP
          modal.close();
       }
 
-      dispatch(closeModal());
       setIsLoadingUpload(false);
       setUploadProgress(0);
       setUploadImageUrl('');
-      setFormData({ imageFlag: '' });
-   };
-
-   const handleInputChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-      const { name, value } = e.target;
-      setFormData({ ...formData, [name]: value });
    };
 
    const handelImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -82,76 +71,45 @@ export const ModalUploadImage = ({ modalId, title, clientId }: ModalUploadImageP
       }
    };
 
-   useEffect(() => {
-      // detect escape key, close modal
-      const handleKeyDown = (e: KeyboardEvent) => {
-         if (e.key === 'Escape') {
-            closeModalUploadImage();
-         }
-      };
-
-      window.addEventListener('keydown', handleKeyDown);
-      setFormData({ imageFlag: '' });
-   }, []);
-
    const submitForm = async (e: React.FormEvent<HTMLFormElement>) => {
       e.preventDefault();
       const data = new FormData();
-      data.append('image_flag', formData.imageFlag);
       data.append('client_image', fileInputRef.current?.files?.[0] as Blob);
-      data.append('client_code', clientId?.toString() ?? '');
-      data.append('client_id', clientId?.toString() ?? '');
-
-      if (formData.imageFlag === '') {
-         Swal.fire({
-            icon: 'info',
-            title: 'Error',
-            text: 'Please select image type',
-            target: document.getElementById(modalId ?? ''),
-         });
-         return;
-      }
+      data.append('client_id', clientId);
 
       if (!uploadImageUrl) {
          Swal.fire({
-            icon: 'info',
-            title: 'Error',
-            text: 'Please upload image',
-            target: document.getElementById(modalId ?? ''),
+            icon: 'warning',
+            title: 'Oops...',
+            text: 'Please upload an image',
+            target: document.getElementById(modalId),
          });
-         return;
       }
 
       try {
-         await dispatch(uploadImage(data))
+         await dispatch(uploadQrImage(data))
             .unwrap()
             .then((res) => {
-               if (res.status === 400) {
-                  Swal.fire({
-                     icon: 'warning',
-                     text: res.error,
-                     target: document.getElementById(modalId ?? ''),
-                  });
-               }
-
-               if (res.status === 201) {
+               if (res.status === 200) {
                   Swal.fire({
                      icon: 'success',
                      title: 'Success',
                      text: 'Image uploaded successfully',
-                     target: document.getElementById(modalId ?? ''),
+                     target: document.getElementById(modalId),
                   }).then(() => {
-                     dispatch(getClientImages(clientId?.toString() ?? ''));
-                     closeModalUploadImage();
+                     closeModal();
+                     dispatch(resetStatusQr());
+                     dispatch(getQrImages(clientId));
                   });
                }
             });
+         // closeModal();
       } catch (error) {
          Swal.fire({
             icon: 'error',
-            title: 'Error',
+            title: 'Oops...',
             text: 'Failed to upload image',
-            target: document.getElementById(modalId ?? ''),
+            target: document.getElementById(modalId),
          });
       }
    };
@@ -163,30 +121,12 @@ export const ModalUploadImage = ({ modalId, title, clientId }: ModalUploadImageP
          modalWrapper="p-0 w-11/12 max-w-xl"
          backgroundColorHeader="bg-blue-500 px-6 py-5 text-white"
          modalBodyStyle="pt-3 px-6 pb-6"
-         closeModal={closeModalUploadImage}
+         closeModal={closeModal}
       >
          <form onSubmit={submitForm}>
             <div className="mb-3">
-               <label htmlFor="imageFlag" className="label font-semibold mb-1">
-               Image type
-               </label>
-               <select
-                  name="imageFlag"
-                  id="image_flag"
-                  className="select select-bordered w-full"
-                  value={formData.imageFlag}
-                  onChange={handleInputChange}
-               >
-                  <option disabled value="">
-                     Select image type
-                  </option>
-                  <option value="invitation_website">Invitation website</option>
-                  <option value="blasting_whatsapp">Blasting whatsapp</option>
-               </select>
-            </div>
-            <div className="flex flex-col mb-5">
-               <label htmlFor="" className="label font-semibold">
-                  Upload image
+               <label htmlFor="uploadImage" className="label font-semibold">
+                  Upload Image
                </label>
                <input
                   ref={fileInputRef}
@@ -221,22 +161,23 @@ export const ModalUploadImage = ({ modalId, title, clientId }: ModalUploadImageP
                         <strong>Filename:</strong> <span className="italic">{uploadImageName}</span>
                      </span>
                      <span className="text-sm">
-                        <strong>Size:</strong> <span className="italic">{uploadImageSize}</span>
+                        <strong>Size:</strong> <span className="italic">{uploadImageSize} MB</span>
                      </span>
                   </div>
                </div>
             )}
+
             <div className="flex items-center justify-end gap-2 mt-2 border-t-[1px] border-slate-300 pt-3">
                <button
                   type="button"
                   className="btn btn-neutral"
-                  disabled={isLoadingUpload || status === 'loading'}
-                  onClick={closeModalUploadImage}
+                  disabled={isLoadingUpload || loading === 'loading'}
+                  onClick={closeModal}
                >
                   Cancel
                </button>
-               <button className="btn bg-blue-500 text-white" disabled={isLoadingUpload || status === 'loading'}>
-                  {status === 'loading' ? <span className="loading loading-spinner loading-sm"></span> : 'Submit'}
+               <button className="btn bg-blue-500 text-white" disabled={isLoadingUpload || loading === 'loading'}>
+                  {loading === 'loading' ? <span className="loading loading-spinner loading-sm"></span> : 'Submit'}
                </button>
             </div>
          </form>

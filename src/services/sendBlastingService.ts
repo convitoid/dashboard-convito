@@ -11,7 +11,6 @@ type InvitationsWhereUniqueInput = {
 };
 
 export const sendBlastingService = async (data: any, clientId: any, clientCode: any) => {
-   console.log(clientCode);
    try {
       const clientImage = await prisma.clientImage.findFirst({
          where: {
@@ -98,43 +97,17 @@ export const sendBlastingService = async (data: any, clientId: any, clientCode: 
          })
       );
 
-      const createInvitationsData = async (createInvitation: any[], clientId: number) => {
-         const invitationsData = await Promise.all(
-            createInvitation.flatMap(async (guest: any) =>
-               Promise.all(
-                  guest.question.map(async (q: any) => ({
-                     clientId: clientId,
-                     guestId: guest.guest_id,
-                     questionId: q.question_id,
-                     token: await generateLink({
-                        data: { id: guest.guest_id, name: guest.guest_name },
-                        clientCode: guest.guest_code,
-                     }),
-                  }))
-               )
-            )
-         );
+      const newJson: any[] = [];
 
-         return invitationsData.flat();
-      };
-
-      const invitationsData = await createInvitationsData(createInvitation, clientId);
-
-      const invitationCreateData = await prisma.invitations.createMany({
-         data: invitationsData,
-      });
-
-      data.map(async (d: any) => {
-         d.broadcastTemplate.forEach(async (b: any, index: number) => {
+      const sendBlastingProcess = await Promise.all(
+         data.map(async (d: any) => {
             const templateBody = await WhatsappBlastBody({
                data: d,
-               broadcastTemplate: b[index].BroadcastTemplate,
+               broadcastTemplate: d.broadcastTemplate,
                image: clientImage,
                video: clientVideo,
                clientCode: clientCode,
             });
-
-            console.log(templateBody);
 
             const myHeaders = new Headers();
             myHeaders.append('Content-Type', 'application/json');
@@ -148,22 +121,70 @@ export const sendBlastingService = async (data: any, clientId: any, clientCode: 
                   body: JSON.stringify(templateBody),
                   redirect: 'follow',
                }
-            )
-               .then((response) => response.json())
-               .then((result) => {
-                  console.log(result);
-                  return result;
-               })
-               .catch((error) => {
-                  console.log(error);
-                  return error;
-               });
+            );
+            const res = await response.json();
+            if (res.error) {
+               return {
+                  error: res.error,
+                  guest: { id: d.id, name: d.name },
+               };
+            }
+            return res;
+         })
+      );
 
-            console.log(response);
+      if (sendBlastingProcess.some((res) => res.error)) {
+         const errorData = sendBlastingProcess.filter((res) => res.error);
+         const message = errorData.map((e) => e.error.message);
+         errorData.map(async (e) => {
+            await prisma.sendBlastingLogs.create({
+               data: {
+                  guestId: e.guest.id,
+                  status: 'failed_send_blasting',
+                  logs: e.error.message,
+               },
+            });
          });
-      });
 
-      return getSuccessReponse({}, 200, 'Successfully sent');
+         return getSuccessReponse({ error: errorData }, 400, message[0]);
+      } else {
+         const createInvitationsData = async (createInvitation: any[], clientId: number) => {
+            const invitationsData = await Promise.all(
+               createInvitation.flatMap(async (guest: any) =>
+                  Promise.all(
+                     guest.question.map(async (q: any) => ({
+                        clientId: clientId,
+                        guestId: guest.guest_id,
+                        questionId: q.question_id,
+                        token: await generateLink({
+                           data: { id: guest.guest_id, name: guest.guest_name },
+                           clientCode: guest.guest_code,
+                        }),
+                     }))
+                  )
+               )
+            );
+
+            return invitationsData.flat();
+         };
+
+         data.map(async (d: any) => {
+            await prisma.sendBlastingLogs.create({
+               data: {
+                  guestId: d.id,
+                  status: 'success_send_blasting',
+                  logs: 'Successfully sent',
+               },
+            });
+         });
+
+         const invitationsData = await createInvitationsData(createInvitation, clientId);
+
+         const invitationCreateData = await prisma.invitations.createMany({
+            data: invitationsData,
+         });
+         return getSuccessReponse(invitationCreateData, 200, 'Successfully sent');
+      }
    } catch (error) {
       return error;
    }
