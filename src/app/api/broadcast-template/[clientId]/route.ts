@@ -244,12 +244,30 @@ export async function DELETE(req: NextRequest, { params }: { params: { clientId:
          },
       });
 
-      const response = await prisma.broadcastTemplate.delete({
+      const scenarioBroadcast = await prisma.scenarioBroadcastTemplate.findMany({
          where: {
-            id: Number(id),
-            client_id: Number(client?.id),
+            broadcast_template_id: Number(id),
          },
       });
+
+      if (scenarioBroadcast.length > 0) {
+         return NextResponse.json(
+            {
+               status: 400,
+               message: 'Cannot delete template, it is being used in a scenario',
+            },
+            { status: 400 }
+         );
+      }
+
+      const response = await prisma.broadcastTemplate.delete({
+         where: {
+            id: id,
+            client_id: client?.id,
+         },
+      });
+
+      // console.log(response);
 
       return NextResponse.json(
          {

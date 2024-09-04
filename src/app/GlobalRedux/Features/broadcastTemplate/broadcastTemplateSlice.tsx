@@ -103,7 +103,7 @@ export const broadcastTemplateSlice = createSlice({
          })
          .addCase(deleteBroadcastTemplate.fulfilled, (state, action) => {
             state.status = 'deleteSuccess';
-            state.data = action.payload.data;
+            state.data = action.payload;
          })
          .addCase(deleteBroadcastTemplate.rejected, (state, action) => {
             state.status = 'deleteFailed';

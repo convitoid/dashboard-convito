@@ -3,6 +3,7 @@ import { getSuccessReponse } from '@/utils/response/successResponse';
 import { WhatsappBlastBody } from '@/utils/whatsappBlastBody';
 import { Prisma } from '@prisma/client';
 import jwt from 'jsonwebtoken';
+import { NextResponse } from 'next/server';
 
 type InvitationsWhereUniqueInput = {
    id?: number;
@@ -11,6 +12,7 @@ type InvitationsWhereUniqueInput = {
 };
 
 export const sendBlastingService = async (data: any, clientId: any, clientCode: any) => {
+   console.log('data', data);
    try {
       const clientImage = await prisma.clientImage.findFirst({
          where: {
@@ -49,11 +51,15 @@ export const sendBlastingService = async (data: any, clientId: any, clientCode: 
       const guests = await prisma.guest.findMany({
          where: {
             clientId: clientId,
+            id: {
+               in: data.map((d: any) => d.id),
+            },
          },
       });
 
       const invitationData = await Promise.all(
-         guests.map(async (guest) => {
+         guests.map(async (guest: any) => {
+            console.log('guest', guest);
             const scenario = await prisma.scenario.findMany({
                where: {
                   scenario_slug: guest.scenario_slug,
@@ -108,6 +114,8 @@ export const sendBlastingService = async (data: any, clientId: any, clientCode: 
                video: clientVideo,
                clientCode: clientCode,
             });
+
+            console.log('templateBody', templateBody);
 
             const myHeaders = new Headers();
             myHeaders.append('Content-Type', 'application/json');

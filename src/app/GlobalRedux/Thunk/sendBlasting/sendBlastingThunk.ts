@@ -2,6 +2,7 @@ import prisma from '@/libs/prisma';
 import { createAsyncThunk } from '@reduxjs/toolkit';
 
 export const sendBlasting = createAsyncThunk('sendBlasting', async (payload: any) => {
+   // return payload;
    try {
       const getToken = await fetch('/api/auth/session')
          .then((res) => res.json())

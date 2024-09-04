@@ -45,8 +45,6 @@ export const WhatsappBlastBody = async ({
       };
    });
 
-   console.log('template', template);
-
    switch (template[0].template_type) {
       case 'no_header': {
          const token_no_header = uniqueData.filter((t: any) => t.guestId === data.id).map((t: any) => t.token);
