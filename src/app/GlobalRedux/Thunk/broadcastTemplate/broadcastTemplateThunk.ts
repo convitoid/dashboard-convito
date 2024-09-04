@@ -3,13 +3,14 @@ import { createAsyncThunk } from '@reduxjs/toolkit';
 export const getAllBroadcastTemplates = createAsyncThunk(
    'broadcastTemplate/getAllBroadcastTemplates',
    async (clientId: string) => {
+      console.log('dari thunk', clientId);
       try {
          const getToken = await fetch('/api/auth/session')
             .then((res) => res.json())
             .then((data) => {
                return data;
             });
-         const response = await fetch(`/api/broadcast-template/${clientId[0]}`, {
+         const response = await fetch(`/api/broadcast-template/${clientId}`, {
             method: 'GET',
             headers: {
                Authorization: `Bearer ${getToken.user.jwt}`,
@@ -26,6 +27,7 @@ export const getAllBroadcastTemplates = createAsyncThunk(
 export const createBroadcastTemplate = createAsyncThunk(
    'broadcastTemplate/createBroadcastTemplate',
    async (data: any) => {
+      console.log('data', data);
       const jsonBody = {
          name: data.formData.template_name,
          template_type: data.formData.template_type,
@@ -36,7 +38,7 @@ export const createBroadcastTemplate = createAsyncThunk(
             .then((data) => {
                return data;
             });
-         const response = await fetch(`/api/broadcast-template/${data.clientId[0]}`, {
+         const response = await fetch(`/api/broadcast-template/${data.clientId}`, {
             method: 'POST',
             headers: {
                Authorization: `Bearer ${getToken.user.jwt}`,
@@ -61,7 +63,7 @@ export const getBroadcastTemplateById = createAsyncThunk(
             .then((data) => {
                return data;
             });
-         const response = await fetch(`/api/broadcast-template/${data.clientId[0]}/${data.id}`, {
+         const response = await fetch(`/api/broadcast-template/${data.clientId}/${data.id}`, {
             method: 'GET',
             headers: {
                Authorization: `Bearer ${getToken.user.jwt}`,
@@ -92,7 +94,7 @@ export const updateBroadcastTemplate = createAsyncThunk(
             .then((data) => {
                return data;
             });
-         const response = await fetch(`/api/broadcast-template/${data.clientId[0]}`, {
+         const response = await fetch(`/api/broadcast-template/${data.clientId}`, {
             method: 'PUT',
             headers: {
                Authorization: `Bearer ${getToken.user.jwt}`,
@@ -111,6 +113,7 @@ export const updateBroadcastTemplate = createAsyncThunk(
 export const deleteBroadcastTemplate = createAsyncThunk(
    'broadcastTemplate/deleteBroadcastTemplate',
    async (data: any) => {
+      console.log('data', data);
       const jsonBody = {
          id: data.id,
       };
@@ -120,7 +123,7 @@ export const deleteBroadcastTemplate = createAsyncThunk(
             .then((data) => {
                return data;
             });
-         const response = await fetch(`/api/broadcast-template/${data.clientId[0]}`, {
+         const response = await fetch(`/api/broadcast-template/${data.clientId}`, {
             method: 'DELETE',
             headers: {
                Authorization: `Bearer ${getToken.user.jwt}`,

@@ -29,6 +29,7 @@ type BroadcastTemplateTabProps = {
 };
 
 export const BroadcastTemplateTab = ({ clientId }: BroadcastTemplateTabProps) => {
+   console.log(clientId);
    const [columns, setColumns] = useState<any[]>([]);
    const [data, setData] = useState<any[]>([]);
    const [pagination, setPagination] = useState({
@@ -40,6 +41,8 @@ export const BroadcastTemplateTab = ({ clientId }: BroadcastTemplateTabProps) =>
    const dispatch = useDispatch<AppDispatch>();
    const templates = useSelector((state: RootState) => state.broadcastTemplate.datas);
    const status = useSelector((state: RootState) => state.broadcastTemplate.status);
+
+   console.log(templates);
 
    useEffect(() => {
       dispatch(getAllBroadcastTemplates((clientId as string) ?? ''));
@@ -99,7 +102,7 @@ export const BroadcastTemplateTab = ({ clientId }: BroadcastTemplateTabProps) =>
    };
 
    useEffect(() => {
-      if (templates.length > 0) {
+      if (templates?.length > 0) {
          const dynamicColumns = [
             {
                header: 'No',
