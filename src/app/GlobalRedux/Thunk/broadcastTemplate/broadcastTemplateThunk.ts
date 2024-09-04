@@ -131,9 +131,10 @@ export const deleteBroadcastTemplate = createAsyncThunk(
             body: JSON.stringify(jsonBody),
          });
          const res = await response.json();
+         console.log('res', res);
          return res;
       } catch (error) {
-         console.log('error', error);
+         return error;
       }
    }
 );

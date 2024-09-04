@@ -70,6 +70,7 @@ export const BroadcastTemplateTab = ({ clientId }: BroadcastTemplateTabProps) =>
    };
 
    const openModalDelete = (id: number) => {
+      console.log('openModalDelete', id);
       const data = {
          id,
          clientId,
@@ -87,13 +88,20 @@ export const BroadcastTemplateTab = ({ clientId }: BroadcastTemplateTabProps) =>
             dispatch(deleteBroadcastTemplate(data))
                .unwrap()
                .then((res) => {
+                  console.log('res', res);
                   if (res.status === 200) {
                      dispatch(getAllBroadcastTemplates((clientId as string) ?? ''));
                      dispatch(resetStatus());
                      Swal.fire({
                         title: 'Deleted!',
-                        text: 'Your file has been deleted.',
+                        text: 'Your broadcast template has been deleted.',
                         icon: 'success',
+                     });
+                  } else {
+                     Swal.fire({
+                        title: 'Error!',
+                        text: res.message,
+                        icon: 'warning',
                      });
                   }
                });
@@ -135,6 +143,7 @@ export const BroadcastTemplateTab = ({ clientId }: BroadcastTemplateTabProps) =>
                            className="btn bg-red-500 text-white px-3 py-1 rounded-md hover:bg-red-600 transition duration-100 ease-in text-[14px] font-semibold tooltip tooltip-bottom"
                            data-tip="Delete"
                            onClick={() => openModalDelete(info.row.original.id)}
+                           // onClick={() => console.log('delete', info.row.original.id)}
                            disabled={status === 'deleteLoading'}
                         >
                            {status === 'deleteLoading' ? (

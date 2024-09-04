@@ -172,23 +172,25 @@ export const SendBroadcastTab = ({ clientId }: SendBroadcastTabProps) => {
          return;
       }
 
+      // console.log('selectedRowsData', selectedRowsData);
+
       dispatch(sendBlasting({ clientId: clientId?.toString() ?? '', data: selectedRowsData }))
          .unwrap()
          .then((res) => {
             console.log('res', res);
-            if (res.status === 200) {
-               Swal.fire({
-                  icon: 'success',
-                  title: 'Success',
-                  text: res.message,
-               });
-            } else {
-               Swal.fire({
-                  icon: 'error',
-                  title: 'Error',
-                  text: res.message,
-               });
-            }
+            // if (res.status === 200) {
+            //    Swal.fire({
+            //       icon: 'success',
+            //       title: 'Success',
+            //       text: res.message,
+            //    });
+            // } else {
+            //    Swal.fire({
+            //       icon: 'error',
+            //       title: 'Error',
+            //       text: res.message,
+            //    });
+            // }
          });
    };
 
