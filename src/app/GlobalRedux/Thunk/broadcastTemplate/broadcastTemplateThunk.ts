@@ -87,7 +87,6 @@ export const updateBroadcastTemplate = createAsyncThunk(
          template_type: data.formData.template_type,
       };
 
-      console.log('data', data);
       try {
          const getToken = await fetch('/api/auth/session')
             .then((res) => res.json())
