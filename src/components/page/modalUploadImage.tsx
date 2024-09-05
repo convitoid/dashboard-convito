@@ -168,7 +168,7 @@ export const ModalUploadImage = ({ modalId, title, clientId }: ModalUploadImageP
          <form onSubmit={submitForm}>
             <div className="mb-3">
                <label htmlFor="imageFlag" className="label font-semibold mb-1">
-               Image type
+                  Image type
                </label>
                <select
                   name="imageFlag"

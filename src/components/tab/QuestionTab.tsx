@@ -53,6 +53,7 @@ export const QuestionTab = ({ clientId }: QuestionTabProps) => {
    const openModalEditQuestion = (id: number) => {
       dispatch(openModalEditQuestionAction());
       dispatch(getQuestionById({ clientId: clientId ?? '', questionId: id.toString() }));
+      setQuestionId(id.toString());
       (document.getElementById(`modalEditQuestion`) as HTMLDialogElement).showModal();
    };
 
@@ -111,7 +112,7 @@ export const QuestionTab = ({ clientId }: QuestionTabProps) => {
                accessorKey: 'actions',
                cell: (info: any) => {
                   return (
-                     <div>
+                     <div className="flex">
                         <button
                            className="btn bg-blue-500 text-white rounded-md hover:bg-blue-600 transition duration-100 ease-in text-[14px] font-semibold mr-2 tooltip tooltip-bottom"
                            data-tip="Edit"

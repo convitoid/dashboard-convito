@@ -29,7 +29,6 @@ type BroadcastTemplateTabProps = {
 };
 
 export const BroadcastTemplateTab = ({ clientId }: BroadcastTemplateTabProps) => {
-   console.log(clientId);
    const [columns, setColumns] = useState<any[]>([]);
    const [data, setData] = useState<any[]>([]);
    const [pagination, setPagination] = useState({
@@ -41,8 +40,6 @@ export const BroadcastTemplateTab = ({ clientId }: BroadcastTemplateTabProps) =>
    const dispatch = useDispatch<AppDispatch>();
    const templates = useSelector((state: RootState) => state.broadcastTemplate.datas);
    const status = useSelector((state: RootState) => state.broadcastTemplate.status);
-
-   console.log(templates);
 
    useEffect(() => {
       dispatch(getAllBroadcastTemplates((clientId as string) ?? ''));
@@ -88,7 +85,6 @@ export const BroadcastTemplateTab = ({ clientId }: BroadcastTemplateTabProps) =>
             dispatch(deleteBroadcastTemplate(data))
                .unwrap()
                .then((res) => {
-                  console.log('res', res);
                   if (res.status === 200) {
                      dispatch(getAllBroadcastTemplates((clientId as string) ?? ''));
                      dispatch(resetStatus());
@@ -99,7 +95,7 @@ export const BroadcastTemplateTab = ({ clientId }: BroadcastTemplateTabProps) =>
                      });
                   } else {
                      Swal.fire({
-                        title: 'Error!',
+                        title: 'Warning',
                         text: res.message,
                         icon: 'warning',
                      });

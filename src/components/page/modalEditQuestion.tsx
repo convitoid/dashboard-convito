@@ -27,7 +27,7 @@ export const ModalEditQuestion = ({ modalId, clientId, questionId }: ModalEditQu
    const statusUpdate = useSelector((state: RootState) => state.questions.statusUpdate);
 
    useEffect(() => {
-      setFormData({ ...formData, question: question.question, type: question.type, id: question.id });
+      setFormData({ ...formData, question: question?.question, type: question?.type, id: question?.id });
    }, [question]);
 
    const closeModalEditQuestion = () => {

@@ -105,7 +105,7 @@ export const QrDataTab = ({ clientId }: QrDataTabProps) => {
       return () => {
          setColumns([]);
          setData([]);
-         };
+      };
    }, []);
 
    const searchChange = (e: any) => {

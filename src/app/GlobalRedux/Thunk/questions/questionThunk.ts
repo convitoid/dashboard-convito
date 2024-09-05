@@ -63,7 +63,7 @@ export const getQuestionById = createAsyncThunk(
                return data;
             });
 
-         const response = await fetch(`/api/questions/${payload.clientId[0]}/${payload.questionId}`, {
+         const response = await fetch(`/api/questions/${payload.clientId}/${payload.questionId}`, {
             method: 'GET',
             headers: {
                Authorization: `Bearer ${getToken.user.jwt}`,
@@ -89,7 +89,7 @@ export const updateQuestion = createAsyncThunk(
                return data;
             });
 
-         const response = await fetch(`/api/questions/${payload.clientId[0]}`, {
+         const response = await fetch(`/api/questions/${payload.clientId}`, {
             method: 'PUT',
             headers: {
                'Content-Type': 'application/json',
@@ -120,7 +120,7 @@ export const deleteQuestion = createAsyncThunk(
                return data;
             });
 
-         const response = await fetch(`/api/questions/${payload.clientId[0]}`, {
+         const response = await fetch(`/api/questions/${payload.clientId}`, {
             method: 'DELETE',
             headers: {
                'Content-Type': 'application/json',

@@ -45,7 +45,7 @@ export async function POST(req: NextRequest, { params }: { params: { guestId: st
          }
       );
    } catch (error) {
-      console.log("dari server",error)
+      console.log('dari server', error);
       return NextResponse.json({ error: 'Failed to update answer' }, { status: 500 });
    }
 }
