@@ -9,6 +9,9 @@ interface JWTError extends Error {
 
 interface Err extends Error {
    code: string;
+   meta: {
+      field_name: string;
+   };
 }
 
 const secret = new TextEncoder().encode(process.env.NEXTAUTH_SECRET ?? '');
@@ -314,6 +317,9 @@ export async function DELETE(req: NextRequest, { params }: { params: { clientId:
 
          const remainingQuestions = await tx.question.findMany({
             orderBy: { position: 'asc' },
+            where: {
+               client_id: getClientById.id,
+            },
          });
 
          for (let i = 0; i < remainingQuestions.length; i++) {
@@ -325,10 +331,10 @@ export async function DELETE(req: NextRequest, { params }: { params: { clientId:
                   position: i + 1,
                },
             });
+
+            console.log('udpate', udpate);
          }
       });
-
-      console.log('deleteQuestion', deleteQuestion);
 
       return NextResponse.json(
          {
@@ -342,8 +348,6 @@ export async function DELETE(req: NextRequest, { params }: { params: { clientId:
       const errorMessage = error as Err;
       const jwtError = error as JWTError;
 
-      console.log('errorMessage', errorMessage.code);
-
       if (jwtError.code === 'ERR_JWT_EXPIRED' || jwtError.code === 'ERR_JWS_INVALID') {
          return NextResponse.json(
             {
@@ -353,14 +357,26 @@ export async function DELETE(req: NextRequest, { params }: { params: { clientId:
          );
       }
 
-      if(errorMessage.code === 'P2003') {
+      if (
+         errorMessage.code === 'P2003' &&
+         errorMessage.meta.field_name === 'ScenarioQuestion_question_id_fkey (index)'
+      ) {
          return NextResponse.json(
             {
                message: 'Cannot delete template, it is being used in a scenario',
             },
             { status: 400 }
          );
-       }
+      }
+
+      if (errorMessage.code === 'P2003' && errorMessage.meta.field_name === 'Invitations_questionId_fkey (index)') {
+         return NextResponse.json(
+            {
+               message: 'Cannot delete the question because invitations have already been sent',
+            },
+            { status: 400 }
+         );
+      }
 
       return NextResponse.json(
          {
