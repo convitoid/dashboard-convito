@@ -80,6 +80,12 @@ export const QuestionTab = ({ clientId }: QuestionTabProps) => {
                      }).then(() => {
                         dispatch(getAllQuestions(clientId?.toString() ?? ''));
                      });
+                  } else {
+                     Swal.fire({
+                        title: 'Warning',
+                        text: res.message,
+                        icon: 'warning',
+                     });
                   }
                });
          }

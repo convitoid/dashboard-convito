@@ -41,6 +41,8 @@ export const BroadcastTemplateTab = ({ clientId }: BroadcastTemplateTabProps) =>
    const templates = useSelector((state: RootState) => state.broadcastTemplate.datas);
    const status = useSelector((state: RootState) => state.broadcastTemplate.status);
 
+   console.log('templates', templates);
+
    useEffect(() => {
       dispatch(getAllBroadcastTemplates((clientId as string) ?? ''));
    }, [dispatch]);
@@ -166,9 +168,11 @@ export const BroadcastTemplateTab = ({ clientId }: BroadcastTemplateTabProps) =>
 
          setData(dynamicData);
       }
+      console.log('templates', templates);
 
       return () => {
-         dispatch(resetStatus());
+         setColumns([]);
+         setData([]);
       };
    }, [templates]);
 

@@ -29,6 +29,8 @@ export default function InvitationPage({ params }: { params: { token: string } }
    const status = useSelector((state: RootState) => state.invitations.status);
    const answer = useSelector((state: RootState) => state.invitations.invitation);
 
+   console.log('invitations', invitations);
+
    const [guestDetail, setGuestDetail] = useState([]);
    const [guestDetailFormated, setGuestDetailFormated] = useState([]);
    const [isAnswer, setIsAnswer] = useState<boolean>(false);
@@ -267,7 +269,7 @@ export default function InvitationPage({ params }: { params: { token: string } }
                      ) : (
                         <>
                            <h1 className="text-center flex flex-col gap-1">
-                              <span>The Wedding of</span>
+                              <span>{invitations?.client?.event_title}</span>
                               <span className="text-lg font-semibold">{invitations?.client?.event_name}</span>
                            </h1>
                            <div className="border-b-2 border-slate-900 w-1/2 mx-auto mt-3 mb-10"></div>

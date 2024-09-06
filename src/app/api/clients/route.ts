@@ -20,7 +20,7 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
    const token = req.headers.get('authorization');
    const jwtToken = token?.split(' ')[1];
-   const { client_name, event_name, event_date, event_type, createdBy, updatedBy } = await req.json();
+   const { client_name, event_title, event_name, event_date, event_type, createdBy, updatedBy } = await req.json();
 
    try {
       const clients = await prisma.client.findMany({
@@ -42,6 +42,7 @@ export async function POST(req: NextRequest) {
          jwtToken,
          client_id: newClientId,
          client_name,
+         event_title,
          event_name,
          event_date,
          event_type,

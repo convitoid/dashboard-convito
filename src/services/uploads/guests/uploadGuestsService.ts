@@ -26,6 +26,7 @@ export const createGuests = async (jwtToken: string, clientId: string, file: any
       const sheet = workbook.Sheets[sheetName];
       const data = XLSX.utils.sheet_to_json(sheet, { header: 1 });
       const header = data[0];
+
       data.splice(0, 1);
 
       const newJson = await convertToJson(header as string[], data);
@@ -44,73 +45,130 @@ export const createGuests = async (jwtToken: string, clientId: string, file: any
             GuestDetail: true,
          },
       });
+      const isUpdateStatus = (status: string) => typeof status === 'string' && status.toLowerCase() === 'update';
 
-      console.log(newJson);
-
+      const filteredJson = newJson.filter((element) => element !== undefined && Object.keys(element).length > 0);
+      const toUpdate = filteredJson.filter((guest) => isUpdateStatus(guest.STATUS));
       if (guests.length > 0) {
-         //  delete existing data
-         const deleteGuestDetail = await prisma.guestDetail.deleteMany({
-            where: {
-               guestId: {
-                  in: guests.map((guest) => guest.id),
-               },
-            },
-         });
+         console.log('delete existing data', guests);
+         console.log('insert new data', filteredJson);
+         console.log('toUpdate', toUpdate);
 
-         const deleteGuest = await prisma.guest.deleteMany({
-            where: {
-               clientId: clients?.id,
-            },
-         });
+         //  update existing data
+         if (toUpdate.length > 0) {
+            toUpdate.forEach(async (element) => {
+               const guestId = generateGuestId(element.NAME, clientId as string);
 
-         //  insert data to database
-         newJson.forEach(async (element) => {
-            const guestId = generateGuestId(element.NAME, clientId as string);
-
-            const getClient = await prisma.client.findFirst({
-               select: {
-                  id: true,
-               },
-               where: {
-                  client_id: clientId?.toString(),
-               },
-            });
-
-            const guestData: any = {
-               guestId: guestId,
-               name: element.NAME,
-               scenario: element.SCENARIO,
-               scenario_slug: element.SCENARIO_SLUG,
-               createdAt: new Date(),
-               updatedAt: new Date(),
-            };
-
-            if (getClient?.id) {
-               guestData.clientId = getClient.id;
-            }
-
-            const createGuest = await prisma.guest.create({
-               data: guestData,
-            });
-
-            const guestDetail: any = Object.entries(element)
-               .filter(([key]) => key !== 'NAME' && key !== 'SCENARIO')
-               .map(([key, value]) => {
-                  return {
-                     detail_key: key.toLowerCase(),
-                     detail_val: String(value),
-                  };
+               const getClient = await prisma.client.findFirst({
+                  select: {
+                     id: true,
+                  },
+                  where: {
+                     client_id: clientId?.toString(),
+                  },
                });
 
-            const createGuestDetail = await prisma.guestDetail.createMany({
-               data: guestDetail.map((detail: any) => {
-                  return {
-                     guestId: createGuest.id,
-                     ...detail,
-                  };
-               }),
+               const guestData: any = {
+                  guestId: guestId,
+                  name: element.NAME,
+                  scenario: element.SCENARIO,
+                  scenario_slug: element.SCENARIO_SLUG,
+                  createdAt: new Date(),
+                  updatedAt: new Date(),
+               };
+
+               if (getClient?.id) {
+                  guestData.clientId = getClient.id;
+               }
+
+               const createGuest = await prisma.guest.create({
+                  data: guestData,
+               });
+
+               const guestDetail: any = Object.entries(element)
+                  .filter(([key]) => key !== 'NAME' && key !== 'SCENARIO')
+                  .map(([key, value]) => {
+                     return {
+                        detail_key: key.toLowerCase(),
+                        detail_val: String(value),
+                     };
+                  });
+
+               const createGuestDetail = await prisma.guestDetail.createMany({
+                  data: guestDetail.map((detail: any) => {
+                     return {
+                        guestId: createGuest.id,
+                        ...detail,
+                     };
+                  }),
+               });
             });
-         });
+         } else {
+            //  delete existing data
+            // jika data yang diupload sama dengan data yang sudah ada
+            const deleteGuestDetail = await prisma.guestDetail.deleteMany({
+               where: {
+                  guestId: {
+                     in: guests.map((guest) => guest.id),
+                  },
+               },
+            });
+
+            const deleteGuest = await prisma.guest.deleteMany({
+               where: {
+                  clientId: clients?.id,
+               },
+            });
+
+            //  insert data to database
+            filteredJson.forEach(async (element) => {
+               const guestId = generateGuestId(element.NAME, clientId as string);
+
+               const getClient = await prisma.client.findFirst({
+                  select: {
+                     id: true,
+                  },
+                  where: {
+                     client_id: clientId?.toString(),
+                  },
+               });
+
+               const guestData: any = {
+                  guestId: guestId,
+                  name: element.NAME,
+                  scenario: element.SCENARIO,
+                  scenario_slug: element.SCENARIO_SLUG,
+                  createdAt: new Date(),
+                  updatedAt: new Date(),
+               };
+
+               if (getClient?.id) {
+                  guestData.clientId = getClient.id;
+               }
+
+               const createGuest = await prisma.guest.create({
+                  data: guestData,
+               });
+
+               const guestDetail: any = Object.entries(element)
+                  .filter(([key]) => key !== 'NAME' && key !== 'SCENARIO')
+                  .map(([key, value]) => {
+                     return {
+                        detail_key: key.toLowerCase(),
+                        detail_val: String(value),
+                     };
+                  });
+
+               const createGuestDetail = await prisma.guestDetail.createMany({
+                  data: guestDetail.map((detail: any) => {
+                     return {
+                        guestId: createGuest.id,
+                        ...detail,
+                     };
+                  }),
+               });
+            });
+         }
       } else {
          //   insert data to database
          newJson.forEach(async (element) => {

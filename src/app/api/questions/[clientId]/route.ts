@@ -7,6 +7,10 @@ interface JWTError extends Error {
    code?: string;
 }
 
+interface Err extends Error {
+   code: string;
+}
+
 const secret = new TextEncoder().encode(process.env.NEXTAUTH_SECRET ?? '');
 
 export async function GET(req: NextRequest, { params }: { params: { clientId: string } }) {
@@ -312,8 +316,6 @@ export async function DELETE(req: NextRequest, { params }: { params: { clientId:
             orderBy: { position: 'asc' },
          });
 
-         console.log('remainingQuestions', remainingQuestions);
-
          for (let i = 0; i < remainingQuestions.length; i++) {
             const udpate = await tx.question.update({
                where: {
@@ -323,10 +325,10 @@ export async function DELETE(req: NextRequest, { params }: { params: { clientId:
                   position: i + 1,
                },
             });
-
-            console.log('udpate', udpate);
          }
       });
+
+      console.log('deleteQuestion', deleteQuestion);
 
       return NextResponse.json(
          {
@@ -337,8 +339,10 @@ export async function DELETE(req: NextRequest, { params }: { params: { clientId:
          { status: 200 }
       );
    } catch (error) {
-      const errorMessage = error as Error;
+      const errorMessage = error as Err;
       const jwtError = error as JWTError;
+
+      console.log('errorMessage', errorMessage.code);
 
       if (jwtError.code === 'ERR_JWT_EXPIRED' || jwtError.code === 'ERR_JWS_INVALID') {
          return NextResponse.json(
@@ -348,6 +352,15 @@ export async function DELETE(req: NextRequest, { params }: { params: { clientId:
             { status: 401 }
          );
       }
+
+      if(errorMessage.code === 'P2003') {
+         return NextResponse.json(
+            {
+               message: 'Cannot delete template, it is being used in a scenario',
+            },
+            { status: 400 }
+         );
+       }
 
       return NextResponse.json(
          {

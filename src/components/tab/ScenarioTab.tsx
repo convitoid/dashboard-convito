@@ -70,6 +70,7 @@ export const ScenarioTab = ({ clientId }: ScenarioTabProps) => {
             )
                .unwrap()
                .then((res) => {
+                  console.log('res', res);
                   if (res.status === 200) {
                      Swal.fire({
                         title: 'Deleted!',
@@ -188,6 +189,11 @@ export const ScenarioTab = ({ clientId }: ScenarioTabProps) => {
 
          setData(dynamicData);
       }
+
+      return () => {
+         setColumns([]);
+         setData([]);
+      };
    }, [scenarios]);
 
    const searchChange = (e: any) => {

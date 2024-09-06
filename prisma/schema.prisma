@@ -12,6 +12,7 @@ model Client {
   client_id         String              @unique
   client_name       String
   event_name        String
+  event_title       String?
   event_date        DateTime
   event_type        String
   image             ClientImage[]

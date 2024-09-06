@@ -90,6 +90,7 @@ export async function DELETE(req: NextRequest, { params }: { params: { clientId:
    const token = req.headers.get('authorization');
    const jwtToken = token?.split(' ')[1];
    const { id } = await req.json();
+   console.log('params', params, id);
 
    try {
       const { payload } = await jwtVerify(jwtToken as string, secret);
@@ -98,7 +99,12 @@ export async function DELETE(req: NextRequest, { params }: { params: { clientId:
          select: {
             id: true,
          },
+         where: {
+            client_id: params.clientId,
+         },
       });
+
+      console.log('client', client);
 
       if (!client) {
          return NextResponse.json(

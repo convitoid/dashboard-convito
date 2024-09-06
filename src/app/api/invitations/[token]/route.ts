@@ -40,6 +40,7 @@ export async function GET(req: NextRequest, { params }: { params: { token: strin
                select: {
                   id: true,
                   client_id: true,
+                  event_title: true,
                   client_name: true,
                   event_name: true,
                   image: {

@@ -36,6 +36,7 @@ export async function addClientService(data: any) {
          data: {
             client_id: data.client_id,
             client_name: data.client_name,
+            event_title: data.event_title,
             event_name: data.event_name,
             event_date: data.event_date,
             event_type: data.event_type,

@@ -101,7 +101,7 @@ export const deleteScenario = createAsyncThunk('scenario/deleteScenario', async 
          .then((data) => {
             return data;
          });
-      const response = await fetch(`/api/scenario/${payload.clientId[0]}`, {
+      const response = await fetch(`/api/scenario/${payload.clientId}`, {
          method: 'DELETE',
          headers: {
             'Content-Type': 'application/json',
@@ -110,6 +110,7 @@ export const deleteScenario = createAsyncThunk('scenario/deleteScenario', async 
          body: JSON.stringify(payload.data),
       });
       const data = await response.json();
+      console.log('data', data);
       return data;
    } catch (error) {
       return error;

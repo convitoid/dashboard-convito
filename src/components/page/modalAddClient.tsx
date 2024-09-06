@@ -19,6 +19,7 @@ type ModalAddClientProps = {
 export const ModalAddClient = ({ modalId, title }: ModalAddClientProps) => {
    const [formData, setFormData] = useState({
       client_name: '',
+      event_title: '',
       event_name: '',
       event_date: '',
       event_type: '',
@@ -30,6 +31,7 @@ export const ModalAddClient = ({ modalId, title }: ModalAddClientProps) => {
 
    const handleSubmitClient = async (e: React.FormEvent<HTMLFormElement>) => {
       e.preventDefault();
+      console.log('submit', formData);
 
       const validation = createClientValidation(formData);
 
@@ -95,6 +97,7 @@ export const ModalAddClient = ({ modalId, title }: ModalAddClientProps) => {
          event_name: '',
          event_date: '',
          event_type: '',
+         event_title: '',
       });
    };
 
@@ -113,61 +116,70 @@ export const ModalAddClient = ({ modalId, title }: ModalAddClientProps) => {
             closeModal={closeModal}
          >
             <form onSubmit={(e) => handleSubmitClient(e)}>
-               <div className="md:flex md:flex-wrap md:gap-2">
-                  <div className="mb-1 md:flex-grow">
-                     <FormIinput
-                        label="Client Name"
-                        inputName="client_name"
-                        inputType="text"
-                        placeholder="e.g. John Doe"
-                        labelStyle="text-slate-900 font-semibold text-sm"
-                        inputStyle="input input-bordered h-10"
-                        value={formData.client_name}
-                        onChange={handleInputChange}
-                        autoFocus={true}
-                     />
-                  </div>
-                  <div className="mb-1 md:flex-grow">
-                     <FormIinput
-                        label="Event Name"
-                        inputName="event_name"
-                        inputType="text"
-                        labelStyle="text-slate-900 font-semibold text-sm"
-                        inputStyle="input input-bordered h-10"
-                        placeholder="e.g. Wedding of John Doe"
-                        value={formData.event_name}
-                        onChange={handleInputChange}
-                        autoFocus={false}
-                     />
-                  </div>
+               <div className="mb-1 md:flex-grow">
+                  <FormIinput
+                     label="Client Name"
+                     inputName="client_name"
+                     inputType="text"
+                     placeholder="e.g. John Doe"
+                     labelStyle="text-slate-900 font-semibold text-sm"
+                     inputStyle="input input-bordered h-10"
+                     value={formData.client_name}
+                     onChange={handleInputChange}
+                     autoFocus={true}
+                  />
+               </div>
+               <div className="mb-1 md:flex-grow">
+                  <FormIinput
+                     label="Event Title"
+                     inputName="event_title"
+                     inputType="text"
+                     placeholder="e.g. The Wedding of Jhon Dhone"
+                     labelStyle="text-slate-900 font-semibold text-sm"
+                     inputStyle="input input-bordered h-10"
+                     value={formData.event_title}
+                     onChange={handleInputChange}
+                     autoFocus={false}
+                  />
+               </div>
+               <div className="mb-1 md:flex-grow">
+                  <FormIinput
+                     label="Event Name"
+                     inputName="event_name"
+                     inputType="text"
+                     labelStyle="text-slate-900 font-semibold text-sm"
+                     inputStyle="input input-bordered h-10"
+                     placeholder="e.g. Wedding of John Doe"
+                     value={formData.event_name}
+                     onChange={handleInputChange}
+                     autoFocus={false}
+                  />
                </div>
 
-               <div className="md:flex md:flex-wrap md:gap-2">
-                  <div className="mb-1 md:flex-grow">
-                     <FormIinput
-                        label="Event Date"
-                        inputName="event_date"
-                        inputType="datetime-local"
-                        labelStyle="text-slate-900 font-semibold text-sm"
-                        inputStyle="input input-bordered h-10"
-                        value={formData.event_date}
-                        onChange={handleInputChange}
-                        autoFocus={false}
-                     />
-                  </div>
-                  <div className="mb-1 md:flex-grow">
-                     <FormIinput
-                        label="Event Type"
-                        inputName="event_type"
-                        inputType="text"
-                        labelStyle="text-slate-900 font-semibold text-sm"
-                        inputStyle="input input-bordered h-10"
-                        placeholder="e.g. Wedding, Birthday, etc."
-                        value={formData.event_type}
-                        onChange={handleInputChange}
-                        autoFocus={false}
-                     />
-                  </div>
+               <div className="mb-1 md:flex-grow">
+                  <FormIinput
+                     label="Event Date"
+                     inputName="event_date"
+                     inputType="datetime-local"
+                     labelStyle="text-slate-900 font-semibold text-sm"
+                     inputStyle="input input-bordered h-10"
+                     value={formData.event_date}
+                     onChange={handleInputChange}
+                     autoFocus={false}
+                  />
+               </div>
+               <div className="mb-1 md:flex-grow">
+                  <FormIinput
+                     label="Event Type"
+                     inputName="event_type"
+                     inputType="text"
+                     labelStyle="text-slate-900 font-semibold text-sm"
+                     inputStyle="input input-bordered h-10"
+                     placeholder="e.g. Wedding, Birthday, etc."
+                     value={formData.event_type}
+                     onChange={handleInputChange}
+                     autoFocus={false}
+                  />
                </div>
                <div className="flex items-center justify-end gap-1 mt-4">
                   <button

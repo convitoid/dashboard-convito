@@ -31,7 +31,18 @@ const breadcrumbsData = [
    },
 ];
 
-const tableHead = ['No', 'ID', 'Name', 'Event Name', 'Event Date', 'Event Type', 'Created At', 'Created By', 'Actions'];
+const tableHead = [
+   'No',
+   'ID',
+   'Name',
+   'Event Title',
+   'Event Name',
+   'Event Date',
+   'Event Type',
+   'Created At',
+   'Created By',
+   'Actions',
+];
 
 const ClientPage = () => {
    const [search, setSearch] = useState('');
@@ -42,6 +53,8 @@ const ClientPage = () => {
 
    const clients = useSelector((state: RootState) => state.clients.clients);
    const status = useSelector((state: RootState) => state.clients.status);
+
+   console.log(clients);
 
    const dispatch = useDispatch<AppDispatch>();
    const router = useRouter();
@@ -119,6 +132,7 @@ const ClientPage = () => {
                                  <td className="border-b-[1px] py-2 px-4 w-[3%]">{index + 1}</td>
                                  <td className="border-b-[1px] py-2 px-4 ">{client?.client_id}</td>
                                  <td className="border-b-[1px] py-2 px-4 ">{client?.client_name}</td>
+                                 <td className="border-b-[1px] py-2 px-4 ">{client?.event_title ?? ' - '}</td>
                                  <td className="border-b-[1px] py-2 px-4 ">{client?.event_name}</td>
                                  <td className="border-b-[1px] py-2 px-4 ">
                                     {moment(client?.event_date).format('dddd, DD MMMM YYYY')}

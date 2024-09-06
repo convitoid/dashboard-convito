@@ -12,6 +12,8 @@ export async function POST(req: NextRequest) {
 
       const create = await createGuests(jwtToken as string, clientId as string, file);
 
+      console.log(create);
+
       return NextResponse.json(create, { status: create.status });
    } catch (error) {
       return NextResponse.json({ error: (error as Error).message }, { status: 500 });

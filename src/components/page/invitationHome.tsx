@@ -28,6 +28,7 @@ export const InvitationHome = ({ invitations }: InvitationHomeProps) => {
    const [firstLine, ...secondLine] = eventName.split(' of ');
    const dispatch = useDispatch<AppDispatch>();
    const status = useSelector((state: RootState) => state.testBlasting.status);
+   console.log('invitations', invitations);
 
    const submitAnswer = async (e: React.FormEvent<HTMLFormElement>) => {
       e.preventDefault();
