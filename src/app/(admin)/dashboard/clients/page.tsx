@@ -121,7 +121,7 @@ const ClientPage = () => {
                                  <td className="border-b-[1px] py-2 px-4 ">{client?.event_title ?? ' - '}</td>
                                  <td className="border-b-[1px] py-2 px-4 ">{client?.event_name}</td>
                                  <td className="border-b-[1px] py-2 px-4 ">
-                                    {moment(client?.event_date).format('dddd, DD MMMM YYYY')}
+                                    {moment(client?.event_date).format('DD MMMM YYYY')}
                                  </td>
                                  <td className="border-b-[1px] py-2 px-4 ">{client?.event_type}</td>
                                  <td className="border-b-[1px] py-2 px-4 flex items-center gap-2">
