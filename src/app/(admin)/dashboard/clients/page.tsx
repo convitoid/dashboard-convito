@@ -31,18 +31,7 @@ const breadcrumbsData = [
    },
 ];
 
-const tableHead = [
-   'No',
-   'ID',
-   'Name',
-   'Event Title',
-   'Event Name',
-   'Event Date',
-   'Event Type',
-   'Created At',
-   'Created By',
-   'Actions',
-];
+const tableHead = ['No', 'Name', 'Event Title', 'Event Name', 'Event Date', 'Event Type', 'Actions'];
 
 const ClientPage = () => {
    const [search, setSearch] = useState('');
@@ -53,8 +42,6 @@ const ClientPage = () => {
 
    const clients = useSelector((state: RootState) => state.clients.clients);
    const status = useSelector((state: RootState) => state.clients.status);
-
-   console.log(clients);
 
    const dispatch = useDispatch<AppDispatch>();
    const router = useRouter();
@@ -130,7 +117,6 @@ const ClientPage = () => {
                            .map((client, index) => (
                               <tr key={index}>
                                  <td className="border-b-[1px] py-2 px-4 w-[3%]">{index + 1}</td>
-                                 <td className="border-b-[1px] py-2 px-4 ">{client?.client_id}</td>
                                  <td className="border-b-[1px] py-2 px-4 ">{client?.client_name}</td>
                                  <td className="border-b-[1px] py-2 px-4 ">{client?.event_title ?? ' - '}</td>
                                  <td className="border-b-[1px] py-2 px-4 ">{client?.event_name}</td>
@@ -138,10 +124,6 @@ const ClientPage = () => {
                                     {moment(client?.event_date).format('dddd, DD MMMM YYYY')}
                                  </td>
                                  <td className="border-b-[1px] py-2 px-4 ">{client?.event_type}</td>
-                                 <td className="border-b-[1px] py-2 px-4 ">
-                                    {moment(client?.created_at).format('DD MMMM YYYY')}
-                                 </td>
-                                 <td className="border-b-[1px] py-2 px-4 capitalize">{client?.createdBy}</td>
                                  <td className="border-b-[1px] py-2 px-4 flex items-center gap-2">
                                     <button
                                        className="btn bg-info tooltip tooltip-bottom"

@@ -32,13 +32,14 @@ export default function InvitationPage({ params }: { params: { token: string } }
    console.log('invitations', invitations);
 
    const [guestDetail, setGuestDetail] = useState([]);
-   const [guestDetailFormated, setGuestDetailFormated] = useState([]);
+   const [guestDetailFormated, setGuestDetailFormated] = useState<{ [key: string]: any }>({});
    const [isAnswer, setIsAnswer] = useState<boolean>(false);
    const [disabled, setDisabled] = useState<boolean>(true);
    const [formValues, setFormValues] = useState<any>({});
    const [isInvalid, setIsInvalid] = useState<any>({});
    const [answerData, setAnswerData] = useState<any>([]);
    const [guestId, setGuestId] = useState('');
+   const [validateQuestion, setValidateQuestion] = useState<{ [key: string]: any }>({});
    const router = useRouter();
 
    const decodeToken = jwt.decode(token[0]);
@@ -116,6 +117,26 @@ export default function InvitationPage({ params }: { params: { token: string } }
       const value = event.target.value;
       const name = event.target.name;
       let valid = true;
+      // get data-question
+      const questionDataInput = event.target.getAttribute('data-question');
+
+      const extractBracketContent = (str: any) => {
+         const regex = /{{(.*?)}}/g;
+         let match;
+         const results = [];
+
+         // Menemukan semua kecocokan dan menambahkannya ke array hasil
+         while ((match = regex.exec(str)) !== null) {
+            results.push(match[1].trim());
+         }
+
+         return results;
+      };
+
+      const test = extractBracketContent(questionDataInput);
+
+      // cari value dari key yang ada di guestDetailFormated
+      const findValue = Object.keys(guestDetailFormated).filter((key) => key === test[0]);
 
       if (type === 'number') {
          // Validasi input hanya berupa angka tanpa karakter "-", "+", atau "e"
@@ -130,6 +151,11 @@ export default function InvitationPage({ params }: { params: { token: string } }
 
          // Potong nilai ke 3 digit jika panjang lebih dari 3
          const trimmedValue = value.slice(0, 3);
+
+         if (parseInt(trimmedValue) > parseInt(guestDetailFormated[test[0]])) {
+            console.log('invalid');
+            valid = false;
+         }
 
          // Set value to 0 if the value is not valid or parseInt is NaN
          const parsedValue = parseInt(trimmedValue);
@@ -331,6 +357,7 @@ export default function InvitationPage({ params }: { params: { token: string } }
                                              value={formValues[`question_${question.Question.id}`] || ''}
                                              inputMode={question.Question.type === 'number' ? 'numeric' : undefined}
                                              pattern={question.Question.type === 'number' ? '\\d*' : undefined}
+                                             data-question={question.Question.question}
                                           />
                                        </>
                                     )}

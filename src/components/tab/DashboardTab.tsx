@@ -83,15 +83,6 @@ export const DashboardTab = ({ clientId }: DashboardTabProps) => {
          ];
 
          setColumns(dynamicColumns);
-         //  SendBlastingLogs: [
-         //     {
-         //        id: 16,
-         //        status: 'success_send_blasting',
-         //        logs: 'Successfully sent',
-         //        guestId: 1,
-         //        createdAt: '2024-09-01T06:02:56.005Z',
-         //     },
-         //  ];
 
          const dynamicData = dashboarData[0].guest.map((item: any, index: number) => {
             const answer = item.Invitations.some((invitation: any) => invitation.answer !== null);
