@@ -363,7 +363,7 @@ export default function InvitationPage({ params }: { params: { token: string } }
                                           />
                                           {isInvalid[`question_${question?.Question.id}`] && (
                                              <span className="text-[12px] mt-1 ml-1 text-red-500">
-                                                Input is Invalid
+                                                Input is Invalid.
                                              </span>
                                           )}
                                        </>
