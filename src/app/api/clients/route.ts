@@ -8,6 +8,7 @@ import {
    updateClientService,
 } from '@/services/clientService';
 import { createClientValidation } from '@/utils/formValidation/clients/createValidation';
+import moment from 'moment';
 
 export async function GET(req: NextRequest) {
    const token = req.headers.get('authorization');
@@ -58,18 +59,25 @@ export async function POST(req: NextRequest) {
 }
 
 export async function PUT(req: NextRequest) {
-   const { client_id, client_name, event_name, event_date, event_type } = await req.json();
+   const { client_id, client_name, event_title, event_name, event_date, event_type, updated_by } = await req.json();
 
    const token = req.headers.get('authorization');
    const jwtToken = token?.split(' ')[1];
 
-   const data = {
+   let data = {
       client_id,
       client_name,
+      event_title,
       event_name,
       event_date,
       event_type,
+      updated_by,
    };
+
+   data.event_date = new Date(data.event_date);
+
+   // console.log('data', data);
+   // return NextResponse.json(data);
 
    const validation = createClientValidation(data);
    if (Object.keys(validation).length > 0) {
@@ -86,7 +94,7 @@ export async function PUT(req: NextRequest) {
       const updateClient = await updateClientService(jwtToken as string, {
          ...data,
          updatedAt: new Date(),
-         updatedBy: 'admin',
+         updatedBy: updated_by,
       });
 
       if (updateClient.status === 500) {

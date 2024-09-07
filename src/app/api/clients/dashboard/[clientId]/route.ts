@@ -151,10 +151,15 @@ export async function POST(req: NextRequest, { params }: { params: { clientId: s
                      select: {
                         Question: {
                            select: {
+                              id: true,
                               question: true,
                            },
                         },
                         answer: true,
+                     },
+
+                     orderBy: {
+                        questionId: 'asc',
                      },
                   },
                },
@@ -192,6 +197,8 @@ export async function POST(req: NextRequest, { params }: { params: { clientId: s
             return formattedGuest[0];
          })
       );
+
+      console.log('guests', guests);
 
       return NextResponse.json(
          {

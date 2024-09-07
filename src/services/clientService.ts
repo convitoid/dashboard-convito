@@ -61,6 +61,7 @@ export async function updateClientService(jwtToken: string, data: any) {
          },
          data: {
             client_name: data.client_name,
+            event_title: data.event_title,
             event_name: data.event_name,
             event_date: data.event_date,
             event_type: data.event_type,
