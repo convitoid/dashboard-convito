@@ -160,7 +160,7 @@ export const ModalAddClient = ({ modalId, title }: ModalAddClientProps) => {
                   <FormIinput
                      label="Event Date"
                      inputName="event_date"
-                     inputType="datetime-local"
+                     inputType="date"
                      labelStyle="text-slate-900 font-semibold text-sm"
                      inputStyle="input input-bordered h-10"
                      value={formData.event_date}

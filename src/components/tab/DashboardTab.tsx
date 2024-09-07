@@ -67,6 +67,7 @@ export const DashboardTab = ({ clientId }: DashboardTabProps) => {
                header: 'Status Blasting',
                accessorKey: 'status_blasting',
                cell: (info: any) => {
+                  console.log(info.row.original.status_blasting);
                   return (
                      <span
                         className={`text-sm px-2 py-1 rounded-md ${
