@@ -15,6 +15,7 @@ import Swal from 'sweetalert2';
 import { resetStatus } from '@/app/GlobalRedux/Features/invitation/invitationSlice';
 import jwt from 'jsonwebtoken';
 import { decode } from 'punycode';
+import './style.css';
 
 const robotoFont = Roboto({
    weight: ['100', '300', '400', '500', '700', '900'],
@@ -216,6 +217,7 @@ export default function InvitationPage({ params }: { params: { token: string } }
             });
       } else {
          const missingFields = getId.filter((id) => dataForm[`question_${id}`]);
+         // #1C1C1C
          if (missingFields.length !== invitations?.client?.Scenario[0]?.ScenarioQuestion?.length) {
             return Swal.fire({
                icon: 'warning',
@@ -306,7 +308,7 @@ export default function InvitationPage({ params }: { params: { token: string } }
 
                            <form onSubmit={submitAnswer}>
                               {invitations?.client?.Scenario[0].ScenarioQuestion?.map((question: any, index: any) => (
-                                 <div className="flex flex-col mb-5" key={question.id}>
+                                 <div className="flex flex-col mb-3" key={question.id}>
                                     {question?.Question?.question && (
                                        <label
                                           htmlFor=""
@@ -359,6 +361,11 @@ export default function InvitationPage({ params }: { params: { token: string } }
                                              pattern={question.Question.type === 'number' ? '\\d*' : undefined}
                                              data-question={question.Question.question}
                                           />
+                                          {isInvalid[`question_${question?.Question.id}`] && (
+                                             <span className="text-[12px] mt-1 ml-1 text-red-500">
+                                                Input is Invalid
+                                             </span>
+                                          )}
                                        </>
                                     )}
                                  </div>
