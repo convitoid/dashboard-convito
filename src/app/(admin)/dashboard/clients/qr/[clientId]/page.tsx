@@ -39,7 +39,7 @@ export default function QrClients({ params }: { params: { clientId: string } }) 
       {
          name: 'Dashboard',
          icon: <PresentationChartLine />,
-         content: <QrDashboardTab />,
+         content: <QrDashboardTab clientId={params.clientId} />,
          disabled: false,
       },
       {
@@ -57,19 +57,19 @@ export default function QrClients({ params }: { params: { clientId: string } }) 
       {
          name: 'Guest Data',
          icon: <Data />,
-         content: <QrDataGuestTab />,
+         content: <QrDataGuestTab clientId={params.clientId} />,
          disabled: false,
       },
       {
          name: 'Broadcast Template',
          icon: <ChatBubleLeftRight />,
-         content: <QrBroadcastTemplateTab />,
+         content: <QrBroadcastTemplateTab clientId={params.clientId} />,
          disabled: false,
       },
       {
          name: 'Send Broadcast',
          icon: <PaperAirplane />,
-         content: <QrSendBroadcast />,
+         content: <QrSendBroadcast clientId={params.clientId} />,
          disabled: false,
       },
    ];

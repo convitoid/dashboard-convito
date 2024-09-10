@@ -8,26 +8,28 @@ datasource db {
 }
 
 model Client {
-  id                Int                 @id @default(autoincrement())
-  client_id         String              @unique
-  client_name       String
-  event_name        String
-  event_title       String?
-  event_date        DateTime
-  event_type        String
-  image             ClientImage[]
-  guest             Guest[]
-  createdAt         DateTime            @default(now())
-  updatedAt         DateTime?           @updatedAt()
-  createdBy         String
-  updatedBy         String
-  Question          Question[]
-  BroadcastTemplate BroadcastTemplate[]
-  Scenario          Scenario[]
-  ClientVideo       ClientVideo[]
-  Invitations       Invitations[]
-  QrGalleryImage    QrGalleryImage[]
-  QrFile            QrFile[]
+  id                  Int                   @id @default(autoincrement())
+  client_id           String                @unique
+  client_name         String
+  event_name          String
+  event_title         String?
+  event_date          DateTime
+  event_type          String
+  image               ClientImage[]
+  guest               Guest[]
+  createdAt           DateTime              @default(now())
+  updatedAt           DateTime?             @updatedAt()
+  createdBy           String
+  updatedBy           String
+  Question            Question[]
+  BroadcastTemplate   BroadcastTemplate[]
+  Scenario            Scenario[]
+  ClientVideo         ClientVideo[]
+  Invitations         Invitations[]
+  QrGalleryImage      QrGalleryImage[]
+  QrFile              QrFile[]
+  QrGuest             QrGuest[]
+  QrBroadcastTemplate QrBroadcastTemplate[]
 }
 
 model User {
@@ -216,4 +218,32 @@ model QrFile {
   clientId     Int
   Client       Client   @relation(fields: [clientId], references: [id])
   createdAt    DateTime @default(now())
+}
+
+model QrGuest {
+  id              Int               @id @default(autoincrement())
+  name            String
+  phoneNumber     String
+  qr_code         String
+  clientId        Int
+  Client          Client            @relation(fields: [clientId], references: [id])
+  createdAt       DateTime          @default(now())
+  QrBroadcastLogs QrBroadcastLogs[]
+}
+
+model QrBroadcastTemplate {
+  id        Int      @id @default(autoincrement())
+  name      String
+  type      String?
+  clientId  Int
+  Client    Client   @relation(fields: [clientId], references: [id])
+  createdAt DateTime @default(now())
+}
+
+model QrBroadcastLogs {
+  id        Int      @id @default(autoincrement())
+  QrGuestId Int
+  QrGuest   QrGuest  @relation(fields: [QrGuestId], references: [id])
+  status    String
+  createdAt DateTime @default(now())
 }

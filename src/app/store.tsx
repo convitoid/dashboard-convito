@@ -17,6 +17,10 @@ import clientDashboardReducers from '@/app/GlobalRedux/Features/clients/dashboar
 import sendBlastingLogsReducers from '@/app/GlobalRedux/Features/logs/sendBlastingLogsSlice';
 import clientQrUploadImageReducer from '@/app/GlobalRedux/Features/clients/clientQrUploadImageSlice';
 import clientQrUploadFileReducer from '@/app/GlobalRedux/Features/clients/clientQrUploadFileSlice';
+import clientQrUploadGuestsReducer from '@/app/GlobalRedux/Features/clients/clientQrUploadGuestsSlice';
+import clientQrBroadcastTemplate from '@/app/GlobalRedux/Features/clients/clientQrBroadcastTemplateSlice';
+import sendQrSendBlastingReducer from '@/app/GlobalRedux/Features/sendBlasting/sendQrBlastingSlice';
+import clientQrDashboardReducer from '@/app/GlobalRedux/Features/clients/qr/dashboard/clientQrDashboardSlice';
 
 const rootReducer = combineReducers({
    counter: counterReducer,
@@ -36,6 +40,10 @@ const rootReducer = combineReducers({
    sendBlastingLogs: sendBlastingLogsReducers,
    clientQrUploadImage: clientQrUploadImageReducer,
    clientQrUploadFile: clientQrUploadFileReducer,
+   clientQrUploadGuests: clientQrUploadGuestsReducer,
+   clientQrBroadcastTemplate: clientQrBroadcastTemplate,
+   sendQrBlasting: sendQrSendBlastingReducer,
+   clientQrDashboard: clientQrDashboardReducer,
    //add all your reducers here
 });
 

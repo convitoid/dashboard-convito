@@ -18,8 +18,6 @@ export const NavbarComponent = () => {
    // remove "" from array
    pathArray.shift();
 
-   console.log('array path', pathArray.length);
-
    let activePath: string;
    // get the last item in the array
    if (pathArray.length > 2) {
