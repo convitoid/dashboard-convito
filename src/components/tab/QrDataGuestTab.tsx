@@ -1,4 +1,4 @@
-import { resetQrGuestsStatus } from '@/app/GlobalRedux/Features/clients/clientQrUploadGuestsSlice';
+import { resetQrGuestsData, resetQrGuestsStatus } from '@/app/GlobalRedux/Features/clients/clientQrUploadGuestsSlice';
 import { getQrGuests, uploadQrGuests } from '@/app/GlobalRedux/Thunk/clients/clientQrUploadGuestsThunk';
 import { AppDispatch, RootState } from '@/app/store';
 import {
@@ -39,33 +39,34 @@ export const QrDataGuestTab = ({ clientId }: QrDataGuestTabProps) => {
 
       return () => {
          dispatch(resetQrGuestsStatus());
+         dispatch(resetQrGuestsData());
       };
    }, [dispatch]);
 
    useEffect(() => {
+      const dynamicColumns = [
+         {
+            Header: 'No',
+            accessorKey: 'no',
+            cell: (info: any) => info.row.index + 1,
+         },
+         {
+            Header: 'Guest Name',
+            accessorKey: 'name',
+         },
+         {
+            Header: 'Phone Number',
+            accessorKey: 'phoneNumber',
+         },
+         {
+            Header: 'QR Code',
+            accessorKey: 'qr_code',
+         },
+      ];
+
+      setColumns(dynamicColumns);
+
       if (guests?.data?.length > 0) {
-         const dynamicColumns = [
-            {
-               Header: 'No',
-               accessorKey: 'no',
-               cell: (info: any) => info.row.index + 1,
-            },
-            {
-               Header: 'Guest Name',
-               accessorKey: 'name',
-            },
-            {
-               Header: 'Phone Number',
-               accessorKey: 'phoneNumber',
-            },
-            {
-               Header: 'QR Code',
-               accessorKey: 'qr_code',
-            },
-         ];
-
-         setColumns(dynamicColumns);
-
          const dynamicData = guests.data.map((guest: any) => {
             return {
                id: guest.id,
@@ -130,6 +131,13 @@ export const QrDataGuestTab = ({ clientId }: QrDataGuestTabProps) => {
       });
    };
 
+   const handleDownloadTemplate = () => {
+      const link = document.createElement('a');
+      link.href = '/template/guest_upload/qr_data_template_example.xlsx';
+      link.download = 'qr_data_template_example.xlsx';
+      link.click();
+   };
+
    const table = useReactTable({
       data,
       columns,
@@ -153,7 +161,10 @@ export const QrDataGuestTab = ({ clientId }: QrDataGuestTabProps) => {
             >
                Import Data
             </button>
-            <button className="btn bg-sky-500 text-white px-5 py-3 rounded-md hover:bg-sky-600 transition duration-100 ease-in text-[14px] font-semibold">
+            <button
+               className="btn bg-sky-500 text-white px-5 py-3 rounded-md hover:bg-sky-600 transition duration-100 ease-in text-[14px] font-semibold"
+               onClick={handleDownloadTemplate}
+            >
                Download Template
             </button>
          </div>
