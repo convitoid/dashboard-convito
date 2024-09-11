@@ -2,7 +2,7 @@ import { createSlice } from '@reduxjs/toolkit';
 import { getQrGuests, uploadQrGuests } from '../../Thunk/clients/clientQrUploadGuestsThunk';
 
 interface ClientQrUploadGuestsState {
-   data: any[] | '';
+   data: any | '';
    guests: any | '';
    status: 'idle' | 'loading' | 'success';
    error: any;
@@ -21,6 +21,10 @@ export const clientQrUploadGuestsSLice = createSlice({
    reducers: {
       resetQrGuestsStatus: (state) => {
          state.status = 'idle';
+      },
+
+      resetQrGuestsData: (state) => {
+         state.guests = [];
       },
    },
    extraReducers: (builder) => {
@@ -50,6 +54,6 @@ export const clientQrUploadGuestsSLice = createSlice({
    },
 });
 
-export const { resetQrGuestsStatus } = clientQrUploadGuestsSLice.actions;
+export const { resetQrGuestsStatus, resetQrGuestsData } = clientQrUploadGuestsSLice.actions;
 
 export default clientQrUploadGuestsSLice.reducer;

@@ -25,6 +25,7 @@ export const uploadQrGuests = createAsyncThunk('clients/uploadQrGuests', async (
 });
 
 export const getQrGuests = createAsyncThunk('clients/getQrGuests', async (clientId: string) => {
+   console.log(clientId);
    try {
       const getToken = await fetch('/api/auth/session')
          .then((res) => res.json())
@@ -39,6 +40,7 @@ export const getQrGuests = createAsyncThunk('clients/getQrGuests', async (client
       });
 
       const data = await response.json();
+      console.log(data);
       return data;
    } catch (error) {
       return error;

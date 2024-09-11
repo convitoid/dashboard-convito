@@ -1,7 +1,8 @@
 import prisma from '@/libs/prisma';
 import { NextRequest, NextResponse } from 'next/server';
 
-export async function GET(req: NextRequest, params: { clientId: string }) {
+export async function GET(req: NextRequest, { params }: { params: { clientId: string } }) {
+   console.log(params.clientId);
    try {
       const client = await prisma.client.findFirst({
          select: {
@@ -21,7 +22,7 @@ export async function GET(req: NextRequest, params: { clientId: string }) {
       return NextResponse.json(
          {
             status: 200,
-            message: 'This is a GET request',
+            message: 'This is a GET requests',
             data: guests,
          },
          { status: 200 }
