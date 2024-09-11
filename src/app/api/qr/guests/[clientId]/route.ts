@@ -17,6 +17,9 @@ export async function GET(req: NextRequest, { params }: { params: { clientId: st
          where: {
             clientId: client?.id,
          },
+         orderBy: {
+            qr_code: 'asc',
+         },
       });
 
       return NextResponse.json(
