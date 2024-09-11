@@ -61,8 +61,8 @@ export async function POST(req: NextRequest, { params }: { params: { clientId: s
                            {
                               type: 'image',
                               image: {
-                                 // link: `${process.env.NEXTAUTH_URL}${image[0].path}`,
-                                 link: 'https://images.unsplash.com/photo-1634729108541-516d16ddceec?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+                                 link: `${process.env.NEXTAUTH_URL}${image[0].path}`,
+                                 // link: 'https://images.unsplash.com/photo-1634729108541-516d16ddceec?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
                               },
                            },
                         ],
