@@ -43,7 +43,7 @@ export const getQrImages = createAsyncThunk('clientQrUploadImage/getQrImages', a
       }
 
       const response = await images.json();
-
+      console.log('response', response);
       return response;
    } catch (error) {
       return error;

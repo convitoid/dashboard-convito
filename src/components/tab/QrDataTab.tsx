@@ -17,6 +17,7 @@ import { ChevronRightIcon } from '../icons/chevronRight';
 import { ChevronDoubleRightIcon } from '../icons/chevronDoubleRight';
 import { Eye } from '../icons/eye';
 import { QrCode } from '../icons/qrCode';
+import { ShowQrModal } from '../page/showQrModal';
 
 type QrDataTabProps = {
    clientId: string;
@@ -30,6 +31,8 @@ export const QrDataTab = ({ clientId }: QrDataTabProps) => {
       pageSize: 10,
    });
    const [globalFilter, setGlobalFilter] = useState('');
+   const [qrCode, setQrCode] = useState('');
+   const [qrUrl, setQrUrl] = useState('');
 
    const dispatch = useDispatch<AppDispatch>();
    const files = useSelector((state: RootState) => state.clientQrUploadFile.files);
@@ -81,6 +84,18 @@ export const QrDataTab = ({ clientId }: QrDataTabProps) => {
       };
    }, [clientId, dispatch]);
 
+   const showQrModal = (data: any) => {
+      console.log(data);
+
+      setQrCode(data.code);
+      setQrUrl(data.path);
+
+      const modal = document.getElementById('showQrModal');
+      if (modal) {
+         (modal as HTMLDialogElement).showModal();
+      }
+   };
+
    useEffect(() => {
       const dynamicColumns = [
          {
@@ -105,7 +120,7 @@ export const QrDataTab = ({ clientId }: QrDataTabProps) => {
                      <button
                         className="btn bg-sky-500 text-white hover:bg-sky-600 transition duration-100 ease-in tooltip tooltip-bottom"
                         data-tip="View"
-                        onClick={() => console.log(info.row.original)}
+                        onClick={() => showQrModal(info.row.original)}
                      >
                         <QrCode className="size-5" />
                      </button>
@@ -117,11 +132,12 @@ export const QrDataTab = ({ clientId }: QrDataTabProps) => {
 
       setColumns(dynamicColumns);
 
-      if (files.length > 0) {
+      if (files?.length > 0) {
          const dynamicData = files.map((file: any) => ({
             id: file.id,
             name: file.name,
             code: file.code,
+            path: file.path,
          }));
 
          setData(dynamicData);
@@ -150,6 +166,8 @@ export const QrDataTab = ({ clientId }: QrDataTabProps) => {
          pagination,
       },
    });
+
+   console.log(files);
 
    return (
       <>
@@ -293,6 +311,8 @@ export const QrDataTab = ({ clientId }: QrDataTabProps) => {
                </button>
             </div>
          </div>
+
+         <ShowQrModal modalId="showQrModal" code={qrCode} imgUrl={qrUrl} />
       </>
    );
 };

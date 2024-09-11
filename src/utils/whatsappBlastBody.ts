@@ -137,12 +137,20 @@ export const WhatsappBlastBody = async ({
       }
 
       case 'header_video': {
+         const token_header_image = uniqueData.filter((t: any) => t.guestId === data.id).map((t: any) => t.token);
+         const url = video.video;
+         const urlArray = url.split('/');
+         const id = urlArray[5];
+
+         const newUrl = `https://drive.google.com/uc?export=download&id=${id}`;
+         console.log('newUrl', newUrl);
+
          const bodyVideo = {
             messaging_product: 'whatsapp',
-            to: data.phone_number,
+            to: '6282310421496',
             type: 'template',
             template: {
-               name: 'template_video',
+               name: template[0].template_name,
                language: {
                   code: 'en',
                },
@@ -153,8 +161,28 @@ export const WhatsappBlastBody = async ({
                         {
                            type: 'video',
                            video: {
-                              link: `${process.env.NEXT_BASE_URL}${video?.video}`,
+                              link: newUrl,
                            },
+                        },
+                     ],
+                  },
+                  {
+                     type: 'body',
+                     parameters: [
+                        {
+                           type: 'text',
+                           text: data.name,
+                        },
+                     ],
+                  },
+                  {
+                     type: 'button',
+                     sub_type: 'url',
+                     index: 0,
+                     parameters: [
+                        {
+                           type: 'text',
+                           text: `invitation/${token_header_image[0]}`,
                         },
                      ],
                   },
