@@ -18,7 +18,7 @@ export const ShowQrModal = ({ modalId, code, imgUrl }: ShowQrModalProps) => {
    return (
       <dialog id={modalId} className="modal">
          <div className="modal-box p-0">
-            <Image src={`/${imgUrl}`} alt="QR Code" width={500} height={500} className="w-full" />
+            <Image src={`/${imgUrl}`} alt="QR Code" width={500} height={500} className="w-full" unoptimized />
          </div>
          <form method="dialog" className="modal-backdrop">
             <button>close</button>
