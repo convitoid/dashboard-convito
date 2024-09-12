@@ -10,7 +10,7 @@ type ShowQrModalProps = {
 };
 
 export const ShowQrModal = ({ modalId, code, imgUrl, name, clientId }: ShowQrModalProps) => {
-   console.log(modalId, code, imgUrl, name, clientId);
+   console.log('url', imgUrl);
    const closeModal = () => {
       const modal = document.getElementById(`${modalId}`);
       if (modal) {
@@ -20,7 +20,7 @@ export const ShowQrModal = ({ modalId, code, imgUrl, name, clientId }: ShowQrMod
    return (
       <dialog id={modalId} className="modal">
          <div className="modal-box p-0">
-            <img src={`/${imgUrl}`} alt="QR Code" className="w-full" />
+            <img src={`${imgUrl}`} alt="QR Code" className="w-full" />
          </div>
          <form method="dialog" className="modal-backdrop">
             <button>close</button>
