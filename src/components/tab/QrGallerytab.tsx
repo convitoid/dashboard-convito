@@ -1,7 +1,7 @@
 import { useDispatch, useSelector } from 'react-redux';
 import { ModalQrUploadImage } from '../page/modalQrUploadImage';
 import { AppDispatch, RootState } from '@/app/store';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { deleteQrImage, getQrImages } from '@/app/GlobalRedux/Thunk/clients/clientQrUploadImageThunk';
 import { Xicon } from '../icons/xicon';
 import Image from 'next/image';
@@ -12,6 +12,7 @@ type QrGallerytabProps = {
 };
 
 export const QrGallerytab = ({ clientId }: QrGallerytabProps) => {
+   const [imgUrl, setImgUrl] = useState('');
    const dispatch = useDispatch<AppDispatch>();
    const images = useSelector((state: RootState) => state.clientQrUploadImage.datas);
    const status = useSelector((state: RootState) => state.clientQrUploadImage.status);
@@ -46,6 +47,8 @@ export const QrGallerytab = ({ clientId }: QrGallerytabProps) => {
          });
    };
 
+   console.log('images', images);
+
    return (
       <>
          <div className="flex items-center gap-2">
@@ -77,11 +80,12 @@ export const QrGallerytab = ({ clientId }: QrGallerytabProps) => {
                               </button>
                            </div>
                            <Image
-                              src={image.path}
+                              src={image.imageUrl}
                               alt={image.name}
                               width={1000}
                               height={1000}
                               className="w-full rounded-md"
+                              unoptimized
                            />
                         </div>
                      ))}

@@ -23,7 +23,6 @@ export const uploadQrImage = createAsyncThunk('clientQrUploadImage/uploadQrImage
 });
 
 export const getQrImages = createAsyncThunk('clientQrUploadImage/getQrImages', async (payload: any) => {
-   console.log('payload', payload);
    try {
       const getToken = await fetch('/api/auth/session')
          .then((res) => res.json())
@@ -43,7 +42,6 @@ export const getQrImages = createAsyncThunk('clientQrUploadImage/getQrImages', a
       }
 
       const response = await images.json();
-      console.log('response', response);
       return response;
    } catch (error) {
       return error;
