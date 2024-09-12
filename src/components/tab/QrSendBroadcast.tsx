@@ -159,7 +159,7 @@ export const QrSendBroadcast = ({ clientId }: QrSendBroadcastProps) => {
             .unwrap()
             .then((res) => {
                console.log('res', res);
-               if (res.status) {
+               if (res.status === 200) {
                   Swal.fire({
                      icon: 'success',
                      title: 'Success',
@@ -167,7 +167,7 @@ export const QrSendBroadcast = ({ clientId }: QrSendBroadcastProps) => {
                   });
                } else {
                   Swal.fire({
-                     icon: 'error',
+                     icon: 'warning',
                      title: 'Error',
                      text: res.message,
                   });

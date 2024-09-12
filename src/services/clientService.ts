@@ -90,7 +90,7 @@ export async function deleteClientService(jwtToken: string, clientId: number) {
       // const { payload } = await jwtVerify(jwtToken, secret);
       const client = await prisma.client.delete({
          where: {
-            id: clientId,
+            id: Number(clientId),
          },
       });
 

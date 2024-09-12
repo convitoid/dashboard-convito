@@ -64,7 +64,7 @@ export const QrDataTab = ({ clientId }: QrDataTabProps) => {
                   dispatch(getQrFiles(clientId));
                } else {
                   Swal.fire({
-                     icon: 'error',
+                     icon: 'warning',
                      title: 'Oops...',
                      text: res.message,
                   });
@@ -166,8 +166,6 @@ export const QrDataTab = ({ clientId }: QrDataTabProps) => {
          pagination,
       },
    });
-
-   console.log(files);
 
    return (
       <>
