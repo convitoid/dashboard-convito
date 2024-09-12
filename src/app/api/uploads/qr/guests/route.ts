@@ -32,6 +32,12 @@ export async function POST(req: NextRequest) {
 
       const newJson = await convertToJson(header as string[], data);
 
+      console.log('newJson', newJson);
+
+      const filteredData = newJson.filter((guests: any) => Object.keys(guests).length > 0);
+
+      console.log('filteredData', filteredData);
+
       const client = await prisma.client.findFirst({
          select: {
             id: true,
@@ -56,22 +62,22 @@ export async function POST(req: NextRequest) {
                },
             }),
             prisma.qrGuest.createMany({
-               data: newJson.map((guest: any) => ({
+               data: filteredData.map((guest: any) => ({
                   clientId: Number(client?.id),
                   name: guest.NAME,
-                  phoneNumber: guest.PHONE_NUMBER,
+                  phoneNumber: guest.PHONE_NUMBER.toString(),
                   qr_code: guest.QR_CODE,
                   createdAt: new Date(),
                })),
             }),
          ]);
       } else {
-         newJson.forEach(async (guest: any) => {
+         filteredData.forEach(async (guest: any) => {
             await prisma.qrGuest.create({
                data: {
                   clientId: Number(client?.id),
                   name: guest.NAME,
-                  phoneNumber: guest.PHONE_NUMBER,
+                  phoneNumber: guest.PHONE_NUMBER.toString(),
                   qr_code: guest.QR_CODE,
                   createdAt: new Date(),
                },

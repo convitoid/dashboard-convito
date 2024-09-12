@@ -5,7 +5,7 @@ import { DataTablesComponent } from '@/components/datatables';
 import { ModalAddClient } from '@/components/page/modalAddClient';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '@/app/store';
-import { fetchClients } from '@/app/GlobalRedux/Thunk/clients/clientThunk';
+import { deleteClient, fetchClients } from '@/app/GlobalRedux/Thunk/clients/clientThunk';
 import moment from 'moment';
 import { ModalEditClient } from '@/components/page/modalEditClient';
 import Image from 'next/image';
@@ -15,6 +15,7 @@ import { DetailIcon } from '@/components/icons/detail';
 import { useRouter } from 'next/navigation';
 import { Calendar } from '@/components/icons/calendar';
 import { QrCode } from '@/components/icons/qrCode';
+import Swal from 'sweetalert2';
 
 interface Client {
    client_name: string;
@@ -68,6 +69,41 @@ const ClientPage = () => {
       setIsOpenModalEdit(false);
       const modal = document.getElementById('edit_client') as HTMLDialogElement;
       modal.close();
+   };
+
+   const handleDeleteClient = (clientId: string) => {
+      Swal.fire({
+         title: 'Are you sure?',
+         text: "You won't be able to revert this!",
+         icon: 'warning',
+         showCancelButton: true,
+         confirmButtonColor: '#3085d6',
+         cancelButtonColor: '#d33',
+         confirmButtonText: 'Yes, delete it!',
+      }).then((result) => {
+         if (result.isConfirmed) {
+            dispatch(deleteClient(clientId))
+               .unwrap()
+               .then((res) => {
+                  console.log('res', res);
+                  if (res.status === 201) {
+                     Swal.fire({
+                        title: 'Deleted!',
+                        text: 'Your file has been deleted.',
+                        icon: 'success',
+                     }).then(() => {
+                        dispatch(fetchClients());
+                     });
+                  } else {
+                     Swal.fire({
+                        title: 'Failed!',
+                        text: 'Failed to delete client',
+                        icon: 'warning',
+                     });
+                  }
+               });
+         }
+      });
    };
 
    useEffect(() => {
@@ -153,6 +189,7 @@ const ClientPage = () => {
                                     <button
                                        className="btn bg-red-500 text-slate-100 tooltip tooltip-bottom"
                                        data-tip="Delete"
+                                       onClick={() => handleDeleteClient(client?.id)}
                                     >
                                        <DeleteIcon className="size-4" />
                                     </button>

@@ -54,6 +54,11 @@ export async function POST(req: NextRequest) {
       const extractedFiles = [];
 
       for (const entry of zipEntries) {
+         // Skip _MACOSX folder and hidden files starting with .
+         if (entry.entryName.includes('__MACOSX') || entry.entryName.startsWith('.')) {
+            continue;
+         }
+
          const entryPath = path.join(targetDir, entry.entryName);
          if (entry.isDirectory) {
             fs.mkdirSync(entryPath, { recursive: true });
@@ -81,7 +86,7 @@ export async function POST(req: NextRequest) {
       });
 
       return NextResponse.json(
-         { status: 201, message: 'Upload successful', files: extractedFiles, data: savedFiles },
+         { status: 201, message: 'Upload successful', files: extractedFiles, data: extractedFiles },
          { status: 201 }
       );
    } catch (error) {
