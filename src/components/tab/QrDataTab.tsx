@@ -85,11 +85,15 @@ export const QrDataTab = ({ clientId }: QrDataTabProps) => {
       };
    }, [clientId, dispatch]);
 
-   const showQrModal = (data: any) => {
+   const showQrModal = async (data: any) => {
       console.log(data);
 
+      const url = `/api/qr/render-image/${clientId}/${data.name}`;
+      const response = await fetch(url);
+      console.log(response);
+
       setQrCode(data.code);
-      setQrUrl(data.path);
+      setQrUrl(response.url);
       setQrFileName(data.name);
 
       const modal = document.getElementById('showQrModal');
