@@ -63,7 +63,15 @@ export const QrDataTab = ({ clientId }: QrDataTabProps) => {
             .unwrap()
             .then((res) => {
                if (res.status === 201) {
-                  dispatch(getQrFiles(clientId));
+                  dispatch(getQrFiles(clientId))
+                     .unwrap()
+                     .then((res) => {
+                        Swal.fire({
+                           icon: 'success',
+                           title: 'Success',
+                           text: res.message,
+                        });
+                     });
                } else {
                   Swal.fire({
                      icon: 'warning',
