@@ -94,6 +94,7 @@ export const QrDataGuestTab = ({ clientId }: QrDataGuestTabProps) => {
       fileInput.type = 'file';
       fileInput.name = 'file';
       fileInput.accept = '.XLSX';
+      fileInput.style.display = 'none';
       fileInput.click();
 
       fileInput.addEventListener('change', (e) => {

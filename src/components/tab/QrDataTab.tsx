@@ -43,6 +43,7 @@ export const QrDataTab = ({ clientId }: QrDataTabProps) => {
       const input = document.createElement('input');
       input.type = 'file';
       input.accept = '.zip';
+      input.style.display = 'none';
 
       input.onchange = async (e) => {
          const file = (e.target as HTMLInputElement)?.files?.[0];
