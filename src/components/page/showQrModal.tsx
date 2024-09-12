@@ -5,10 +5,12 @@ type ShowQrModalProps = {
    modalId: string;
    code: string;
    imgUrl: string;
+   name: string;
+   clientId: string;
 };
 
-export const ShowQrModal = ({ modalId, code, imgUrl }: ShowQrModalProps) => {
-   console.log(modalId, code, imgUrl);
+export const ShowQrModal = ({ modalId, code, imgUrl, name, clientId }: ShowQrModalProps) => {
+   console.log(modalId, code, imgUrl, name, clientId);
    const closeModal = () => {
       const modal = document.getElementById(`${modalId}`);
       if (modal) {
@@ -18,7 +20,7 @@ export const ShowQrModal = ({ modalId, code, imgUrl }: ShowQrModalProps) => {
    return (
       <dialog id={modalId} className="modal">
          <div className="modal-box p-0">
-            <Image src={`/${imgUrl}`} alt="QR Code" width={500} height={500} className="w-full" unoptimized />
+            <img src={`/${imgUrl}`} alt="QR Code" className="w-full" />
          </div>
          <form method="dialog" className="modal-backdrop">
             <button>close</button>

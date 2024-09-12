@@ -33,6 +33,7 @@ export const QrDataTab = ({ clientId }: QrDataTabProps) => {
    const [globalFilter, setGlobalFilter] = useState('');
    const [qrCode, setQrCode] = useState('');
    const [qrUrl, setQrUrl] = useState('');
+   const [qrFileName, setQrFileName] = useState('');
 
    const dispatch = useDispatch<AppDispatch>();
    const files = useSelector((state: RootState) => state.clientQrUploadFile.files);
@@ -89,6 +90,7 @@ export const QrDataTab = ({ clientId }: QrDataTabProps) => {
 
       setQrCode(data.code);
       setQrUrl(data.path);
+      setQrFileName(data.name);
 
       const modal = document.getElementById('showQrModal');
       if (modal) {
@@ -310,7 +312,7 @@ export const QrDataTab = ({ clientId }: QrDataTabProps) => {
             </div>
          </div>
 
-         <ShowQrModal modalId="showQrModal" code={qrCode} imgUrl={qrUrl} />
+         <ShowQrModal modalId="showQrModal" code={qrCode} imgUrl={qrUrl} name={qrFileName} clientId={clientId} />
       </>
    );
 };
