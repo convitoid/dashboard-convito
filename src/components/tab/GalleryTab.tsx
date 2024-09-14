@@ -129,7 +129,7 @@ export const GalleryTab = ({ clientId }: GalleryTabProps) => {
                   (videos as any)?.filter((image: any) => image.flag === 'blasting_whatsapp').length
                }
             >
-               Upload image
+               Upload Image
             </button>
             <button
                className="btn bg-cyan-500 text-white mb-4 hover:bg-cyan-500 transition duraion-100 ease-in"
@@ -139,7 +139,7 @@ export const GalleryTab = ({ clientId }: GalleryTabProps) => {
                   images?.filter((image: any) => image.flag === 'blasting_whatsapp').length === 1
                }
             >
-               Add video
+               Add Video
             </button>
          </div>
 

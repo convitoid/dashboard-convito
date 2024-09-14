@@ -184,10 +184,10 @@ export const QuestionTab = ({ clientId }: QuestionTabProps) => {
             className="btn bg-blue-500 text-white px-5 py-3 rounded-md hover:bg-blue-600 transition duration-100 ease-in text-[14px] font-semibold mb-4"
             onClick={openMoldalAddQuestion}
          >
-            Add question
+            Add Question
          </button>
          <div className="flex items-center justify-between mb-3">
-            <h2 className="text-lg font-bold mb-2">Question data</h2>
+            <h2 className="text-lg font-bold mb-2">Question Data</h2>
             <input
                type="text"
                placeholder="Search"
@@ -204,7 +204,7 @@ export const QuestionTab = ({ clientId }: QuestionTabProps) => {
                      {table.getHeaderGroups().map((headerGroup) => (
                         <tr key={headerGroup.id}>
                            {headerGroup.headers.map((header) => (
-                              <th key={header.id} className="text-start h-10 px-4 py-2 bg-slate-800 text-white text-sm">
+                              <th key={header.id} className="text-start h-10 px-4 py-2 bg-[#1c1c1c] text-white text-sm">
                                  {header.isPlaceholder
                                     ? null
                                     : flexRender(header.column.columnDef.header, header.getContext())}

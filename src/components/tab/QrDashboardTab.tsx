@@ -132,19 +132,19 @@ export const QrDashboardTab = ({ clientId }: QrDashboardTabProps) => {
                <h2 className="text-3xl font-semibold">
                   {dashboardData?.data?.map((data: any) => data.totalGuests)[0]}
                </h2>
-               <h4 className="text-md font-semibold">Total Guest</h4>
+               <h4 className="text-md font-semibold">Total Guest(s)</h4>
             </div>
             <div className="bg-lime-500 p-4 rounded-md text-white mb-4">
                <h2 className="text-3xl font-semibold">
                   {dashboardData?.data?.map((data: any) => data.totalBroadcastSend)[0]}
                </h2>
-               <h4 className="text-md font-semibold">Total Broadcast Send</h4>
+               <h4 className="text-md font-semibold">Broadcast Send</h4>
             </div>
             <div className="bg-amber-500 p-4 rounded-md text-white mb-4">
                <h2 className="text-3xl font-semibold">
                   {dashboardData?.data?.map((data: any) => data.totalNotSendYet)[0]}
                </h2>
-               <h4 className="text-md font-semibold">Total Not Send Yet</h4>
+               <h4 className="text-md font-semibold">Pending Broadcast</h4>
             </div>
             <div className="bg-green-500 p-4 rounded-md text-white mb-4">
                <h2 className="text-3xl font-semibold">
@@ -161,7 +161,7 @@ export const QrDashboardTab = ({ clientId }: QrDashboardTabProps) => {
          </div>
 
          <div className="flex items-center justify-between mb-3">
-            <h2 className="text-lg font-bold mb-2">Qr Guest Data</h2>
+            <h2 className="text-lg font-bold mb-2">Guest Data</h2>
             <input
                type="text"
                placeholder="Search"
@@ -175,7 +175,7 @@ export const QrDashboardTab = ({ clientId }: QrDashboardTabProps) => {
                {table.getHeaderGroups().map((headerGroup) => (
                   <tr key={headerGroup.id}>
                      {headerGroup.headers.map((header) => (
-                        <th key={header.id} className="text-start h-10 px-4 py-2 bg-slate-800 text-white text-sm">
+                        <th key={header.id} className="text-start h-10 px-4 py-2 bg-[#1c1c1c] text-white text-sm">
                            {header.isPlaceholder
                               ? null
                               : flexRender(header.column.columnDef.header, header.getContext())}

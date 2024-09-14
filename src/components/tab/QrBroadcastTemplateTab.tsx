@@ -209,7 +209,7 @@ export const QrBroadcastTemplateTab = ({ clientId }: QrBroadcastTemplateTabProps
                <span className="text-[13px]">
                   Warning: You have not uploaded an image in the gallery tab. Please ensure that you use a reminder
                   broadcast template without an image. If you use the wrong broadcast template, the broadcast message
-                  will not be sent
+                  will not be sent.
                </span>
             </div>
          )}
@@ -234,7 +234,7 @@ export const QrBroadcastTemplateTab = ({ clientId }: QrBroadcastTemplateTabProps
                {table.getHeaderGroups().map((headerGroup) => (
                   <tr key={headerGroup.id}>
                      {headerGroup.headers.map((header) => (
-                        <th key={header.id} className="text-start h-10 px-4 py-2 bg-slate-800 text-white text-sm">
+                        <th key={header.id} className="text-start h-10 px-4 py-2 bg-[#1c1c1c] text-white text-sm">
                            {header.isPlaceholder
                               ? null
                               : flexRender(header.column.columnDef.header, header.getContext())}

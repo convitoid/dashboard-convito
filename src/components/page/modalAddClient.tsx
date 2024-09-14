@@ -120,7 +120,7 @@ export const ModalAddClient = ({ modalId, title }: ModalAddClientProps) => {
                      label="Client Name"
                      inputName="client_name"
                      inputType="text"
-                     placeholder="e.g. John Doe"
+                     placeholder="e.g. Mr. Convito"
                      labelStyle="text-slate-900 font-semibold text-sm"
                      inputStyle="input input-bordered h-10"
                      value={formData.client_name}
@@ -133,7 +133,7 @@ export const ModalAddClient = ({ modalId, title }: ModalAddClientProps) => {
                      label="Event Title"
                      inputName="event_title"
                      inputType="text"
-                     placeholder="e.g. The Wedding of Jhon Dhone"
+                     placeholder="e.g. The Wedding of"
                      labelStyle="text-slate-900 font-semibold text-sm"
                      inputStyle="input input-bordered h-10"
                      value={formData.event_title}
@@ -148,7 +148,7 @@ export const ModalAddClient = ({ modalId, title }: ModalAddClientProps) => {
                      inputType="text"
                      labelStyle="text-slate-900 font-semibold text-sm"
                      inputStyle="input input-bordered h-10"
-                     placeholder="e.g. Wedding of John Doe"
+                     placeholder="e.g. Mr. Convito & Ms. Convito"
                      value={formData.event_name}
                      onChange={handleInputChange}
                      autoFocus={false}

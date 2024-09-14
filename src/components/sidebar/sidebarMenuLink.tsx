@@ -11,8 +11,8 @@ export const SidebarMenuLink = ({ link, title, icon, isActive }: SidebarMenuLink
    return (
       <Link
          href={link}
-         className={`text-slate-100 font-medium w-full text-left bg-bg-transparent hover:bg-gray-900 transition duration-100 ease-in  p-3 rounded-lg flex items-center gap-4 ${
-            isActive ? 'bg-gray-900' : ''
+         className={`text-slate-100 font-medium w-full text-left bg-bg-transparent hover:bg-white hover:text-[#1c1c1c] transition duration-100 ease-in  p-3 rounded-lg flex items-center gap-4 ${
+            isActive ? 'bg-white text-[#1c1c1c]' : ''
          }`}
       >
          {icon}

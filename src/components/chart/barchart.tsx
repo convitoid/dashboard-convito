@@ -29,8 +29,8 @@ export const BarChart = ({ statisticsData }: BarChartProps) => {
          {
             label: 'Clients',
             data: statisticsData,
-            backgroundColor: 'rgba(75, 192, 192, 0.2)',
-            borderColor: 'rgba(75, 192, 192, 1)',
+            backgroundColor: 'rgba(28, 28, 28, 0.5)',
+            borderColor: 'rgba(28, 28, 28, 1)',
             borderWidth: 1,
          },
       ],

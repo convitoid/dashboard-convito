@@ -37,15 +37,9 @@ export const SidebarMenu = ({ currentPath }: SidebarMenuProps) => {
             />
          </SidebarMenuSection>
          <SidebarMenuSection title="Utilities">
-            <SidebarMenuLink
-               link="/dashboard/test-blasting"
-               title="Test Blasting"
-               icon={<ChatBubleLeftIcon />}
-               isActive={currentPath === '/dashboard/test-blasting'}
-            />
             <AccordionComponent
                menuIcon={<SettingIcon />}
-               menuTitle="Setting Users"
+               menuTitle="User Settings"
                isActive={currentPath === '/dashboard/users'}
             />
          </SidebarMenuSection>

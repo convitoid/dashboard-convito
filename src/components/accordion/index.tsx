@@ -28,8 +28,8 @@ export const AccordionComponent = ({ menuIcon, menuTitle, isActive }: AccordionP
          <button
             onClick={openMenu}
             className={`w-full text-left p-3 ${
-               isActive ? 'bg-slate-900' : ''
-            } hover:bg-gray-900 focus:outline-none text-white transition duration-100 ease-in rounded-lg`}
+               isActive ? 'bg-white text-[#1c1c1c]' : ''
+            } hover:bg-white hover:text-[#1c1c1c] focus:outline-none text-white transition duration-100 ease-in rounded-lg`}
          >
             <div className="flex justify-between items-center">
                <div className="flex items-center gap-2">
@@ -61,8 +61,8 @@ export const AccordionComponent = ({ menuIcon, menuTitle, isActive }: AccordionP
                <div className="w-full">
                   <Link
                      href="/dashboard/users"
-                     className={`hover:bg-slate-900 block py-4 px-[3.2rem] rounded-md font-medium 2md:text-[.7rem] lg:text-[.8rem] xl:text-[.9rem]${
-                        isActive ? 'bg-slate-900' : ''
+                     className={`hover:bg-white hover:text-[#1c1c1c] block py-4 px-[3.2rem] rounded-md font-medium 2md:text-[.7rem] lg:text-[.8rem] xl:text-[.9rem]${
+                        isActive ? 'bg-white' : ''
                      }`}
                   >
                      Users

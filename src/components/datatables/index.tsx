@@ -13,7 +13,7 @@ export const DataTablesComponent = ({ tableHead, children }: DataTablesComponent
          <thead>
             <tr>
                {tableHead?.map((head, index) => (
-                  <th key={index} className="text-start py-2 px-4 bg-slate-800 text-white text-sm">
+                  <th key={index} className="text-start py-2 px-4 bg-[#1c1c1c] text-white text-sm">
                      {head}
                   </th>
                ))}

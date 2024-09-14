@@ -27,7 +27,7 @@ const breadcrumbsData = [
       href: '/dashboard',
    },
    {
-      name: 'customers',
+      name: 'client',
       href: '/dashboard/customers',
    },
    {
@@ -51,7 +51,7 @@ const CustomerDetailPage = ({ params }: { params: { slug: string } }) => {
          disabled: false,
       },
       {
-         name: 'Data',
+         name: 'Guest Data',
          icon: <Data />,
          content: <DataTab clientId={params.slug} />,
          disabled: false,

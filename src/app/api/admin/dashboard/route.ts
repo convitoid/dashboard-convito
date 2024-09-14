@@ -16,9 +16,9 @@ export async function GET(req: NextRequest) {
       const data = {
          clients: clientData,
          guests: guestData,
-         totalClients: clients,
+         totalClients: chartClientData.customers.length,
          totalGuests: guests,
-         chartClientData: chartClientData,
+         chartClientData: chartClientData.monthlyData,
       };
 
       logger.info('Data admin dashboard fetched successfully', data);

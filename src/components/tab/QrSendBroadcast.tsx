@@ -185,7 +185,7 @@ export const QrSendBroadcast = ({ clientId }: QrSendBroadcastProps) => {
             {statusSend === 'sending' ? <span className="loading loading-spinner loading-sm"></span> : 'Send Broadcast'}
          </button>
          <div className="flex items-center justify-between mb-3">
-            <h2 className="text-lg font-bold mb-2">Guests Data</h2>
+            <h2 className="text-lg font-bold mb-2">Broadcast Data</h2>
             <input
                type="text"
                placeholder="Search"
@@ -199,7 +199,7 @@ export const QrSendBroadcast = ({ clientId }: QrSendBroadcastProps) => {
                {table.getHeaderGroups().map((headerGroup) => (
                   <tr key={headerGroup.id}>
                      {headerGroup.headers.map((header) => (
-                        <th key={header.id} className="text-start h-10 px-4 py-2 bg-slate-800 text-white text-sm">
+                        <th key={header.id} className="text-start h-10 px-4 py-2 bg-[#1c1c1c] text-white text-sm">
                            {header.isPlaceholder
                               ? null
                               : flexRender(header.column.columnDef.header, header.getContext())}
