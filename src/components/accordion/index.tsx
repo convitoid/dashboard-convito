@@ -28,8 +28,8 @@ export const AccordionComponent = ({ menuIcon, menuTitle, isActive }: AccordionP
          <button
             onClick={openMenu}
             className={`w-full text-left p-3 ${
-               isActive ? 'bg-white text-[#1c1c1c]' : ''
-            } hover:bg-white hover:text-[#1c1c1c] focus:outline-none text-white transition duration-100 ease-in rounded-lg`}
+               isActive ? 'bg-white text-[#1c1c1c]' : 'text-white'
+            } hover:bg-white hover:text-[#1c1c1c] focus:outline-none transition duration-100 ease-in rounded-lg`}
          >
             <div className="flex justify-between items-center">
                <div className="flex items-center gap-2">
