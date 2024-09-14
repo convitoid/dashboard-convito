@@ -40,6 +40,7 @@ export async function GET(req: NextRequest, { params }: { params: { clientId: st
                   guestId: true,
                   questionId: true,
                   answer: true,
+                  token: true,
                },
             },
             SendBlastingLogs: true,
