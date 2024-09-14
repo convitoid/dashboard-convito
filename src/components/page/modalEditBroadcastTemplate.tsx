@@ -37,7 +37,6 @@ export const ModalEditBroadcastTemplate = ({ modalId, clientId }: ModalEditBroad
    };
 
    const handleSelectChange = (e: any) => {
-      console.log(e.target.value);
       setFormData({ ...formData, template_type: e.target.value });
    };
 
@@ -69,7 +68,6 @@ export const ModalEditBroadcastTemplate = ({ modalId, clientId }: ModalEditBroad
          .unwrap()
          .then((res) => {
             if (res.status === 201) {
-               console.log(res);
                Swal.fire({
                   icon: 'success',
                   title: 'Success',

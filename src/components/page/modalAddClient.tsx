@@ -31,7 +31,6 @@ export const ModalAddClient = ({ modalId, title }: ModalAddClientProps) => {
 
    const handleSubmitClient = async (e: React.FormEvent<HTMLFormElement>) => {
       e.preventDefault();
-      console.log('submit', formData);
 
       const validation = createClientValidation(formData);
 

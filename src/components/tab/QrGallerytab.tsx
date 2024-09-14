@@ -30,11 +30,9 @@ export const QrGallerytab = ({ clientId }: QrGallerytabProps) => {
    };
 
    const handleDeleteImage = async (imageId: number, clientId: string) => {
-      console.log('imageId', imageId);
       await dispatch(deleteQrImage({ imageId, clientId }))
          .unwrap()
          .then((res) => {
-            console.log('res', res);
             if (res.status === 200) {
                Swal.fire({
                   icon: 'success',
@@ -46,8 +44,6 @@ export const QrGallerytab = ({ clientId }: QrGallerytabProps) => {
             }
          });
    };
-
-   console.log('images', images);
 
    return (
       <>

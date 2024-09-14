@@ -1,3 +1,4 @@
+import logger from '@/libs/logger';
 import prisma from '@/libs/prisma';
 import { jwtVerify } from 'jose';
 import { NextRequest, NextResponse } from 'next/server';
@@ -30,6 +31,10 @@ export async function GET(req: NextRequest, { params }: { params: { clientId: st
       });
 
       if (!client) {
+         logger.info(`Client not found`, {
+            error: 'Client not found',
+            apiUrl: `/api/video/${params.clientId}`,
+         });
          return NextResponse.json(
             {
                status: 404,
@@ -47,6 +52,10 @@ export async function GET(req: NextRequest, { params }: { params: { clientId: st
       });
 
       if (!video) {
+         logger.info(`Video not found`, {
+            error: 'Video not found',
+            apiUrl: `/api/video/${params.clientId}`,
+         });
          return NextResponse.json(
             {
                status: 404,
@@ -55,6 +64,11 @@ export async function GET(req: NextRequest, { params }: { params: { clientId: st
             { status: 404 }
          );
       }
+
+      logger.info(`Video fetched successfully`, {
+         data: video,
+         apiUrl: `/api/video/${params.clientId}`,
+      });
 
       return NextResponse.json(
          {
@@ -69,6 +83,10 @@ export async function GET(req: NextRequest, { params }: { params: { clientId: st
       const jwtError = error as JWTError;
 
       if (jwtError.code === 'ERR_JWT_EXPIRED' || jwtError.code === 'ERR_JWS_INVALID') {
+         logger.info(`Unauthorized`, {
+            error: 'Unauthorized',
+            apiUrl: `/api/video/${params.clientId}`,
+         });
          return NextResponse.json(
             {
                satatus: 401,
@@ -77,6 +95,11 @@ export async function GET(req: NextRequest, { params }: { params: { clientId: st
             { status: 401 }
          );
       }
+
+      logger.error(`Failed to fetch video`, {
+         error: errorMessage?.message,
+         apiUrl: `/api/video/${params.clientId}`,
+      });
 
       return NextResponse.json(
          {

@@ -1,4 +1,5 @@
 import { QrBroadcastTemplateTab } from '@/components/tab/QrBroadcastTemplateTab';
+import logger from '@/libs/logger';
 import prisma from '@/libs/prisma';
 import { sendBlastingQrService } from '@/services/sendBlastingService';
 import { NextRequest, NextResponse } from 'next/server';
@@ -14,11 +15,11 @@ interface MessageDetail {
 // Define the interface for the blasting message structure
 interface BlastingMessage {
    status: number;
-   message: MessageDetail;
+   message: string;
 }
 
 // Define the type for the response, which is an array of BlastingMessage objects
-type BlastingMessageResponse = BlastingMessage[];
+type BlastingMessageResponse = BlastingMessage;
 
 export async function POST(req: NextRequest, { params }: { params: { clientId: string } }) {
    const body = await req.json();
@@ -62,7 +63,6 @@ export async function POST(req: NextRequest, { params }: { params: { clientId: s
       // if (image?.length > 0) {
       //    // send broadcast reminder with image
       //    body?.map(async (guest: any) => {
-      //       //    console.log('send broadcast reminder with image');
       //       const whatsappBodyJsonReminder = {
       //          messaging_product: 'whatsapp',
       //          to: guest.phoneNumber,
@@ -97,8 +97,6 @@ export async function POST(req: NextRequest, { params }: { params: { clientId: s
       //             ],
       //          },
       //       };
-
-      //       // console.log('whatsappBodyJsonReminder', whatsappBodyJsonReminder);
 
       //       const qrFileUrl = qrFile.filter((qr: any) => qr.code === guest.qr_code);
       //       const whatsappBodyJsonQr = {
@@ -140,7 +138,6 @@ export async function POST(req: NextRequest, { params }: { params: { clientId: s
       //          }
       //       );
       //       const res = await response.json();
-      //       console.log('res', res);
 
       //       if (response.ok) {
       //          // Wait for 10 seconds before proceeding
@@ -160,7 +157,6 @@ export async function POST(req: NextRequest, { params }: { params: { clientId: s
 
       //             // Parse the response to JSON
       //             const resQr = await responseQr.json();
-      //             console.log('resQr', resQr);
 
       //             const createSuccessLogs = await prisma.qrBroadcastLogs.create({
       //                data: {
@@ -168,8 +164,6 @@ export async function POST(req: NextRequest, { params }: { params: { clientId: s
       //                   status: 'success_sent',
       //                },
       //             });
-
-      //             console.log('success logs', createSuccessLogs);
 
       //             return NextResponse.json(
       //                {
@@ -208,7 +202,6 @@ export async function POST(req: NextRequest, { params }: { params: { clientId: s
       //    });
       // } else {
       //    // send broadcast reminder without image
-      //    console.log('send broadcast reminder without image');
       //    body?.map(async (guest: any) => {
       //       const whatsappBodyJsonReminder = {
       //          messaging_product: 'whatsapp',
@@ -260,9 +253,6 @@ export async function POST(req: NextRequest, { params }: { params: { clientId: s
       //          },
       //       };
 
-      //       console.log('whatsappBodyJsonReminder', whatsappBodyJsonReminder);
-      //       console.log('whatsappBodyJsonQr', whatsappBodyJsonQr);
-
       //       const myHeaders = new Headers();
       //       myHeaders.append('Content-Type', 'application/json');
       //       myHeaders.append('Authorization', `Bearer ${process.env.NEXT_WHATSAPP_TOKEN_ID}`);
@@ -276,8 +266,6 @@ export async function POST(req: NextRequest, { params }: { params: { clientId: s
       //          }
       //       );
       //       const res = await response.json();
-      //       console.log('res', res);
-      //       console.log('response', response);
 
       //       if (response.ok) {
       //          // Wait for 10 seconds before proceeding
@@ -297,7 +285,6 @@ export async function POST(req: NextRequest, { params }: { params: { clientId: s
 
       //             // Parse the response to JSON
       //             const resQr = await responseQr.json();
-      //             console.log('resQr', resQr);
 
       //             const createSuccessLogs = await prisma.qrBroadcastLogs.create({
       //                data: {
@@ -305,8 +292,6 @@ export async function POST(req: NextRequest, { params }: { params: { clientId: s
       //                   status: 'success_sent',
       //                },
       //             });
-
-      //             console.log('success logs', createSuccessLogs);
 
       //             return NextResponse.json(
       //                {
@@ -343,48 +328,23 @@ export async function POST(req: NextRequest, { params }: { params: { clientId: s
       //    });
       // }
 
+      // const blastingMessage: BlastingMessageResponse = (await sendBlastingQrService(
+      //    body,
+      //    template,
+      //    image,
+      //    qrFile
+      // )) as BlastingMessageResponse;
+
       const blastingMessage = (await sendBlastingQrService(body, template, image, qrFile)) as BlastingMessageResponse;
 
-      console.log('blastingMessage', blastingMessage);
-
-      // Check if the response is an array and process its contents
-      if (Array.isArray(blastingMessage) && blastingMessage.length > 0) {
-         const firstMessage = blastingMessage[0]; // Access the first element
-
-         console.log('firstMessage', firstMessage);
-
-         // Validate that the element has the expected structure
-         if (
-            firstMessage &&
-            typeof firstMessage === 'object' &&
-            'status' in firstMessage &&
-            'message' in firstMessage
-         ) {
-            const { status, message } = firstMessage;
-
-            // Safely access message details
-            console.log(`Status: ${status}`);
-            console.log(`Error Message: ${message.message}`);
-            console.log(`Error Type: ${message.type}`);
-            console.log(`Error Code: ${message.code}`);
-            console.log(`FB Trace ID: ${message.fbtrace_id}`);
-
-            return NextResponse.json(
-               {
-                  status: status,
-                  message: message.message ?? message,
-                  type: message.type,
-                  code: message.code,
-                  fbtrace_id: message.fbtrace_id,
-               },
-               { status: status }
-            );
-         } else {
-            console.error('Unexpected response format', blastingMessage);
-         }
-      } else {
-         console.error('Response is empty or not an array', blastingMessage);
-      }
+      logger.info('Blasting message sent successfully', { blastingMessage });
+      return NextResponse.json(
+         {
+            status: blastingMessage.status,
+            message: blastingMessage.message,
+         },
+         { status: 200 }
+      );
    } catch (error) {
       const createErrorLogs = await prisma.qrBroadcastLogs.create({
          data: {
@@ -392,6 +352,8 @@ export async function POST(req: NextRequest, { params }: { params: { clientId: s
             status: 'failed_sent',
          },
       });
+
+      logger.error('Error while sending broadcast', { error });
 
       return NextResponse.json(
          {

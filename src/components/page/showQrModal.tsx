@@ -10,7 +10,6 @@ type ShowQrModalProps = {
 };
 
 export const ShowQrModal = ({ modalId, code, imgUrl, name, clientId }: ShowQrModalProps) => {
-   console.log('url', imgUrl);
    const closeModal = () => {
       const modal = document.getElementById(`${modalId}`);
       if (modal) {

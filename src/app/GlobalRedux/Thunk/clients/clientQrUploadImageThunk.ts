@@ -49,8 +49,6 @@ export const getQrImages = createAsyncThunk('clientQrUploadImage/getQrImages', a
 });
 
 export const deleteQrImage = createAsyncThunk('clientQrUploadImage/deleteQrImage', async (payload: any) => {
-   console.log('payload', payload);
-
    try {
       const getToken = await fetch('/api/auth/session')
          .then((res) => res.json())

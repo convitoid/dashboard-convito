@@ -108,13 +108,12 @@ export const QrDataGuestTab = ({ clientId }: QrDataGuestTabProps) => {
 
                if (result) {
                   const formData = new FormData();
-                  formData.append('file', file);
+                  formData.append('file', file as Blob);
                   formData.append('client_id', clientId);
 
                   dispatch(uploadQrGuests(formData))
                      .unwrap()
                      .then((res) => {
-                        console.log(res);
                         if (res.status === 201) {
                            Swal.fire({
                               icon: 'success',
@@ -122,7 +121,14 @@ export const QrDataGuestTab = ({ clientId }: QrDataGuestTabProps) => {
                               text: 'Data imported successfully',
                            }).then(() => {
                               dispatch(getQrGuests(clientId));
-                              dispatch(resetQrGuestsStatus());
+                           });
+                           dispatch(resetQrGuestsStatus());
+                           dispatch(resetQrGuestsData());
+                        } else {
+                           Swal.fire({
+                              icon: 'warning',
+                              title: 'Oops...',
+                              text: 'Data imported failed',
                            });
                         }
                      });
@@ -153,18 +159,44 @@ export const QrDataGuestTab = ({ clientId }: QrDataGuestTabProps) => {
       },
    });
 
+   useEffect(() => {
+      if (status === 'uploadLoading') {
+         Swal.fire({
+            text: 'Please wait, file is uploading...',
+            didOpen: () => {
+               Swal.showLoading();
+            },
+
+            allowEscapeKey: false,
+            allowOutsideClick: false,
+         });
+      }
+
+      // return () => {
+      //    Swal.close();
+      // };
+   }, [status]);
+
    return (
       <>
          <div className="flex items-center gap-2 mb-5">
             <button
                className="btn bg-blue-500 text-white px-5 py-3 rounded-md hover:bg-blue-600 transition duration-100 ease-in text-[14px] font-semibold"
                onClick={handleInputGuestData}
+               disabled={status === 'uploadLoading'}
             >
-               Import Data
+               {status === 'uploadLoading' ? (
+                  <>
+                     <span className="loading loading-spinner loading-sm"></span> <span>Uploading data...</span>
+                  </>
+               ) : (
+                  'Import Data'
+               )}
             </button>
             <button
                className="btn bg-sky-500 text-white px-5 py-3 rounded-md hover:bg-sky-600 transition duration-100 ease-in text-[14px] font-semibold"
                onClick={handleDownloadTemplate}
+               disabled={status === 'uploadLoading'}
             >
                Download Template
             </button>

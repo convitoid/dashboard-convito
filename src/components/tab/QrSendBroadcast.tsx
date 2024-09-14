@@ -158,7 +158,6 @@ export const QrSendBroadcast = ({ clientId }: QrSendBroadcastProps) => {
          await dispatch(sendQrBlasting({ clientId, data }))
             .unwrap()
             .then((res) => {
-               console.log('res', res);
                if (res.status === 200) {
                   Swal.fire({
                      icon: 'success',

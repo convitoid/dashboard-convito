@@ -1,3 +1,4 @@
+import logger from '@/libs/logger';
 import prisma from '@/libs/prisma';
 import { getSuccessReponse } from '@/utils/response/successResponse';
 import { WhatsappBlastBody } from '@/utils/whatsappBlastBody';
@@ -163,8 +164,6 @@ export const sendBlastingService = async (data: any, clientId: any, clientCode: 
          })
       );
 
-      console.log('sendBlastingProcess', sendBlastingProcess);
-
       if (sendBlastingProcess.some((res) => res.error)) {
          const errorData = sendBlastingProcess.filter((res) => res.error);
          const message = errorData.map((e) => e.error.message);
@@ -204,229 +203,483 @@ export const sendBlastingService = async (data: any, clientId: any, clientCode: 
    }
 };
 
-export const sendBlastingQrService = (body: any, template: any, image: any, qrFile: any) => {
+// export const sendBlastingQrService = (body: any, template: any, image: any, qrFile: any) => {
+//    return new Promise((resolve, reject) => {
+//       if (image?.length > 0) {
+//          // Send broadcast reminder with image
+//          Promise.all(
+//             body.map(async (guest: any) => {
+//                try {
+//                   const whatsappBodyJsonReminder = {
+//                      messaging_product: 'whatsapp',
+//                      to: guest.phoneNumber,
+//                      type: 'template',
+//                      template: {
+//                         name: template.filter((t: any) => t.type === 'reminder_template')[0].name,
+//                         language: { code: 'en' },
+//                         components: [
+//                            {
+//                               type: 'header',
+//                               parameters: [
+//                                  {
+//                                     type: 'image',
+//                                     image: {
+//                                        // link: `${process.env.NEXTAUTH_URL}${image[0].path}`,
+//                                        link: 'https://images.unsplash.com/photo-1634729108541-516d16ddceec?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+//                                     },
+//                                  },
+//                               ],
+//                            },
+//                            {
+//                               type: 'body',
+//                               parameters: [{ type: 'text', text: guest.name }],
+//                            },
+//                         ],
+//                      },
+//                   };
+
+//                   const qrFileUrl = qrFile.filter((qr: any) => qr.code === guest.qr_code);
+//                   const whatsappBodyJsonQr = {
+//                      messaging_product: 'whatsapp',
+//                      to: guest.phoneNumber,
+//                      type: 'template',
+//                      template: {
+//                         name: template.filter((t: any) => t.type === 'qr_template')[0].name,
+//                         language: { code: 'en' },
+//                         components: [
+//                            {
+//                               type: 'header',
+//                               parameters: [
+//                                  {
+//                                     type: 'image',
+//                                     image: {
+//                                        link: 'https://images.unsplash.com/photo-1634729108541-516d16ddceec?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+//                                        // link: `${process.env.NEXTAUTH_URL}/${qrFileUrl[0].path}`,
+//                                     },
+//                                  },
+//                               ],
+//                            },
+//                         ],
+//                      },
+//                   };
+
+//                   const myHeaders = new Headers();
+//                   myHeaders.append('Content-Type', 'application/json');
+//                   myHeaders.append('Authorization', `Bearer ${process.env.NEXT_WHATSAPP_TOKEN_ID}`);
+
+//                   const response = await fetch(
+//                      `https://graph.facebook.com/v20.0/${process.env.NEXT_PHONE_NUMBER_ID}/messages`,
+//                      {
+//                         method: 'POST',
+//                         headers: myHeaders,
+//                         body: JSON.stringify(whatsappBodyJsonReminder),
+//                         redirect: 'follow',
+//                      }
+//                   );
+//                   const res = await response.json();
+
+//                   if (response.ok) {
+//                      // Wait for 10 seconds before proceeding
+//                      await new Promise((resolve) => setTimeout(resolve, 10000));
+
+//                      try {
+//                         // Send the WhatsApp message after the delay
+//                         const responseQr = await fetch(
+//                            `https://graph.facebook.com/v20.0/${process.env.NEXT_PHONE_NUMBER_ID}/messages`,
+//                            {
+//                               method: 'POST',
+//                               headers: myHeaders,
+//                               body: JSON.stringify(whatsappBodyJsonQr),
+//                               redirect: 'follow',
+//                            }
+//                         );
+
+//                         const resQr = await responseQr.json();
+
+//                         await prisma.qrBroadcastLogs.create({
+//                            data: { QrGuestId: guest.id, status: 'success_sent' },
+//                         });
+
+//                         return { status: 200, message: 'Broadcast reminder sent successfully' };
+//                      } catch (error) {
+//                         const errorMessage = error as Error;
+//                         return { status: 500, message: errorMessage.message };
+//                      }
+//                   } else {
+//                      await prisma.qrBroadcastLogs.create({
+//                         data: { QrGuestId: guest.id, status: 'failed_sent' },
+//                      });
+//                      return { status: 500, message: res.error };
+//                   }
+//                } catch (error) {
+//                   const errorMessage = error as Error;
+//                   await prisma.qrBroadcastLogs.create({
+//                      data: { QrGuestId: guest.id, status: 'failed_sent' },
+//                   });
+//                   return { status: 500, message: errorMessage.message };
+//                }
+//             })
+//          )
+//             .then((results) => resolve(results))
+//             .catch((error) => reject({ status: 500, message: error.message }));
+//       } else {
+//          // Send broadcast reminder without image
+//          Promise.all(
+//             body.map(async (guest: any) => {
+//                try {
+//                   const whatsappBodyJsonReminder = {
+//                      messaging_product: 'whatsapp',
+//                      to: guest.phoneNumber,
+//                      type: 'template',
+//                      template: {
+//                         name: template.filter((t: any) => t.type === 'reminder_template')[0].name,
+//                         language: { code: 'en' },
+//                         components: [
+//                            {
+//                               type: 'body',
+//                               parameters: [{ type: 'text', text: guest.name }],
+//                            },
+//                         ],
+//                      },
+//                   };
+
+//                   const qrFileUrl = qrFile.filter((qr: any) => qr.code === guest.qr_code);
+//                   const whatsappBodyJsonQr = {
+//                      messaging_product: 'whatsapp',
+//                      to: guest.phoneNumber,
+//                      type: 'template',
+//                      template: {
+//                         name: template.filter((t: any) => t.type === 'qr_template')[0].name,
+//                         language: { code: 'en' },
+//                         components: [
+//                            {
+//                               type: 'header',
+//                               parameters: [
+//                                  {
+//                                     type: 'image',
+//                                     image: {
+//                                        // link: `${process.env.NEXTAUTH_URL}/${qrFileUrl[0].path}`,
+//                                        link: 'https://images.unsplash.com/photo-1634729108541-516d16ddceec?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+//                                     },
+//                                  },
+//                               ],
+//                            },
+//                         ],
+//                      },
+//                   };
+
+//                   const myHeaders = new Headers();
+//                   myHeaders.append('Content-Type', 'application/json');
+//                   myHeaders.append('Authorization', `Bearer ${process.env.NEXT_WHATSAPP_TOKEN_ID}`);
+
+//                   const response = await fetch(
+//                      `https://graph.facebook.com/v20.0/${process.env.NEXT_PHONE_NUMBER_ID}/messages`,
+//                      {
+//                         method: 'POST',
+//                         headers: myHeaders,
+//                         body: JSON.stringify(whatsappBodyJsonReminder),
+//                         redirect: 'follow',
+//                      }
+//                   );
+//                   const res = await response.json();
+
+//                   if (response.ok) {
+//                      // Wait for 10 seconds before proceeding
+//                      await new Promise((resolve) => setTimeout(resolve, 10000));
+
+//                      try {
+//                         const responseQr = await fetch(
+//                            `https://graph.facebook.com/v20.0/${process.env.NEXT_PHONE_NUMBER_ID}/messages`,
+//                            {
+//                               method: 'POST',
+//                               headers: myHeaders,
+//                               body: JSON.stringify(whatsappBodyJsonQr),
+//                               redirect: 'follow',
+//                            }
+//                         );
+
+//                         const resQr = await responseQr.json();
+
+//                         await prisma.qrBroadcastLogs.create({
+//                            data: { QrGuestId: guest.id, status: 'success_sent' },
+//                         });
+
+//                         return { status: 200, message: 'Broadcast reminder sent successfully' };
+//                      } catch (error) {
+//                         const errorMessage = error as Error;
+//                         return { status: 500, message: errorMessage.message };
+//                      }
+//                   } else {
+//                      await prisma.qrBroadcastLogs.create({
+//                         data: { QrGuestId: guest.id, status: 'failed_sent' },
+//                      });
+//                      return { status: 500, message: res.error };
+//                   }
+//                } catch (error) {
+//                   const errorMessage = error as Error;
+//                   await prisma.qrBroadcastLogs.create({
+//                      data: { QrGuestId: guest.id, status: 'failed_sent' },
+//                   });
+//                   return { status: 500, message: errorMessage.message };
+//                }
+//             })
+//          )
+//             .then((results) => resolve(results))
+//             .catch((error) => reject({ status: 500, message: error.message }));
+//       }
+//    });
+// };
+
+export const sendBlastingQrService = async (body: any, template: any, image: any, qrFile: any) => {
    return new Promise((resolve, reject) => {
-      if (image?.length > 0) {
-         // Send broadcast reminder with image
-         Promise.all(
-            body.map(async (guest: any) => {
-               try {
-                  const whatsappBodyJsonReminder = {
-                     messaging_product: 'whatsapp',
-                     to: guest.phoneNumber,
-                     type: 'template',
-                     template: {
-                        name: template.filter((t: any) => t.type === 'reminder_template')[0].name,
-                        language: { code: 'en' },
-                        components: [
-                           {
-                              type: 'header',
-                              parameters: [
-                                 {
-                                    type: 'image',
-                                    image: {
-                                       // link: `${process.env.NEXTAUTH_URL}${image[0].path}`,
-                                       link: 'https://images.unsplash.com/photo-1634729108541-516d16ddceec?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+      // Immediately resolve with 200 status and message
+      resolve({ status: 200, message: 'Blasting process started' });
+
+      const processBlasting = async () => {
+         if (image?.length > 0) {
+            // Send broadcast reminder with image
+            await Promise.all(
+               body.map(async (guest: any) => {
+                  try {
+                     const whatsappBodyJsonReminder = {
+                        messaging_product: 'whatsapp',
+                        to: guest.phoneNumber,
+                        type: 'template',
+                        template: {
+                           name: template.find((t: any) => t.type === 'reminder_template')?.name,
+                           language: { code: 'en' },
+                           components: [
+                              {
+                                 type: 'header',
+                                 parameters: [
+                                    {
+                                       type: 'image',
+                                       image: {
+                                          link: `${process.env.NEXTAUTH_URL}${image[0].path}`,
+                                          // link: 'https://images.unsplash.com/photo-1634729108541-516d16ddceec?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+                                       },
                                     },
-                                 },
-                              ],
-                           },
-                           {
-                              type: 'body',
-                              parameters: [{ type: 'text', text: guest.name }],
-                           },
-                        ],
-                     },
-                  };
+                                 ],
+                              },
+                              {
+                                 type: 'body',
+                                 parameters: [{ type: 'text', text: guest.name }],
+                              },
+                           ],
+                        },
+                     };
 
-                  const qrFileUrl = qrFile.filter((qr: any) => qr.code === guest.qr_code);
-                  const whatsappBodyJsonQr = {
-                     messaging_product: 'whatsapp',
-                     to: guest.phoneNumber,
-                     type: 'template',
-                     template: {
-                        name: template.filter((t: any) => t.type === 'qr_template')[0].name,
-                        language: { code: 'en' },
-                        components: [
-                           {
-                              type: 'header',
-                              parameters: [
-                                 {
-                                    type: 'image',
-                                    image: {
-                                       link: 'https://images.unsplash.com/photo-1634729108541-516d16ddceec?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
-                                       // link: `${process.env.NEXTAUTH_URL}/${qrFileUrl[0].path}`,
+                     const qrFileUrl = qrFile.filter((qr: any) => qr.code === guest.qr_code);
+                     const whatsappBodyJsonQr = {
+                        messaging_product: 'whatsapp',
+                        to: guest.phoneNumber,
+                        type: 'template',
+                        template: {
+                           name: template.find((t: any) => t.type === 'qr_template')?.name,
+                           language: { code: 'en' },
+                           components: [
+                              {
+                                 type: 'header',
+                                 parameters: [
+                                    {
+                                       type: 'image',
+                                       image: {
+                                          link: `${process.env.NEXTAUTH_URL}/${qrFileUrl[0].path}`,
+                                          // link: 'https://images.unsplash.com/photo-1634729108541-516d16ddceec?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+                                       },
                                     },
-                                 },
-                              ],
-                           },
-                        ],
-                     },
-                  };
+                                 ],
+                              },
+                           ],
+                        },
+                     };
 
-                  const myHeaders = new Headers();
-                  myHeaders.append('Content-Type', 'application/json');
-                  myHeaders.append('Authorization', `Bearer ${process.env.NEXT_WHATSAPP_TOKEN_ID}`);
+                     const myHeaders = new Headers();
+                     myHeaders.append('Content-Type', 'application/json');
+                     myHeaders.append('Authorization', `Bearer ${process.env.NEXT_WHATSAPP_TOKEN_ID}`);
 
-                  const response = await fetch(
-                     `https://graph.facebook.com/v20.0/${process.env.NEXT_PHONE_NUMBER_ID}/messages`,
-                     {
-                        method: 'POST',
-                        headers: myHeaders,
-                        body: JSON.stringify(whatsappBodyJsonReminder),
-                        redirect: 'follow',
-                     }
-                  );
-                  const res = await response.json();
+                     // Send reminder message
+                     const response = await fetch(
+                        `https://graph.facebook.com/v20.0/${process.env.NEXT_PHONE_NUMBER_ID}/messages`,
+                        {
+                           method: 'POST',
+                           headers: myHeaders,
+                           body: JSON.stringify(whatsappBodyJsonReminder),
+                        }
+                     );
 
-                  if (response.ok) {
-                     // Wait for 10 seconds before proceeding
-                     await new Promise((resolve) => setTimeout(resolve, 10000));
+                     logger.info('Reminder message sent successfully', {
+                        data: { guestId: guest.id, guestName: guest.name, response: response },
+                     });
 
-                     try {
-                        // Send the WhatsApp message after the delay
+                     if (response.ok) {
+                        // Wait for 10 seconds before sending the next message
+                        await new Promise((resolve) => setTimeout(resolve, 10000));
+
+                        // Send QR message
                         const responseQr = await fetch(
                            `https://graph.facebook.com/v20.0/${process.env.NEXT_PHONE_NUMBER_ID}/messages`,
                            {
                               method: 'POST',
                               headers: myHeaders,
                               body: JSON.stringify(whatsappBodyJsonQr),
-                              redirect: 'follow',
                            }
                         );
 
-                        const resQr = await responseQr.json();
-
-                        await prisma.qrBroadcastLogs.create({
-                           data: { QrGuestId: guest.id, status: 'success_sent' },
+                        logger.info('QR message sent successfully', {
+                           data: { guestId: guest.id, guestName: guest.name, response: responseQr },
                         });
 
-                        return { status: 200, message: 'Broadcast reminder sent successfully' };
-                     } catch (error) {
-                        const errorMessage = error as Error;
-                        return { status: 500, message: errorMessage.message };
+                        if (responseQr.ok) {
+                           await prisma.qrBroadcastLogs.create({
+                              data: { QrGuestId: guest.id, status: 'success_sent' },
+                           });
+                           logger.info('QR broadcast log created successfully', {
+                              data: { guestId: guest.id, guestName: guest.name },
+                           });
+                        } else {
+                           await prisma.qrBroadcastLogs.create({
+                              data: { QrGuestId: guest.id, status: 'failed_sent' },
+                           });
+                           logger.error('Failed to create QR broadcast log', {
+                              data: { guestId: guest.id, guestName: guest.name },
+                           });
+                        }
+                     } else {
+                        await prisma.qrBroadcastLogs.create({
+                           data: { QrGuestId: guest.id, status: 'failed_sent' },
+                        });
+                        logger.error('Failed to create QR broadcast log', {
+                           data: { guestId: guest.id, guestName: guest.name },
+                        });
                      }
-                  } else {
+                  } catch (error) {
+                     logger.error('Failed to send broadcast message', {
+                        data: { guestId: guest.id, guestName: guest.name, error: error },
+                     });
                      await prisma.qrBroadcastLogs.create({
                         data: { QrGuestId: guest.id, status: 'failed_sent' },
                      });
-                     return { status: 500, message: res.error };
                   }
-               } catch (error) {
-                  const errorMessage = error as Error;
-                  await prisma.qrBroadcastLogs.create({
-                     data: { QrGuestId: guest.id, status: 'failed_sent' },
-                  });
-                  return { status: 500, message: errorMessage.message };
-               }
-            })
-         )
-            .then((results) => resolve(results))
-            .catch((error) => reject({ status: 500, message: error.message }));
-      } else {
-         // Send broadcast reminder without image
-         Promise.all(
-            body.map(async (guest: any) => {
-               try {
-                  const whatsappBodyJsonReminder = {
-                     messaging_product: 'whatsapp',
-                     to: guest.phoneNumber,
-                     type: 'template',
-                     template: {
-                        name: template.filter((t: any) => t.type === 'reminder_template')[0].name,
-                        language: { code: 'en' },
-                        components: [
-                           {
-                              type: 'body',
-                              parameters: [{ type: 'text', text: guest.name }],
-                           },
-                        ],
-                     },
-                  };
+               })
+            );
+         } else {
+            // Send broadcast reminder without image
+            await Promise.all(
+               body.map(async (guest: any) => {
+                  try {
+                     const whatsappBodyJsonReminder = {
+                        messaging_product: 'whatsapp',
+                        to: guest.phoneNumber,
+                        type: 'template',
+                        template: {
+                           name: template.find((t: any) => t.type === 'reminder_template')?.name,
+                           language: { code: 'en' },
+                           components: [
+                              {
+                                 type: 'body',
+                                 parameters: [{ type: 'text', text: guest.name }],
+                              },
+                           ],
+                        },
+                     };
 
-                  const qrFileUrl = qrFile.filter((qr: any) => qr.code === guest.qr_code);
-                  const whatsappBodyJsonQr = {
-                     messaging_product: 'whatsapp',
-                     to: guest.phoneNumber,
-                     type: 'template',
-                     template: {
-                        name: template.filter((t: any) => t.type === 'qr_template')[0].name,
-                        language: { code: 'en' },
-                        components: [
-                           {
-                              type: 'header',
-                              parameters: [
-                                 {
-                                    type: 'image',
-                                    image: {
-                                       // link: `${process.env.NEXTAUTH_URL}/${qrFileUrl[0].path}`,
-                                       link: 'https://images.unsplash.com/photo-1634729108541-516d16ddceec?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+                     const qrFileUrl = qrFile.filter((qr: any) => qr.code === guest.qr_code);
+                     const whatsappBodyJsonQr = {
+                        messaging_product: 'whatsapp',
+                        to: guest.phoneNumber,
+                        type: 'template',
+                        template: {
+                           name: template.find((t: any) => t.type === 'qr_template')?.name,
+                           language: { code: 'en' },
+                           components: [
+                              {
+                                 type: 'header',
+                                 parameters: [
+                                    {
+                                       type: 'image',
+                                       image: {
+                                          link: `${process.env.NEXTAUTH_URL}/${qrFileUrl[0].path}`,
+                                          // link: 'https://images.unsplash.com/photo-1634729108541-516d16ddceec?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+                                       },
                                     },
-                                 },
-                              ],
-                           },
-                        ],
-                     },
-                  };
+                                 ],
+                              },
+                           ],
+                        },
+                     };
 
-                  const myHeaders = new Headers();
-                  myHeaders.append('Content-Type', 'application/json');
-                  myHeaders.append('Authorization', `Bearer ${process.env.NEXT_WHATSAPP_TOKEN_ID}`);
+                     const myHeaders = new Headers();
+                     myHeaders.append('Content-Type', 'application/json');
+                     myHeaders.append('Authorization', `Bearer ${process.env.NEXT_WHATSAPP_TOKEN_ID}`);
 
-                  const response = await fetch(
-                     `https://graph.facebook.com/v20.0/${process.env.NEXT_PHONE_NUMBER_ID}/messages`,
-                     {
-                        method: 'POST',
-                        headers: myHeaders,
-                        body: JSON.stringify(whatsappBodyJsonReminder),
-                        redirect: 'follow',
-                     }
-                  );
-                  const res = await response.json();
+                     const response = await fetch(
+                        `https://graph.facebook.com/v20.0/${process.env.NEXT_PHONE_NUMBER_ID}/messages`,
+                        {
+                           method: 'POST',
+                           headers: myHeaders,
+                           body: JSON.stringify(whatsappBodyJsonReminder),
+                        }
+                     );
 
-                  if (response.ok) {
-                     // Wait for 10 seconds before proceeding
-                     await new Promise((resolve) => setTimeout(resolve, 10000));
+                     logger.info('Reminder message sent successfully', {
+                        data: { guestId: guest.id, guestName: guest.name, response: response },
+                     });
 
-                     try {
+                     if (response.ok) {
+                        // Wait for 10 seconds before sending the next message
+                        await new Promise((resolve) => setTimeout(resolve, 10000));
+
                         const responseQr = await fetch(
                            `https://graph.facebook.com/v20.0/${process.env.NEXT_PHONE_NUMBER_ID}/messages`,
                            {
                               method: 'POST',
                               headers: myHeaders,
                               body: JSON.stringify(whatsappBodyJsonQr),
-                              redirect: 'follow',
                            }
                         );
 
-                        const resQr = await responseQr.json();
-
-                        await prisma.qrBroadcastLogs.create({
-                           data: { QrGuestId: guest.id, status: 'success_sent' },
+                        logger.info('QR message sent successfully', {
+                           data: { guestId: guest.id, guestName: guest.name, response: responseQr },
                         });
 
-                        return { status: 200, message: 'Broadcast reminder sent successfully' };
-                     } catch (error) {
-                        const errorMessage = error as Error;
-                        return { status: 500, message: errorMessage.message };
+                        if (responseQr.ok) {
+                           await prisma.qrBroadcastLogs.create({
+                              data: { QrGuestId: guest.id, status: 'success_sent' },
+                           });
+                           logger.info('QR broadcast log created successfully', {
+                              data: { guestId: guest.id, guestName: guest.name },
+                           });
+                        } else {
+                           await prisma.qrBroadcastLogs.create({
+                              data: { QrGuestId: guest.id, status: 'failed_sent' },
+                           });
+                           logger.error('Failed to create QR broadcast log', {
+                              data: { guestId: guest.id, guestName: guest.name },
+                           });
+                        }
+                     } else {
+                        await prisma.qrBroadcastLogs.create({
+                           data: { QrGuestId: guest.id, status: 'failed_sent' },
+                        });
+                        logger.error('Failed to create QR broadcast log', {
+                           data: { guestId: guest.id, guestName: guest.name },
+                        });
                      }
-                  } else {
+                  } catch (error) {
+                     logger.error('Failed to send broadcast message', {
+                        data: { guestId: guest.id, guestName: guest.name, error: error },
+                     });
                      await prisma.qrBroadcastLogs.create({
                         data: { QrGuestId: guest.id, status: 'failed_sent' },
                      });
-                     return { status: 500, message: res.error };
                   }
-               } catch (error) {
-                  const errorMessage = error as Error;
-                  await prisma.qrBroadcastLogs.create({
-                     data: { QrGuestId: guest.id, status: 'failed_sent' },
-                  });
-                  return { status: 500, message: errorMessage.message };
-               }
-            })
-         )
-            .then((results) => resolve(results))
-            .catch((error) => reject({ status: 500, message: error.message }));
-      }
+               })
+            );
+         }
+      };
+
+      // Trigger the background process
+      setTimeout(processBlasting, 0);
    });
 };

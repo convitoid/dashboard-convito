@@ -1,34 +1,30 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
+import axios from 'axios';
+import { setProgress } from '../../Features/clients/clientQrUploadFileSlice';
 
-export const uploadQrFile = createAsyncThunk('clientQrUploadFile/uploadQrFile', async (payload: any) => {
-   console.log(payload);
-   try {
-      const getToken = await fetch('/api/auth/session')
-         .then((res) => res.json())
-         .then((data) => {
-            return data;
-         });
+export const uploadQrFile = createAsyncThunk(
+   'clientQrUploadFile/uploadQrFile',
+   async (payload: any, { dispatch, rejectWithValue }) => {
+      try {
+         const getToken = await fetch('/api/auth/session')
+            .then((res) => res.json())
+            .then((data) => {
+               return data;
+            });
 
-      const uploadQrFile = await fetch(`/api/uploads/qr/file`, {
-         method: 'POST',
-         headers: {
-            Authorization: `Bearer ${getToken.token}`,
-         },
-         body: payload,
-      });
-
-      if (!uploadQrFile.ok) {
-         const errorResponse = await uploadQrFile.json();
-         throw new Error(errorResponse.message || 'Failed to upload file');
+         const config = {
+            headers: {
+               Authorization: `Bearer ${getToken.token}`,
+               'Content-Type': 'multipart/form-data',
+            },
+         };
+         const uploadQrfile = await axios.post('/api/uploads/qr/file', payload, config);
+         return uploadQrfile.data;
+      } catch (error: any) {
+         return rejectWithValue(error.message);
       }
-
-      const response = await uploadQrFile.json();
-      return response;
-   } catch (error: any) {
-      // Return a serializable error object
-      return { message: error.message };
    }
-});
+);
 
 export const getQrFiles = createAsyncThunk('clientQrUploadFile/getQrFiles', async (clientId: string) => {
    try {

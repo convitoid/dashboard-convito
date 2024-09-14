@@ -13,7 +13,6 @@ const initialState: Auth = {
 };
 
 export const authLogin = createAsyncThunk('auth/authLogin', async (data: any) => {
-   console.log('masuk ke slicer', data);
    return data;
 });
 

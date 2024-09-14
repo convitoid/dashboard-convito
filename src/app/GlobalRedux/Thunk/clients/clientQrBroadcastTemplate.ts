@@ -59,7 +59,6 @@ export const fetchQrBroadcastTemplate = createAsyncThunk('client/fetchQrBroadcas
 export const getQrBroadcastTemplateById = createAsyncThunk(
    'client/getQrBroadcastTemplateById',
    async (payload: any) => {
-      console.log(payload);
       try {
          const getToken = await fetch('/api/auth/session')
             .then((res) => res.json())
@@ -109,7 +108,6 @@ export const updateQrBroadcastTemplate = createAsyncThunk('client/updateQrBroadc
       });
 
       const data = await response.json();
-      console.log(data);
       return data;
    } catch (error) {
       return error;
@@ -117,7 +115,6 @@ export const updateQrBroadcastTemplate = createAsyncThunk('client/updateQrBroadc
 });
 
 export const deleteQrBroadcastTemplate = createAsyncThunk('client/deleteQrBroadcastTemplate', async (payload: any) => {
-   console.log(payload);
    try {
       const getToken = await fetch('/api/auth/session')
          .then((res) => res.json())

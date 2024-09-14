@@ -85,7 +85,6 @@ const ClientPage = () => {
             dispatch(deleteClient(clientId))
                .unwrap()
                .then((res) => {
-                  console.log('res', res);
                   if (res.status === 201) {
                      Swal.fire({
                         title: 'Deleted!',

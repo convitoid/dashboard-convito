@@ -60,7 +60,6 @@ export const QrDashboardTab = ({ clientId }: QrDashboardTabProps) => {
             header: 'Broadcast Status',
             accessorKey: 'broadcastStatus',
             cell: (info: any) => {
-               // console.log(info.row.original.broadcastStatus === 'Broadcast Success');
                return (
                   <span
                      className={`px-2 py-1 rounded-md ${

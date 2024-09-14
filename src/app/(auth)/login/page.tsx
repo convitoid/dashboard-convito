@@ -42,8 +42,6 @@ const LoginPage = () => {
             callbackUrl: '/dashboard',
          });
 
-         console.log(res);
-
          if (res?.error) {
             Swal.fire({
                icon: 'error',

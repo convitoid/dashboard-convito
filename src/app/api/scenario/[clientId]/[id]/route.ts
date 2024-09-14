@@ -1,3 +1,4 @@
+import logger from '@/libs/logger';
 import prisma from '@/libs/prisma';
 import { jwtVerify } from 'jose';
 import { NextRequest, NextResponse } from 'next/server';
@@ -38,6 +39,10 @@ export async function GET(req: NextRequest, { params }: { params: { clientId: st
          },
       });
 
+      logger.info(`Scenario fetched successfully for client: ${params.clientId}`, {
+         data: scenario,
+      });
+
       return NextResponse.json({
          status: 200,
          message: 'Scenario retrieved successfully',
@@ -48,6 +53,9 @@ export async function GET(req: NextRequest, { params }: { params: { clientId: st
       const jwtError = error as JWTError;
 
       if (jwtError.code === 'ERR_JWT_EXPIRED' || jwtError.code === 'ERR_JWS_INVALID') {
+         logger.error(`JWT error: ${jwtError.message}`, {
+            error: jwtError,
+         });
          return NextResponse.json(
             {
                satatus: 401,
@@ -56,6 +64,10 @@ export async function GET(req: NextRequest, { params }: { params: { clientId: st
             { status: 401 }
          );
       }
+
+      logger.error(`Error fetching scenario for client: ${params.clientId}`, {
+         data: errorMessage.message,
+      });
 
       return NextResponse.json(
          {

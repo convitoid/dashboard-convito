@@ -2,6 +2,7 @@ import prisma from '@/libs/prisma';
 import { NextRequest, NextResponse } from 'next/server';
 import { join } from 'path';
 import { promises as fs } from 'fs';
+import logger from '@/libs/logger';
 
 export async function POST(req: NextRequest) {
    const formData = await req.formData();
@@ -49,8 +50,10 @@ export async function POST(req: NextRequest) {
       await fs.mkdir(join(process.cwd(), 'public/uploads/clients/qr/images'), { recursive: true });
       await fs.writeFile(filePath, new Uint8Array(buffer));
 
+      logger.info(`Image uploaded successfully: ${customFileName} for client: ${clientId}`);
       return NextResponse.json({ status: 200, message: 'Image uploaded successfully', data: response });
    } catch (error) {
+      logger.error(`Failed to upload image: ${error}`);
       return NextResponse.json({ status: 500, error: 'Failed to upload image' }, { status: 500 });
    }
 }

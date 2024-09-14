@@ -41,14 +41,11 @@ export const BroadcastTemplateTab = ({ clientId }: BroadcastTemplateTabProps) =>
    const templates = useSelector((state: RootState) => state.broadcastTemplate.datas);
    const status = useSelector((state: RootState) => state.broadcastTemplate.status);
 
-   console.log('templates', templates);
-
    useEffect(() => {
       dispatch(getAllBroadcastTemplates((clientId as string) ?? ''));
    }, [dispatch]);
 
    const openModal = () => {
-      console.log('openModal');
       const modal = document.getElementById('ModalAddBroadcastTemplate');
       if (modal) {
          (modal as HTMLDialogElement).showModal();
@@ -69,7 +66,6 @@ export const BroadcastTemplateTab = ({ clientId }: BroadcastTemplateTabProps) =>
    };
 
    const openModalDelete = (id: number) => {
-      console.log('openModalDelete', id);
       const data = {
          id,
          clientId,
@@ -141,7 +137,6 @@ export const BroadcastTemplateTab = ({ clientId }: BroadcastTemplateTabProps) =>
                            className="btn bg-red-500 text-white px-3 py-1 rounded-md hover:bg-red-600 transition duration-100 ease-in text-[14px] font-semibold tooltip tooltip-bottom"
                            data-tip="Delete"
                            onClick={() => openModalDelete(info.row.original.id)}
-                           // onClick={() => console.log('delete', info.row.original.id)}
                            disabled={status === 'deleteLoading'}
                         >
                            {status === 'deleteLoading' ? (
@@ -168,7 +163,6 @@ export const BroadcastTemplateTab = ({ clientId }: BroadcastTemplateTabProps) =>
 
          setData(dynamicData);
       }
-      console.log('templates', templates);
 
       return () => {
          setColumns([]);

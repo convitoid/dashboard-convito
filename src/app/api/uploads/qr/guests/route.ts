@@ -1,3 +1,4 @@
+import logger from '@/libs/logger';
 import prisma from '@/libs/prisma';
 import { convertToJson } from '@/utils/convertToJson';
 import { NextRequest, NextResponse } from 'next/server';
@@ -13,14 +14,12 @@ export async function POST(req: NextRequest) {
       const jwtToken = token?.split(' ')[1];
 
       // const create = await createGuests(jwtToken as string, clientId as string, file);
-      console.log('file', file);
-      console.log('clientId', clientId);
 
       if (!file || !(file instanceof Blob)) {
          return NextResponse.json({ error: 'No file found' }, { status: 400 });
       }
 
-      const arrayBuffer = await file.arrayBuffer();
+      const arrayBuffer = Buffer.from(await file.arrayBuffer());
 
       const workbook = XLSX.read(arrayBuffer, { type: 'array' });
       const sheetName = workbook.SheetNames[0];
@@ -32,11 +31,7 @@ export async function POST(req: NextRequest) {
 
       const newJson = await convertToJson(header as string[], data);
 
-      console.log('newJson', newJson);
-
       const filteredData = newJson.filter((guests: any) => Object.keys(guests).length > 0);
-
-      console.log('filteredData', filteredData);
 
       const client = await prisma.client.findFirst({
          select: {
@@ -85,6 +80,10 @@ export async function POST(req: NextRequest) {
          });
       }
 
+      logger.info(`QR Guests uploaded successfully for client: ${clientId}`, {
+         data: guests,
+      });
+
       return NextResponse.json(
          {
             status: 201,
@@ -94,6 +93,9 @@ export async function POST(req: NextRequest) {
          { status: 201 }
       );
    } catch (error) {
+      logger.error(`QR Error while uploading guests `, {
+         error: (error as Error).message,
+      });
       return NextResponse.json({ error: (error as Error).message }, { status: 500 });
    }
 }

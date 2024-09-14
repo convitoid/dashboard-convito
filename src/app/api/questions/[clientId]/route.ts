@@ -1,3 +1,4 @@
+import logger from '@/libs/logger';
 import prisma from '@/libs/prisma';
 import { getSuccessReponse } from '@/utils/response/successResponse';
 import { jwtVerify } from 'jose';
@@ -32,6 +33,10 @@ export async function GET(req: NextRequest, { params }: { params: { clientId: st
       });
 
       if (!getClientById) {
+         logger.error(`Client not found`, {
+            clientId: params.clientId,
+            apiUrl: `/api/questions/${params.clientId}`,
+         });
          return NextResponse.json(
             {
                message: 'Client not found',
@@ -49,6 +54,12 @@ export async function GET(req: NextRequest, { params }: { params: { clientId: st
          },
       });
 
+      logger.info(`Questions fetched successfully for client: ${params.clientId}`, {
+         clientId: params.clientId,
+         apiUrl: `/api/questions/${params.clientId}`,
+         data: questions,
+      });
+
       return NextResponse.json(
          {
             status: 'success',
@@ -62,6 +73,10 @@ export async function GET(req: NextRequest, { params }: { params: { clientId: st
       const jwtError = error as JWTError;
 
       if (jwtError.code === 'ERR_JWT_EXPIRED' || jwtError.code === 'ERR_JWS_INVALID') {
+         logger.error(`Unauthorized`, {
+            message: 'unauthorized',
+            apiUrl: `/api/questions/${params.clientId}`,
+         });
          return NextResponse.json(
             {
                message: 'unauthorized',
@@ -69,6 +84,12 @@ export async function GET(req: NextRequest, { params }: { params: { clientId: st
             { status: 401 }
          );
       }
+
+      logger.error(`Failed to fetch questions for client: ${params.clientId}`, {
+         clientId: params.clientId,
+         apiUrl: `/api/questions/${params.clientId}`,
+         error: errorMessage.message,
+      });
 
       return NextResponse.json(
          {
@@ -114,6 +135,10 @@ export async function POST(req: NextRequest, { params }: { params: { clientId: s
       });
 
       if (!getClientById) {
+         logger.error(`Client not found`, {
+            clientId: params.clientId,
+            apiUrl: `/api/questions/${params.clientId}`,
+         });
          return NextResponse.json(
             {
                message: 'Client not found',
@@ -154,6 +179,12 @@ export async function POST(req: NextRequest, { params }: { params: { clientId: s
             }),
          ]);
 
+         logger.info(`Question created successfully for client: ${params.clientId}`, {
+            clientId: params.clientId,
+            apiUrl: `/api/questions/${params.clientId}`,
+            data: [createDefaultQuestion, createQuestion],
+         });
+
          return NextResponse.json(
             {
                status: 'success',
@@ -174,6 +205,12 @@ export async function POST(req: NextRequest, { params }: { params: { clientId: s
             },
          });
 
+         logger.info(`Question created successfully for client: ${params.clientId}`, {
+            clientId: params.clientId,
+            apiUrl: `/api/questions/${params.clientId}`,
+            data: createQuestion,
+         });
+
          return NextResponse.json(
             {
                status: 'success',
@@ -188,6 +225,10 @@ export async function POST(req: NextRequest, { params }: { params: { clientId: s
       const jwtError = error as JWTError;
 
       if (jwtError.code === 'ERR_JWT_EXPIRED' || jwtError.code === 'ERR_JWS_INVALID') {
+         logger.error(`Unauthorized`, {
+            message: 'unauthorized',
+            apiUrl: `/api/questions/${params.clientId}`,
+         });
          return NextResponse.json(
             {
                message: 'unauthorized',
@@ -195,6 +236,12 @@ export async function POST(req: NextRequest, { params }: { params: { clientId: s
             { status: 401 }
          );
       }
+
+      logger.info(`Failed to create question for client: ${params.clientId}`, {
+         clientId: params.clientId,
+         apiUrl: `/api/questions/${params.clientId}`,
+         error: errorMessage.message,
+      });
 
       return NextResponse.json(
          {
@@ -223,6 +270,10 @@ export async function PUT(req: NextRequest, { params }: { params: { clientId: st
       });
 
       if (!getClientById) {
+         logger.error(`Client not found`, {
+            clientId: params.clientId,
+            apiUrl: `/api/questions/${params.clientId}`,
+         });
          return NextResponse.json(
             {
                message: 'Client not found',
@@ -243,6 +294,11 @@ export async function PUT(req: NextRequest, { params }: { params: { clientId: st
       });
 
       if (!updateQuestion) {
+         logger.error(`Question not found`, {
+            questionId: id,
+            clientId: params.clientId,
+            apiUrl: `/api/questions/${params.clientId}`,
+         });
          return NextResponse.json(
             {
                message: 'Question not found',
@@ -250,6 +306,12 @@ export async function PUT(req: NextRequest, { params }: { params: { clientId: st
             { status: 404 }
          );
       }
+
+      logger.info(`Question updated successfully for client: ${params.clientId}`, {
+         clientId: params.clientId,
+         apiUrl: `/api/questions/${params.clientId}`,
+         data: updateQuestion,
+      });
 
       return NextResponse.json(
          {
@@ -264,6 +326,10 @@ export async function PUT(req: NextRequest, { params }: { params: { clientId: st
       const jwtError = error as JWTError;
 
       if (jwtError.code === 'ERR_JWT_EXPIRED' || jwtError.code === 'ERR_JWS_INVALID') {
+         logger.error(`Unauthorized`, {
+            message: 'unauthorized',
+            apiUrl: `/api/questions/${params.clientId}`,
+         });
          return NextResponse.json(
             {
                message: 'unauthorized',
@@ -271,6 +337,12 @@ export async function PUT(req: NextRequest, { params }: { params: { clientId: st
             { status: 401 }
          );
       }
+
+      logger.error(`Failed to update question for client: ${params.clientId}`, {
+         clientId: params.clientId,
+         apiUrl: `/api/questions/${params.clientId}`,
+         error: errorMessage.message,
+      });
 
       return NextResponse.json(
          {
@@ -299,6 +371,10 @@ export async function DELETE(req: NextRequest, { params }: { params: { clientId:
       });
 
       if (!getClientById) {
+         logger.error(`Client not found`, {
+            clientId: params.clientId,
+            apiUrl: `/api/questions/${params.clientId}`,
+         });
          return NextResponse.json(
             {
                message: 'Client not found',
@@ -331,9 +407,13 @@ export async function DELETE(req: NextRequest, { params }: { params: { clientId:
                   position: i + 1,
                },
             });
-
-            console.log('udpate', udpate);
          }
+      });
+
+      logger.info(`Question deleted successfully for client: ${params.clientId}`, {
+         clientId: params.clientId,
+         apiUrl: `/api/questions/${params.clientId}`,
+         data: deleteQuestion,
       });
 
       return NextResponse.json(
@@ -349,6 +429,10 @@ export async function DELETE(req: NextRequest, { params }: { params: { clientId:
       const jwtError = error as JWTError;
 
       if (jwtError.code === 'ERR_JWT_EXPIRED' || jwtError.code === 'ERR_JWS_INVALID') {
+         logger.error(`Unauthorized`, {
+            message: 'unauthorized',
+            apiUrl: `/api/questions/${params.clientId}`,
+         });
          return NextResponse.json(
             {
                message: 'unauthorized',
@@ -361,6 +445,10 @@ export async function DELETE(req: NextRequest, { params }: { params: { clientId:
          errorMessage.code === 'P2003' &&
          errorMessage.meta.field_name === 'ScenarioQuestion_question_id_fkey (index)'
       ) {
+         logger.error(`Cannot delete question because it is being used in a scenario`, {
+            clientId: params.clientId,
+            apiUrl: `/api/questions/${params.clientId}`,
+         });
          return NextResponse.json(
             {
                message: 'Cannot delete template, it is being used in a scenario',
@@ -370,6 +458,10 @@ export async function DELETE(req: NextRequest, { params }: { params: { clientId:
       }
 
       if (errorMessage.code === 'P2003' && errorMessage.meta.field_name === 'Invitations_questionId_fkey (index)') {
+         logger.error(`Cannot delete the question because invitations have already been sent`, {
+            clientId: params.clientId,
+            apiUrl: `/api/questions/${params.clientId}`,
+         });
          return NextResponse.json(
             {
                message: 'Cannot delete the question because invitations have already been sent',
@@ -377,6 +469,12 @@ export async function DELETE(req: NextRequest, { params }: { params: { clientId:
             { status: 400 }
          );
       }
+
+      logger.error(`Failed to delete question for client: ${params.clientId}`, {
+         clientId: params.clientId,
+         apiUrl: `/api/questions/${params.clientId}`,
+         error: errorMessage.message,
+      });
 
       return NextResponse.json(
          {

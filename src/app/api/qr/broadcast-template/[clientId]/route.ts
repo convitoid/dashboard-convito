@@ -1,3 +1,4 @@
+import logger from '@/libs/logger';
 import prisma from '@/libs/prisma';
 import { NextRequest, NextResponse } from 'next/server';
 
@@ -23,6 +24,10 @@ export async function GET(req: NextRequest, { params }: { params: { clientId: st
          },
       });
 
+      logger.info(`QR Broadcast template fetched successfully for client: ${params.clientId}`, {
+         data: client,
+      });
+
       return NextResponse.json(
          {
             message: 'Fetch data',
@@ -31,6 +36,9 @@ export async function GET(req: NextRequest, { params }: { params: { clientId: st
          { status: 200 }
       );
    } catch (error) {
+      logger.error(`Error while fetching QR Broadcast template`, {
+         error: error as Error,
+      });
       return NextResponse.json(
          {
             message: error as Error,
@@ -52,8 +60,6 @@ export async function PUT(req: NextRequest, { params }: { params: { clientId: st
          },
       });
 
-      console.log('data', id, name, type);
-
       const template = await prisma.qrBroadcastTemplate.findMany({
          where: {
             clientId: Number(client?.id),
@@ -72,6 +78,10 @@ export async function PUT(req: NextRequest, { params }: { params: { clientId: st
          },
       });
 
+      logger.info(`QR Broadcast template updated successfully`, {
+         data: updateQrBroadcastTemplate,
+      });
+
       return NextResponse.json(
          {
             status: 201,
@@ -81,6 +91,9 @@ export async function PUT(req: NextRequest, { params }: { params: { clientId: st
          { status: 201 }
       );
    } catch (error) {
+      logger.error(`Error while updating QR Broadcast template`, {
+         error: error as Error,
+      });
       return NextResponse.json(
          {
             status: 500,
@@ -111,12 +124,20 @@ export async function DELETE(req: NextRequest, { params }: { params: { clientId:
          },
       });
 
+      logger.info(`QR Broadcast template deleted successfully`, {
+         data: deleteQrBroadcastTemplate,
+      });
+
       return NextResponse.json({
          status: 200,
          message: 'Delete data',
          data: deleteQrBroadcastTemplate,
       });
    } catch (error) {
+      logger.error(`Error while deleting QR Broadcast template`, {
+         error: error as Error,
+      });
+
       return NextResponse.json(
          {
             status: 500,

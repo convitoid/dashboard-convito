@@ -4,7 +4,6 @@ import { createAsyncThunk } from '@reduxjs/toolkit';
 export const fetchClientQrDashboard = createAsyncThunk(
    'clientQrDashboard/fetchClientQrDashboard',
    async (payload: any) => {
-      console.log('dari thunk', payload);
       try {
          const getToken = await fetch('/api/auth/session')
             .then((res) => res.json())

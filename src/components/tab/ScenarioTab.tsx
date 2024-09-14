@@ -70,7 +70,6 @@ export const ScenarioTab = ({ clientId }: ScenarioTabProps) => {
             )
                .unwrap()
                .then((res) => {
-                  console.log('res', res);
                   if (res.status === 200) {
                      Swal.fire({
                         title: 'Deleted!',

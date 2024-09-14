@@ -17,7 +17,7 @@ export const getDashboardData = createAsyncThunk('clientDashboard/getDashboardDa
       const res = await response.json();
       return res;
    } catch (error) {
-      console.log('error', error);
+      return error;
    }
 });
 
@@ -44,6 +44,6 @@ export const exportData = createAsyncThunk('clientDashboard/exportData', async (
       const res = await response.json();
       return res;
    } catch (error) {
-      console.log('error', error);
+      return error;
    }
 });

@@ -1,3 +1,4 @@
+import logger from '@/libs/logger';
 import prisma from '@/libs/prisma';
 import { NextRequest, NextResponse } from 'next/server';
 
@@ -58,6 +59,9 @@ export async function GET(req: NextRequest, { params }: { params: { clientId: st
          },
       ];
 
+      logger.info(`Dashboard data fetched successfully for client: ${params.clientId}`, {
+         data: data,
+      });
       return NextResponse.json(
          {
             status: 200,
@@ -66,7 +70,11 @@ export async function GET(req: NextRequest, { params }: { params: { clientId: st
          },
          { status: 200 }
       );
-   } catch (error) {
+   } catch (error: any) {
+      logger.error(`Failed to fetch dashboard data for client: ${params.clientId}`, {
+         error: error.message,
+         timestamp: new Date().toISOString(),
+      });
       return NextResponse.json(
          {
             status: 500,

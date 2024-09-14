@@ -67,7 +67,6 @@ export const DashboardTab = ({ clientId }: DashboardTabProps) => {
                header: 'Status Blasting',
                accessorKey: 'status_blasting',
                cell: (info: any) => {
-                  console.log(info.row.original.status_blasting);
                   return (
                      <span
                         className={`text-sm px-2 py-1 rounded-md ${
@@ -88,8 +87,6 @@ export const DashboardTab = ({ clientId }: DashboardTabProps) => {
          const dynamicData = dashboarData[0].guest.map((item: any, index: number) => {
             const answer = item.Invitations.some((invitation: any) => invitation.answer !== null);
             const statusBlasting = item.SendBlastingLogs.map((log: any) => log.status);
-
-            console.log(statusBlasting);
 
             return {
                id: item.id,
@@ -125,7 +122,6 @@ export const DashboardTab = ({ clientId }: DashboardTabProps) => {
 
    const handleFilterDataBySelected = (e: React.ChangeEvent<HTMLSelectElement>) => {
       const selectedScenario = e.target.value;
-      console.log(selectedScenario);
 
       if (selectedScenario === 'all') {
          setGlobalFilter('');
@@ -151,7 +147,6 @@ export const DashboardTab = ({ clientId }: DashboardTabProps) => {
             }
          });
    };
-   // console.log(table.getRowModel().rows.map((row) => row.original.id));
 
    return (
       <div>

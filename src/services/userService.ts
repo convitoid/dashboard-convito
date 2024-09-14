@@ -90,7 +90,6 @@ export async function createUser(
       const errorMessage = error as Error;
       // format to json
       const errorJson = JSON.parse(JSON.stringify(errorMessage));
-      console.log(errorJson.meta.target[0]);
       if (errorJson.code === 'P2002') {
          return getErrorResponse(` ${errorJson.meta.target[0]} already exists`, 400);
       }

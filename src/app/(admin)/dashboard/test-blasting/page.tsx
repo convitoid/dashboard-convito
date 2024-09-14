@@ -58,7 +58,6 @@ const DummyBlastingPage = () => {
       dispatch(sendMessage(formData))
          .unwrap()
          .then((res) => {
-            console.log('res send message', res);
             if (!res.error) {
                Swal.fire({
                   title: 'Success',

@@ -84,7 +84,7 @@ model ClientImage {
 model ClientVideo {
   id        Int      @id @default(autoincrement())
   clientId  Int
-  Client    Client   @relation(fields: [clientId], references: [id])
+  Client    Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
   flag      String
   video     String
   createdAt DateTime @default(now())
