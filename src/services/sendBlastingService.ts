@@ -154,6 +154,7 @@ export const sendBlastingService = async (data: any, clientId: any, clientCode: 
                }
             );
             const res = await response.json();
+            console.log(res);
             if (res.error) {
                return {
                   error: res.error,
@@ -456,7 +457,6 @@ export const sendBlastingQrService = async (body: any, template: any, image: any
                                        type: 'image',
                                        image: {
                                           link: `${process.env.NEXTAUTH_URL}${image[0].path}`,
-                                          // link: 'https://images.unsplash.com/photo-1634729108541-516d16ddceec?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
                                        },
                                     },
                                  ],
@@ -485,7 +485,6 @@ export const sendBlastingQrService = async (body: any, template: any, image: any
                                        type: 'image',
                                        image: {
                                           link: `${process.env.NEXTAUTH_URL}/${qrFileUrl[0].path}`,
-                                          // link: 'https://images.unsplash.com/photo-1634729108541-516d16ddceec?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
                                        },
                                     },
                                  ],
@@ -508,6 +507,9 @@ export const sendBlastingQrService = async (body: any, template: any, image: any
                         }
                      );
 
+                     console.log('image', `${process.env.NEXTAUTH_URL}${image[0].path}`);
+                     console.log('response reminder', response);
+
                      logger.info('Reminder message sent successfully', {
                         data: { guestId: guest.id, guestName: guest.name, response: response },
                      });
@@ -525,6 +527,8 @@ export const sendBlastingQrService = async (body: any, template: any, image: any
                               body: JSON.stringify(whatsappBodyJsonQr),
                            }
                         );
+                        console.log('qr image', `${process.env.NEXTAUTH_URL}/${qrFileUrl[0].path}`);
+                        console.log('response qr', responseQr);
 
                         logger.info('QR message sent successfully', {
                            data: { guestId: guest.id, guestName: guest.name, response: responseQr },
@@ -600,7 +604,6 @@ export const sendBlastingQrService = async (body: any, template: any, image: any
                                        type: 'image',
                                        image: {
                                           link: `${process.env.NEXTAUTH_URL}/${qrFileUrl[0].path}`,
-                                          // link: 'https://images.unsplash.com/photo-1634729108541-516d16ddceec?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
                                        },
                                     },
                                  ],
@@ -638,6 +641,9 @@ export const sendBlastingQrService = async (body: any, template: any, image: any
                               body: JSON.stringify(whatsappBodyJsonQr),
                            }
                         );
+
+                        console.log('qr image', `${process.env.NEXTAUTH_URL}/${qrFileUrl[0].path}`);
+                        console.log('response qr', responseQr);
 
                         logger.info('QR message sent successfully', {
                            data: { guestId: guest.id, guestName: guest.name, response: responseQr },
