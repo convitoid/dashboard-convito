@@ -191,7 +191,7 @@ export const ModalUploadImage = ({ modalId, title, clientId }: ModalUploadImageP
                   ref={fileInputRef}
                   type="file"
                   className="file-input file-input-bordered w-full"
-                  accept="image/png, image/jpg, image/jpeg"
+                  accept="image/png, image/jpg, image/jpeg, image/PNG, image/JPG, image/JPEG"
                   onChange={handelImageUpload}
                />
             </div>

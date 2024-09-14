@@ -167,11 +167,12 @@ export const GalleryTab = ({ clientId }: GalleryTabProps) => {
                                  </button>
                               </div>
                               <Image
-                                 src={image.imagePath}
+                                 src={image.imageUrl}
                                  alt={image.imageName}
                                  width={1000}
                                  height={1000}
                                  className="w-full rounded-md"
+                                 unoptimized
                               />
                               <div className="backdrop-blur-sm bg-white/40 absolute w-full bottom-0 left-0 h-12 flex items-center justify-center">
                                  <h1 className="text-slate-900 capitalize">{replaceString(image.flag)}</h1>

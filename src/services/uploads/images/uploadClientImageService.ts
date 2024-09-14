@@ -43,11 +43,26 @@ export async function getDataImagesByClientId(jwtToken: string, clientId: string
          },
       });
 
+      const imageUrl = await Promise.all(
+         images.map(async (image) => {
+            const url = `${process.env.NEXTAUTH_URL}/api/qr/render-image/client-gallery/${image.imageName}`;
+            const respone = await fetch(url);
+            return respone.url;
+         })
+      );
+
+      const resData = images.map((image, index) => {
+         return {
+            ...image,
+            imageUrl: imageUrl[index],
+         };
+      });
+
       if (!images) {
          return getErrorResponse('No images found', 404);
       }
 
-      return getSuccessReponse(images, 200, 'Images data fetched successfully');
+      return getSuccessReponse(resData, 200, 'Images data fetched successfully');
    } catch (error) {
       const jwtError = error as JWTError;
       if (jwtError.code === 'ERR_JWT_EXPIRED') {

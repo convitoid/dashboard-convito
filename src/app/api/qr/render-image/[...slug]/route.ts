@@ -19,6 +19,20 @@ export async function GET(req: NextRequest, { params }: { params: { slug: string
       } else {
          return NextResponse.error();
       }
+   } else if (params.slug[0] === 'client-gallery') {
+      const fullPath = path.join(process.cwd(), `public/uploads/clients/images/${params.slug[1]}`);
+
+      if (fs.existsSync(fullPath)) {
+         const file = fs.readFileSync(fullPath);
+         const mimeType = mime.lookup(fullPath) || 'application/octet-stream';
+         return new NextResponse(file, {
+            headers: {
+               'Content-Type': mimeType,
+            },
+         });
+      } else {
+         return NextResponse.error();
+      }
    } else {
       const fullPath = path.join(process.cwd(), `public/uploads/clients/qr/file/${params.slug[0]}/${params.slug[1]}`);
 
