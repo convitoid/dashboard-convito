@@ -44,14 +44,15 @@ export const DashboardTab = ({ clientId }: DashboardTabProps) => {
 
    const handleCopyToClipboard = (url: string) => {
       const invitationLink = `${process.env.NEXT_PUBLIC_API_URL}/invitation/${url}`;
-      navigator.clipboard.writeText(invitationLink).then(() => {
-         // alert('URL copied to clipboard');
-         setIsCopy(true);
-         setUrl('URL copied to clipboard');
-         console.log("test",invitationLink);
-      }).catch((err) => {
-         console.log("err", err)
-      })
+      console.log(invitationLink)
+      // navigator.clipboard.writeText(invitationLink).then(() => {
+      //    // alert('URL copied to clipboard');
+      //    setIsCopy(true);
+      //    setUrl('URL copied to clipboard');
+      //    console.log("test",invitationLink);
+      // }).catch((err) => {
+      //    console.log("err", err)
+      // })
    };
 
    useEffect(() => {

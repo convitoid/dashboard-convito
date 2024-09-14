@@ -39,3 +39,6 @@ next-env.d.ts
 
 # don't include file on folder /public/uploads/clients/images
 /public/uploads/clients/images
+
+# don't include logs
+/logs
