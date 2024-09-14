@@ -74,7 +74,7 @@ export const ModalEditQuestion = ({ modalId, clientId, questionId }: ModalEditQu
    return (
       <ModalComponent
          modalId={modalId}
-         modalHeader="Edit client"
+         modalHeader="Edit Question"
          modalWrapper="p-0 w-full max-w-2xl"
          backgroundColorHeader="bg-blue-500 px-6 py-5 text-white"
          modalBodyStyle="pt-3 px-6 pb-6"
@@ -83,7 +83,7 @@ export const ModalEditQuestion = ({ modalId, clientId, questionId }: ModalEditQu
          <form onSubmit={submitUpdateQuestion}>
             <div className="flex flex-col gap-2 mb-5">
                <label htmlFor="question" className="text-[16px] font-semibold">
-                  Input question
+                  Question
                </label>
                <EditorProvider>
                   <Editor
@@ -103,7 +103,7 @@ export const ModalEditQuestion = ({ modalId, clientId, questionId }: ModalEditQu
             </div>
             <div className="flex flex-col gap-1">
                <label htmlFor="type" className="text-[16px] font-semibold">
-                  Choose type
+                  Choose Type
                </label>
                <select
                   name="type"

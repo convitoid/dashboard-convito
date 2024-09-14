@@ -52,7 +52,7 @@ export const QrGallerytab = ({ clientId }: QrGallerytabProps) => {
                className="btn bg-blue-500 text-white mb-4 hover:bg-blue-600 transition duraion-100 ease-in"
                onClick={openModalUploadImage}
             >
-               Upload image
+               Upload Image
             </button>
          </div>
 

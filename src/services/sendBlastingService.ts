@@ -140,6 +140,9 @@ export const sendBlastingService = async (data: any, clientId: any, clientCode: 
                clientCode: clientCode,
             });
 
+            logger.info('templateBodyLog', { data: templateBody });
+            console.log('templateBody', templateBody);
+
             const myHeaders = new Headers();
             myHeaders.append('Content-Type', 'application/json');
             myHeaders.append('Authorization', `Bearer ${process.env.NEXT_WHATSAPP_TOKEN_ID}`);
@@ -154,12 +157,6 @@ export const sendBlastingService = async (data: any, clientId: any, clientCode: 
                }
             );
 
-            console.log("Response original whatsapp", 
-               {
-                  data: sendBlastingProcess
-               }
-            )
-
             const res = await response.json();
             console.log(res);
             if (res.error) {
@@ -172,9 +169,9 @@ export const sendBlastingService = async (data: any, clientId: any, clientCode: 
          })
       );
 
-      console.log("Response from whatsapp", sendBlastingProcess)
+      console.log('Response from whatsapp', sendBlastingProcess);
 
-      logger.info("Response from whatsapp", sendBlastingProcess)
+      logger.info('Response from whatsapp', sendBlastingProcess);
 
       if (sendBlastingProcess.some((res) => res.error)) {
          const errorData = sendBlastingProcess.filter((res) => res.error);
@@ -211,6 +208,7 @@ export const sendBlastingService = async (data: any, clientId: any, clientCode: 
          return getSuccessReponse(invitationCreateData, 200, 'Successfully sent');
       }
    } catch (error) {
+      console.log(error);
       return error;
    }
 };

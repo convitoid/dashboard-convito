@@ -222,7 +222,7 @@ export const SendBroadcastTab = ({ clientId }: SendBroadcastTabProps) => {
                      {table.getHeaderGroups().map((headerGroup) => (
                         <tr key={headerGroup.id}>
                            {headerGroup.headers.map((header) => (
-                              <th key={header.id} className="text-start h-10 px-4 py-2 bg-slate-800 text-white text-sm">
+                              <th key={header.id} className="text-start h-10 px-4 py-2 bg-[#1c1c1c] text-white text-sm">
                                  {header.isPlaceholder
                                     ? null
                                     : flexRender(header.column.columnDef.header, header.getContext())}

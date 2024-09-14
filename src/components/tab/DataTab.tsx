@@ -181,7 +181,7 @@ export const DataTab = ({ clientId }: DataTabProps) => {
             </button>
          </div>
          <div className="flex items-center justify-between mb-3">
-            <h2 className="text-lg font-bold mb-2">Guests Data</h2>
+            <h2 className="text-lg font-bold mb-2">Guest Data</h2>
             <input
                type="text"
                placeholder="Search"
@@ -207,7 +207,7 @@ export const DataTab = ({ clientId }: DataTabProps) => {
                            {headerGroup.headers
                               .filter((header) => header.column.columnDef.header !== 'Scenario_slug')
                               .map((header, index) => (
-                                 <th key={index} className="text-start h-10 px-4 py-2 bg-slate-800 text-white text-sm">
+                                 <th key={index} className="text-start h-10 px-4 py-2 bg-[#1c1c1c] text-white text-sm">
                                     {header.isPlaceholder
                                        ? null
                                        : flexRender(header.column.columnDef.header, header.getContext())}

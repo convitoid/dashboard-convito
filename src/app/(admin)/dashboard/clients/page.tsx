@@ -118,12 +118,12 @@ const ClientPage = () => {
    return (
       <>
          <div className="flex items-center justify-between mb-3">
-            <h1 className="text-2xl font-bold">Clients data</h1>
+            <h1 className="text-2xl font-bold">Clients Data</h1>
             <BreadcrumbsComponent data={breadcrumbsData} />
          </div>
          <div className="overflow-x-auto pt-3">
             <div className="flex items-center justify-between mb-3">
-               <ModalAddClient modalId="add_client" title="Add client" />
+               <ModalAddClient modalId="add_client" title="Add Client" />
                <input
                   type="text"
                   className="border-[1px] border-slate-300 rounded-md px-3 py-2"

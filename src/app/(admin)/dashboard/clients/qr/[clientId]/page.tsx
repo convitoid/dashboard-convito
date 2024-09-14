@@ -49,7 +49,7 @@ export default function QrClients({ params }: { params: { clientId: string } }) 
          disabled: false,
       },
       {
-         name: 'Qr Data',
+         name: 'QR Data',
          icon: <QrCode className="size-6 me-2" />,
          content: <QrDataTab clientId={params.clientId} />,
          disabled: false,

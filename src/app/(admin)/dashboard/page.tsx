@@ -36,14 +36,16 @@ const DashboardPage = () => {
 
    const getData = async () => {
       const url = '/api/admin/dashboard';
-      const resonse = await axios.get(url);
+      const response = await axios.get(url);
 
-      if (resonse.status === 200) {
-         setTotalClients(resonse.data.data.totalClients);
-         setTotalGuests(resonse.data.data.totalGuests);
-         setGuests(resonse.data.data.guests);
-         setClients(resonse.data.data.clients);
-         setChartData(resonse.data.data.chartClientData);
+      console.log(response);
+
+      if (response.status === 200) {
+         setTotalClients(response.data.data.totalClients);
+         setTotalGuests(response.data.data.totalGuests);
+         setGuests(response.data.data.guests);
+         setClients(response.data.data.clients);
+         setChartData(response.data.data.chartClientData);
       }
    };
 
@@ -62,8 +64,8 @@ const DashboardPage = () => {
          </div>
          <div className="grid grid-cols-1 md:grid-cols-2 2md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4 mb-8">
             <div className="col-span-1">
-               <Card cardWrapper="bg-blue-400 text-white">
-                  <h2 className="2md:text-[1rem] font-semibold">Total CLients</h2>
+               <Card cardWrapper="bg-[#1c1c1c] text-white">
+                  <h2 className="2md:text-[1rem] font-semibold">Total Clients</h2>
                   <div className="flex items-center gap-3 text-2xl">
                      <UsersIcon />
                      <span>{totalClients ?? 0}</span>
@@ -71,7 +73,7 @@ const DashboardPage = () => {
                </Card>
             </div>
             <div className="col-span-1">
-               <Card cardWrapper="bg-blue-400 text-white">
+               <Card cardWrapper="bg-[#1c1c1c] text-white">
                   <h2 className="2md:text-[1rem] font-semibold">Total Guests</h2>
                   <div className="flex items-center gap-3 text-2xl">
                      <UserGroupIcon />
@@ -83,7 +85,7 @@ const DashboardPage = () => {
          <div className="mt-4">
             <div className="flex items-center justify-between mb-6">
                <h1 className="font-semibold text-sm lg:text-lg xl:text-xl">
-                  Convito clients statistics {moment().format('YYYY')}
+                  Convito Clients Statistics {moment().format('YYYY')}
                </h1>
             </div>
             <BarChart statisticsData={chartData} />

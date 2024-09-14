@@ -196,10 +196,10 @@ export const DashboardTab = ({ clientId }: DashboardTabProps) => {
 
    return (
       <div>
-         <div className="grid grid-cols-3 3md:grid-cols-5 lg:grid-cols-5 xl:grid-cols-7 gap-4 mb-14">
+         <div className="grid grid-cols-3 3md:grid-cols-5 lg:grid-cols-5 xl:grid-cols-6 gap-4 mb-14">
             <div className="bg-sky-500 p-4 rounded-md text-white mb-4">
                <h2 className="text-3xl font-semibold">{dashboarData.length > 0 ? dashboarData[0].total_guests : 0}</h2>
-               <h4 className="text-md font-semibold">Total Guest</h4>
+               <h4 className="text-md font-semibold">Total Guest(s)</h4>
             </div>
             <div className="bg-green-500 p-4 rounded-md text-white mb-4">
                <h2 className="text-3xl font-semibold">
@@ -211,15 +211,15 @@ export const DashboardTab = ({ clientId }: DashboardTabProps) => {
                <h2 className="text-3xl font-semibold">
                   {dashboarData.length > 0 ? dashboarData[0].not_answered_guest : 0}
                </h2>
-               <h4 className="text-md font-semibold">Total No Answered</h4>
+               <h4 className="text-md font-semibold">Total Unswered</h4>
             </div>
             <div className="bg-teal-500 p-4 rounded-md text-white mb-4">
                <h2 className="text-3xl font-semibold">{dashboarData.length > 0 ? dashboarData[0].guest_confirm : 0}</h2>
-               <h4 className="text-md font-semibold">Total Guest Confirm</h4>
+               <h4 className="text-md font-semibold">Total Guest(s) Confirmed</h4>
             </div>
             <div className="bg-red-500 p-4 rounded-md text-white mb-4">
                <h2 className="text-3xl font-semibold">{dashboarData.length > 0 ? dashboarData[0].guest_decline : 0}</h2>
-               <h4 className="text-md font-semibold">Total Guest Decline</h4>
+               <h4 className="text-md font-semibold">Total Guest(s) Decline</h4>
             </div>
          </div>
          <div className="flex justify-between mb-3">
@@ -265,7 +265,7 @@ export const DashboardTab = ({ clientId }: DashboardTabProps) => {
                      {table.getHeaderGroups().map((headerGroup) => (
                         <tr key={headerGroup.id}>
                            {headerGroup.headers.map((header) => (
-                              <th key={header.id} className="text-start h-10 px-4 py-2 bg-slate-800 text-white text-sm">
+                              <th key={header.id} className="text-start h-10 px-4 py-2 bg-[#1c1c1c] text-white text-sm">
                                  {header.isPlaceholder
                                     ? null
                                     : flexRender(header.column.columnDef.header, header.getContext())}

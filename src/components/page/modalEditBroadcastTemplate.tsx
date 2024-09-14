@@ -94,7 +94,7 @@ export const ModalEditBroadcastTemplate = ({ modalId, clientId }: ModalEditBroad
          closeModal={closeModal}
       >
          <form onSubmit={submitUpdateTemplate}>
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-2 mb-5">
                <label htmlFor="question" className="text-[16px] font-semibold">
                   Template Name
                </label>

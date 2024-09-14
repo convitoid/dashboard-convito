@@ -224,14 +224,14 @@ export const ScenarioTab = ({ clientId }: ScenarioTabProps) => {
                dispatch(clearData());
             }}
          >
-            {isFormOpen ? 'Back' : 'Add scenario'}
+            {isFormOpen ? 'Back' : 'Add Scenario'}
          </button>
          {isFormOpen ? (
             <AddScenario clientId={clientId} />
          ) : (
             <>
                <div className="flex items-center justify-between mb-3">
-                  <h2 className="text-lg font-bold mb-2">Scenario data</h2>
+                  <h2 className="text-lg font-bold mb-2">Scenario Data</h2>
                   <input
                      type="text"
                      placeholder="Search"
@@ -251,7 +251,7 @@ export const ScenarioTab = ({ clientId }: ScenarioTabProps) => {
                                  {headerGroup.headers.map((header) => (
                                     <th
                                        key={header.id}
-                                       className="text-start h-10 px-4 py-2 bg-slate-800 text-white text-sm"
+                                       className="text-start h-10 px-4 py-2 bg-[#1c1c1c] text-white text-sm"
                                     >
                                        {header.isPlaceholder
                                           ? null
