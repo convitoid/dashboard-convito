@@ -7,7 +7,7 @@
       "build": "next build",
       "start": "next start",
       "lint": "next lint",
-      "seed": "prisma/seed.mjs"
+      "seed": "node prisma/seed.mjs"
    },
    "dependencies": {
       "@headlessui/react": "^2.1.2",

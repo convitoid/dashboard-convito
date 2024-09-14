@@ -153,6 +153,13 @@ export const sendBlastingService = async (data: any, clientId: any, clientCode: 
                   redirect: 'follow',
                }
             );
+
+            console.log("Response original whatsapp", 
+               {
+                  data: sendBlastingProcess
+               }
+            )
+
             const res = await response.json();
             console.log(res);
             if (res.error) {
@@ -164,6 +171,10 @@ export const sendBlastingService = async (data: any, clientId: any, clientCode: 
             return res;
          })
       );
+
+      console.log("Response from whatsapp", sendBlastingProcess)
+
+      logger.info("Response from whatsapp", sendBlastingProcess)
 
       if (sendBlastingProcess.some((res) => res.error)) {
          const errorData = sendBlastingProcess.filter((res) => res.error);
