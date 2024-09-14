@@ -16,6 +16,7 @@ import { ChevronDoubleLeftIcon } from '../icons/chevronDoubleLeft';
 import { ExcelIcon } from '../icons/excel';
 import { exportToExcel } from '@/utils/exportToExcel';
 import { error } from 'console';
+import { CopyToClipboard } from 'react-copy-to-clipboard';
 
 type DashboardTabProps = {
    clientId?: string;
@@ -42,24 +43,11 @@ export const DashboardTab = ({ clientId }: DashboardTabProps) => {
       dispatch(getDashboardData({ clientId: clientId?.toString() }));
    }, [dispatch]);
 
-   const handleCopyToClipboard = (url: string) => {
-      const invitationLink = `${process.env.NEXT_PUBLIC_API_URL}/invitation/${url}`;
-      console.log(invitationLink)
-      // navigator.clipboard.writeText(invitationLink).then(() => {
-      //    // alert('URL copied to clipboard');
-      //    setIsCopy(true);
-      //    setUrl('URL copied to clipboard');
-      //    console.log("test",invitationLink);
-      // }).catch((err) => {
-      //    console.log("err", err)
-      // })
-   };
-
    useEffect(() => {
       if (isCopy) {
          setTimeout(() => {
             setIsCopy(false);
-         }, 3000);
+         }, 1000);
       }
    }, [isCopy]);
 
@@ -91,25 +79,13 @@ export const DashboardTab = ({ clientId }: DashboardTabProps) => {
                header: 'Invitation URL',
                accessorKey: 'invitationUrl',
                cell: (info: any) => {
+                  const invitationLink = `${process.env.NEXT_PUBLIC_API_URL}/invitation/${info.row.original.invitationUrl}`;
                   return info?.row?.original?.invitationUrl !== '' ? (
-                     <button
-                        className="tooltip tooltip-bottom px-3 py-3 bg-blue-400 text-white rounded-md"
-                        onClick={() => handleCopyToClipboard(info?.row?.original?.invitationUrl)}
-                        data-tip="Copy to clipboard"
-                     >
-                        <svg
-                           xmlns="http://www.w3.org/2000/svg"
-                           viewBox="0 0 24 24"
-                           fill="currentColor"
-                           className="size-3"
-                        >
-                           <path
-                              fillRule="evenodd"
-                              d="M10.5 3A1.501 1.501 0 0 0 9 4.5h6A1.5 1.5 0 0 0 13.5 3h-3Zm-2.693.178A3 3 0 0 1 10.5 1.5h3a3 3 0 0 1 2.694 1.678c.497.042.992.092 1.486.15 1.497.173 2.57 1.46 2.57 2.929V19.5a3 3 0 0 1-3 3H6.75a3 3 0 0 1-3-3V6.257c0-1.47 1.073-2.756 2.57-2.93.493-.057.989-.107 1.487-.15Z"
-                              clipRule="evenodd"
-                           />
-                        </svg>
-                     </button>
+                     <>
+                        <CopyToClipboard text={invitationLink} onCopy={() => setIsCopy(true)}>
+                           <span className="text-blue-500 cursor-pointer">Copy</span>
+                        </CopyToClipboard>
+                     </>
                   ) : (
                      <span className="text-red-500"> - </span>
                   );
@@ -370,7 +346,7 @@ export const DashboardTab = ({ clientId }: DashboardTabProps) => {
          {isCopy && (
             <div className="toast">
                <div className="alert alert-info text-white">
-                  <span>{url}</span>
+                  <span>Link copied to clipboard</span>
                </div>
             </div>
          )}
