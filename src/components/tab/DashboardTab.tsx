@@ -42,11 +42,12 @@ export const DashboardTab = ({ clientId }: DashboardTabProps) => {
    }, [dispatch]);
 
    const handleCopyToClipboard = (url: string) => {
-      const invitationLink = `${process.env.NEXT_PUBLIC_BASE_URL}/invitation/${url}`;
+      const invitationLink = `${process.env.NEXT_PUBLIC_API_URL}/invitation/${url}`;
       navigator.clipboard.writeText(invitationLink).then(() => {
          // alert('URL copied to clipboard');
          setIsCopy(true);
          setUrl('URL copied to clipboard');
+         console.log(invitationLink);
       });
    };
 
@@ -86,10 +87,10 @@ export const DashboardTab = ({ clientId }: DashboardTabProps) => {
                header: 'Invitation URL',
                accessorKey: 'invitationUrl',
                cell: (info: any) => {
-                  return info.row.original.invitationUrl !== '' ? (
+                  return info?.row?.original?.invitationUrl !== '' ? (
                      <button
                         className="tooltip tooltip-bottom px-3 py-3 bg-blue-400 text-white rounded-md"
-                        onClick={() => handleCopyToClipboard(info.row.original.invitationUrl)}
+                        onClick={() => handleCopyToClipboard(info?.row?.original?.invitationUrl)}
                         data-tip="Copy to clipboard"
                      >
                         <svg
