@@ -103,7 +103,6 @@ export async function GET(req: NextRequest, { params }: { params: { token: strin
          { status: 200 }
       );
    } catch (error) {
-      console.log(error);
       return NextResponse.json(
          {
             status: 404,

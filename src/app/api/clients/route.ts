@@ -9,12 +9,16 @@ import {
 } from '@/services/clientService';
 import { createClientValidation } from '@/utils/formValidation/clients/createValidation';
 import moment from 'moment';
+import logger from '@/libs/logger';
 
 export async function GET(req: NextRequest) {
    const token = req.headers.get('authorization');
    const jwtToken = token?.split(' ')[1];
    const response = await fetchClientsService(jwtToken as string);
 
+   logger.info('Fetching clients', {
+      data: response,
+   });
    return NextResponse.json(response, { status: response.status });
 }
 
@@ -52,8 +56,14 @@ export async function POST(req: NextRequest) {
       };
 
       const response = await addClientService(data);
+      logger.info('Adding client', {
+         data: response,
+      });
       return NextResponse.json(response, { status: response.status });
    } catch (error) {
+      logger.error('Error adding client', {
+         data: error,
+      });
       return NextResponse.json(error, { status: 500 });
    }
 }
@@ -76,7 +86,6 @@ export async function PUT(req: NextRequest) {
 
    data.event_date = new Date(data.event_date);
 
-   // console.log('data', data);
    // return NextResponse.json(data);
 
    const validation = createClientValidation(data);
@@ -101,8 +110,15 @@ export async function PUT(req: NextRequest) {
          return NextResponse.json(updateClient, { status: 500 });
       }
 
+      logger.info('Updating client', {
+         data: updateClient,
+      });
+
       return NextResponse.json(updateClient, { status: 201 });
    } catch (error) {
+      logger.error('Error updating client', {
+         data: error,
+      });
       return NextResponse.json(error, { status: 500 });
    }
 }
@@ -115,9 +131,16 @@ export async function DELETE(req: NextRequest) {
    try {
       const response = await deleteClientService(jwtToken as string, Number(client_id));
 
+      logger.info('Deleting client', {
+         data: response,
+      });
+
       return NextResponse.json(response, { status: response.status });
    } catch (error) {
-      console.log('error', error);
+      logger.error('Error deleting client', {
+         data: error,
+      });
+
       return NextResponse.json(error, { status: 500 });
    }
 }

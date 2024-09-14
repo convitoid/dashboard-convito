@@ -1,7 +1,6 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 
 export const sendQrBlasting = createAsyncThunk('sendBlasting/sendQrBlasting', async (payload: any) => {
-   console.log('payload', payload);
    try {
       const getToken = await fetch('/api/auth/session')
          .then((res) => res.json())
@@ -22,7 +21,6 @@ export const sendQrBlasting = createAsyncThunk('sendBlasting/sendQrBlasting', as
       return data;
    } catch (error) {
       const errorMessage = error as Error;
-      console.log('errorMessage', errorMessage);
       return errorMessage;
    }
 });

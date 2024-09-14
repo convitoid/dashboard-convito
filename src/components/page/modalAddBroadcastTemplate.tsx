@@ -28,7 +28,6 @@ export const ModalAddBroadcastTemplate = ({ clientId, modalId }: ModalAddBroadca
    };
 
    const handleSelectChange = (e: any) => {
-      console.log(e.target.value);
       setFormData({ ...formData, template_type: e.target.value });
    };
 
@@ -55,7 +54,6 @@ export const ModalAddBroadcastTemplate = ({ clientId, modalId }: ModalAddBroadca
       dispatch(createBroadcastTemplate({ clientId, formData }))
          .unwrap()
          .then((res) => {
-            console.log(res);
             if (res.status !== 400) {
                Swal.fire({
                   icon: 'warning',

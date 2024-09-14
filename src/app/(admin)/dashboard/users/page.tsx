@@ -71,7 +71,6 @@ const UsersPage = () => {
    };
 
    const deleteHandler = (id: number, username: string) => {
-      console.log('delete user', id);
       Swal.fire({
          title: 'Are you sure?',
          html: `Are you sure want to delete user <b>${username}</b> ?`,
@@ -86,7 +85,6 @@ const UsersPage = () => {
                dispatch(deleteUser(id))
                   .unwrap()
                   .then((res) => {
-                     console.log('res delete', res);
                      if (res.status === 201) {
                         Swal.fire({
                            title: 'Deleted!',

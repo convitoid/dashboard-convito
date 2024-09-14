@@ -14,7 +14,6 @@ type ModalUploadImageProps = {
 };
 
 export const ModalUploadImage = ({ modalId, title, clientId }: ModalUploadImageProps) => {
-   console.log('clientId', clientId);
    const [formData, setFormData] = useState({
       imageFlag: '',
    });

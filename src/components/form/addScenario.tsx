@@ -164,7 +164,6 @@ export const AddScenario = ({ clientId }: AddScenarioProps) => {
          dispatch(updateScenario({ clientId: clientId ?? '', data: data }))
             .unwrap()
             .then((res) => {
-               console.log('res', res);
                if (res.status === 201) {
                   Swal.fire({
                      icon: 'success',
@@ -189,8 +188,6 @@ export const AddScenario = ({ clientId }: AddScenarioProps) => {
          dispatch(createScenario({ clientId: clientId ?? '', data: data }))
             .unwrap()
             .then((res) => {
-               console.log('res', res);
-
                if (res.message.code === 'P2002') {
                   Swal.fire({
                      icon: 'warning',

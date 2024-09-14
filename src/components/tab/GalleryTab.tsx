@@ -17,7 +17,6 @@ type GalleryTabProps = {
 };
 
 export const GalleryTab = ({ clientId }: GalleryTabProps) => {
-   console.log('clientId', clientId);
    const dispatch = useDispatch<AppDispatch>();
    const isOpenModal = useSelector((state: RootState) => state.uploadImage.isOpenModal);
    const images = useSelector((state: RootState) => state.uploadImage.clientImages);
@@ -66,7 +65,6 @@ export const GalleryTab = ({ clientId }: GalleryTabProps) => {
    };
 
    const handleDeleteImage = (imageId: string) => {
-      console.log('imageId', imageId);
       Swal.fire({
          text: "Are you sure you want to delete this image? You won't be able to revert this!",
          icon: 'warning',
@@ -79,7 +77,6 @@ export const GalleryTab = ({ clientId }: GalleryTabProps) => {
             dispatch(deleteImage(imageId))
                .unwrap()
                .then((response) => {
-                  console.log('response', response);
                   dispatch(getClientImages(clientId?.toString() ?? ''));
                   Swal.fire({
                      title: 'Deleted!',

@@ -63,7 +63,6 @@ export const deleteVideo = createAsyncThunk('video/deleteVideo', async (payload:
             id: payload.id,
          }),
       });
-      console.log('response', response);
       const data = await response.json();
       return data;
    } catch (error) {

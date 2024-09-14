@@ -30,8 +30,6 @@ export default function InvitationPage({ params }: { params: { token: string } }
    const status = useSelector((state: RootState) => state.invitations.status);
    const answer = useSelector((state: RootState) => state.invitations.invitation);
 
-   console.log('invitations', invitations);
-
    const [guestDetail, setGuestDetail] = useState([]);
    const [guestDetailFormated, setGuestDetailFormated] = useState<{ [key: string]: any }>({});
    const [isAnswer, setIsAnswer] = useState<boolean>(false);
@@ -154,7 +152,6 @@ export default function InvitationPage({ params }: { params: { token: string } }
          const trimmedValue = value.slice(0, 3);
 
          if (parseInt(trimmedValue) > parseInt(guestDetailFormated[test[0]])) {
-            console.log('invalid');
             valid = false;
          }
 

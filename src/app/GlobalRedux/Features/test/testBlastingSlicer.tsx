@@ -33,7 +33,6 @@ const initialState: TestBlasting = {
 };
 
 export const sendMessage = createAsyncThunk('testBlasting/sendMessage', async (data: any) => {
-   console.log(data);
    const getToken = await fetch('/api/auth/session')
       .then((res) => res.json())
       .then((data) => {
@@ -52,8 +51,6 @@ export const sendMessage = createAsyncThunk('testBlasting/sendMessage', async (d
    const res = await response.json().then((data) => {
       return data;
    });
-
-   console.log('slicer', res);
 
    return res;
 });
@@ -87,7 +84,6 @@ export const fetchInvitation = createAsyncThunk('testBlasting/fetchInvitation', 
 });
 
 export const putAnswerInvitation = createAsyncThunk('testBlasting/putAnswerInvitation', async (data: any) => {
-   console.log('put answer slice', data);
    const response = await fetch(`/api/test/invitation/${data.clientId}`, {
       method: 'PUT',
       body: JSON.stringify(data),
@@ -99,8 +95,6 @@ export const putAnswerInvitation = createAsyncThunk('testBlasting/putAnswerInvit
    const res = await response.json().then((data) => {
       return data;
    });
-
-   console.log('put answer slice res', res);
 
    return res;
 });
@@ -159,7 +153,6 @@ export const testBlastingSlice = createSlice({
             state.status = 'loading';
          })
          .addCase(sendMessage.fulfilled, (state, action) => {
-            console.log('action.payload', action.payload);
             state.status = 'success';
             // state.data = action.payload;
             state.data = action.payload.data;
@@ -221,7 +214,6 @@ export const testBlastingSlice = createSlice({
             state.statusInvitationConfirm = 'loading';
          })
          .addCase(confirmInvitation.fulfilled, (state, action) => {
-            console.log('action.payload confirmation', action.payload);
             state.statusInvitationConfirm = 'success';
             state.invitationConfirm = action.payload;
          })

@@ -19,7 +19,6 @@ export const fetchClients = createAsyncThunk('client/fetchClients', async () => 
 });
 
 export const createCLient = createAsyncThunk('client/createClient', async (values: any) => {
-   console.log('values from thunk', values);
    const getToken = await fetch('/api/auth/session')
       .then((res) => res.json())
       .then((values) => {
@@ -69,7 +68,6 @@ export const updateClient = createAsyncThunk('client/updateClient', async (data:
    });
 
    const res = await response.json();
-   console.log('res from thunk', res);
 
    return res;
 });
@@ -90,6 +88,5 @@ export const deleteClient = createAsyncThunk('client/deleteClient', async (id: a
       }),
    });
    const data = await response.json();
-   console.log('data from thunk', data);
    return data;
 });

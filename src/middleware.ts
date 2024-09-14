@@ -11,7 +11,6 @@ export async function middleware(request: NextRequest) {
    if (request.nextUrl.pathname.startsWith('/dashboard')) {
       let res = await getToken({ req: request });
       const jwtToken = res?.jwt;
-      console.log('jwtToken', jwtToken);
 
       if (!res) {
          return NextResponse.redirect(new URL('/login', request.nextUrl.origin).href);

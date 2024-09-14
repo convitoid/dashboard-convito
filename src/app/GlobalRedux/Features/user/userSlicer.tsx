@@ -27,7 +27,6 @@ export const fetchUsers = createAsyncThunk('user/fetchUsers', async () => {
 });
 
 export const createUser = createAsyncThunk('user/createUser', async (data: any) => {
-   console.log('userSlice', data);
    const getToken = await fetch('/api/auth/session')
       .then((res) => res.json())
       .then((data) => {
@@ -82,7 +81,6 @@ export const updateUser = createAsyncThunk('user/updateUser', async (data: any) 
    });
 
    const res = await response.json();
-   console.log('res update', res);
    return res;
 });
 

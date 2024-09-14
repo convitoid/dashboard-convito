@@ -4,7 +4,7 @@ import { getQrGuests, uploadQrGuests } from '../../Thunk/clients/clientQrUploadG
 interface ClientQrUploadGuestsState {
    data: any | '';
    guests: any | '';
-   status: 'idle' | 'loading' | 'success';
+   status: 'idle' | 'loading' | 'success' | 'uploadIdle' | 'uploadLoading' | 'uploadSuccess' | 'uploadFailed';
    error: any;
 }
 
@@ -30,14 +30,14 @@ export const clientQrUploadGuestsSLice = createSlice({
    extraReducers: (builder) => {
       builder
          .addCase(uploadQrGuests.pending, (state) => {
-            state.status = 'loading';
+            state.status = 'uploadLoading';
          })
          .addCase(uploadQrGuests.fulfilled, (state, action) => {
-            state.status = 'success';
+            state.status = 'uploadSuccess';
             state.data = action.payload.data;
          })
          .addCase(uploadQrGuests.rejected, (state, action) => {
-            state.status = 'idle';
+            state.status = 'uploadSuccess';
             state.error = action.error;
          })
          .addCase(getQrGuests.pending, (state) => {

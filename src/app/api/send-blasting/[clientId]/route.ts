@@ -1,3 +1,4 @@
+import logger from '@/libs/logger';
 import prisma from '@/libs/prisma';
 import { sendBlastingService } from '@/services/sendBlastingService';
 import { jwtVerify } from 'jose';
@@ -71,14 +72,24 @@ export async function POST(req: NextRequest, { params }: { params: { clientId: s
       // Flatten the results if needed
       const flattenedResults = blasting.flat();
       const response = await sendBlastingService(flattenedResults as any, Number(client?.id), clientId);
+      logger.info(`Blasting sent successfully for client: ${clientId}`, {
+         data: response,
+      });
       return NextResponse.json(response, { status: 200 });
    } catch (error) {
       const errorMessage = error as ErrorMessage;
       const jwtError = error as JWTError;
 
       if (jwtError.code === 'ERR_JWT_EXPIRED' || jwtError.code === 'ERR_JWS_INVALID') {
+         logger.error(`JWT error: ${jwtError.message}`, {
+            error: jwtError,
+         });
          return NextResponse.json({ status: 401, message: 'Unauthorized' }, { status: 401 });
       }
+
+      logger.error(`Error sending blasting for client: ${clientId}`, {
+         data: errorMessage.message,
+      });
 
       return NextResponse.json(
          {

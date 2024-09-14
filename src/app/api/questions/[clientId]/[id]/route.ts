@@ -1,3 +1,4 @@
+import logger from '@/libs/logger';
 import prisma from '@/libs/prisma';
 import { jwtVerify } from 'jose';
 import { NextRequest, NextResponse } from 'next/server';
@@ -25,6 +26,10 @@ export async function GET(req: NextRequest, { params }: { params: { clientId: st
       });
 
       if (!getClientById) {
+         logger.error(`Client not found`, {
+            clientId: params.clientId,
+            apiUrl: `/api/questions/${params.clientId}/${params.id}`,
+         });
          return NextResponse.json(
             {
                message: 'Client not found',
@@ -41,6 +46,11 @@ export async function GET(req: NextRequest, { params }: { params: { clientId: st
       });
 
       if (!question) {
+         logger.error(`Question not found`, {
+            questionId: params.id,
+            clientId: params.clientId,
+            apiUrl: `/api/questions/${params.clientId}/${params.id}`,
+         });
          return NextResponse.json(
             {
                message: 'Question not found',
@@ -48,6 +58,11 @@ export async function GET(req: NextRequest, { params }: { params: { clientId: st
             { status: 404 }
          );
       }
+
+      logger.info(`Question fetched successfully for client: ${params.clientId}`, {
+         apiUrl: `/api/questions/${params.clientId}/${params.id}`,
+         data: question,
+      });
 
       return NextResponse.json(
          {
@@ -62,6 +77,10 @@ export async function GET(req: NextRequest, { params }: { params: { clientId: st
       const jwtError = error as JWTError;
 
       if (jwtError.code === 'ERR_JWT_EXPIRED' || jwtError.code === 'ERR_JWS_INVALID') {
+         logger.error(`Unauthorized access`, {
+            error: jwtError.message,
+            apiUrl: `/api/questions/${params.clientId}/${params.id}`,
+         });
          return NextResponse.json(
             {
                message: 'unauthorized',
@@ -69,6 +88,11 @@ export async function GET(req: NextRequest, { params }: { params: { clientId: st
             { status: 401 }
          );
       }
+
+      logger.error(`Error fetching question for client: ${params.clientId}`, {
+         error: jwtError.message,
+         apiUrl: `/api/questions/${params.clientId}/${params.id}`,
+      });
 
       return NextResponse.json(
          {

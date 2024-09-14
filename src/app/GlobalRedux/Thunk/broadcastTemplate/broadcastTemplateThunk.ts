@@ -3,7 +3,6 @@ import { createAsyncThunk } from '@reduxjs/toolkit';
 export const getAllBroadcastTemplates = createAsyncThunk(
    'broadcastTemplate/getAllBroadcastTemplates',
    async (clientId: string) => {
-      console.log('dari thunk', clientId);
       try {
          const getToken = await fetch('/api/auth/session')
             .then((res) => res.json())
@@ -17,10 +16,9 @@ export const getAllBroadcastTemplates = createAsyncThunk(
             },
          });
          const data = await response.json();
-         console.log('data', data);
          return data;
       } catch (error) {
-         console.log('error', error);
+         return error;
       }
    }
 );
@@ -28,7 +26,6 @@ export const getAllBroadcastTemplates = createAsyncThunk(
 export const createBroadcastTemplate = createAsyncThunk(
    'broadcastTemplate/createBroadcastTemplate',
    async (data: any) => {
-      console.log('data', data);
       const jsonBody = {
          name: data.formData.template_name,
          template_type: data.formData.template_type,
@@ -50,7 +47,7 @@ export const createBroadcastTemplate = createAsyncThunk(
          const res = await response.json();
          return res;
       } catch (error) {
-         console.log('error', error);
+         return error;
       }
    }
 );
@@ -71,10 +68,10 @@ export const getBroadcastTemplateById = createAsyncThunk(
             },
          });
          const res = await response.json();
-         console.log('res', res);
+
          return res;
       } catch (error) {
-         console.log('error', error);
+         return error;
       }
    }
 );
@@ -105,7 +102,7 @@ export const updateBroadcastTemplate = createAsyncThunk(
          const res = await response.json();
          return res;
       } catch (error) {
-         console.log('error', error);
+         return error;
       }
    }
 );
@@ -113,7 +110,6 @@ export const updateBroadcastTemplate = createAsyncThunk(
 export const deleteBroadcastTemplate = createAsyncThunk(
    'broadcastTemplate/deleteBroadcastTemplate',
    async (data: any) => {
-      console.log('data', data);
       const jsonBody = {
          id: data.id,
       };
@@ -131,7 +127,6 @@ export const deleteBroadcastTemplate = createAsyncThunk(
             body: JSON.stringify(jsonBody),
          });
          const res = await response.json();
-         console.log('res', res);
          return res;
       } catch (error) {
          return error;

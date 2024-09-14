@@ -1,3 +1,4 @@
+import logger from '@/libs/logger';
 import prisma from '@/libs/prisma';
 import { jwtVerify } from 'jose';
 import { NextRequest, NextResponse } from 'next/server';
@@ -32,6 +33,11 @@ export async function GET(req: NextRequest, { params }: { params: { clientId: st
       });
 
       if (!response) {
+         logger.error(`Broadcast template not found`, {
+            broadcastTemplateId: params.id,
+            clientId: params.clientId,
+            apiUrl: `/api/broadcast-template/${params.clientId}/${params.id}`,
+         });
          return NextResponse.json(
             {
                status: 404,
@@ -40,6 +46,10 @@ export async function GET(req: NextRequest, { params }: { params: { clientId: st
             { status: 404 }
          );
       }
+
+      logger.info(`Broadcast template fetched successfully for client: ${params.clientId}`, {
+         data: response,
+      });
 
       return NextResponse.json(
          {
@@ -53,6 +63,9 @@ export async function GET(req: NextRequest, { params }: { params: { clientId: st
       const jwtError = error as JWTError;
 
       if (jwtError.code === 'ERR_JWT_EXPIRED' || jwtError.code === 'ERR_JWS_INVALID') {
+         logger.error(`Unauthorized access`, {
+            data: errorMessage.message,
+         });
          return NextResponse.json(
             {
                message: 'unauthorized',
@@ -60,6 +73,10 @@ export async function GET(req: NextRequest, { params }: { params: { clientId: st
             { status: 401 }
          );
       }
+
+      logger.error(`Error fetching broadcast template for client: ${params.clientId}`, {
+         data: errorMessage.message,
+      });
 
       return NextResponse.json(
          {

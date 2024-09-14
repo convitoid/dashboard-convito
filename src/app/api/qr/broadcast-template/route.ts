@@ -1,9 +1,9 @@
+import logger from '@/libs/logger';
 import prisma from '@/libs/prisma';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(req: NextRequest) {
    const { clientId, formData } = await req.json();
-   console.log(clientId, formData);
    try {
       const client = await prisma.client.findFirst({
          select: {
@@ -41,6 +41,10 @@ export async function POST(req: NextRequest) {
          },
       });
 
+      logger.info(`QR Broadcast template created successfully`, {
+         data: createQrBroadcastTemplate,
+      });
+
       return NextResponse.json(
          {
             status: 201,
@@ -50,6 +54,9 @@ export async function POST(req: NextRequest) {
          { status: 201 }
       );
    } catch (error) {
+      logger.error(`Error while creating QR Broadcast template`, {
+         error: error as Error,
+      });
       return NextResponse.json(
          {
             message: error as Error,

@@ -1,4 +1,8 @@
-import { resetDataFiles } from '@/app/GlobalRedux/Features/clients/clientQrUploadFileSlice';
+import {
+   resetDataFiles,
+   setIsOpenModal,
+   setProgress,
+} from '@/app/GlobalRedux/Features/clients/clientQrUploadFileSlice';
 import { getQrFiles, uploadQrFile } from '@/app/GlobalRedux/Thunk/clients/clientQrUploadFileThunk';
 import { AppDispatch, RootState } from '@/app/store';
 import {
@@ -18,6 +22,8 @@ import { ChevronDoubleRightIcon } from '../icons/chevronDoubleRight';
 import { Eye } from '../icons/eye';
 import { QrCode } from '../icons/qrCode';
 import { ShowQrModal } from '../page/showQrModal';
+import { resetStatusQr } from '@/app/GlobalRedux/Features/clients/clientQrUploadImageSlice';
+import axios from 'axios';
 
 type QrDataTabProps = {
    clientId: string;
@@ -38,6 +44,7 @@ export const QrDataTab = ({ clientId }: QrDataTabProps) => {
    const dispatch = useDispatch<AppDispatch>();
    const files = useSelector((state: RootState) => state.clientQrUploadFile.files);
    const status = useSelector((state: RootState) => state.clientQrUploadFile.status);
+   const progress = useSelector((state: RootState) => state.clientQrUploadFile.progress);
 
    const handleQrImageUpload = async () => {
       const input = document.createElement('input');
@@ -63,15 +70,15 @@ export const QrDataTab = ({ clientId }: QrDataTabProps) => {
             .unwrap()
             .then((res) => {
                if (res.status === 201) {
-                  dispatch(getQrFiles(clientId))
-                     .unwrap()
-                     .then((res) => {
-                        Swal.fire({
-                           icon: 'success',
-                           title: 'Success',
-                           text: res.message,
-                        });
-                     });
+                  Swal.fire({
+                     icon: 'success',
+                     title: 'Success',
+                     text: res.message,
+                  }).then(() => {
+                     dispatch(getQrFiles(clientId));
+                  });
+                  dispatch(resetStatusQr());
+                  dispatch(resetDataFiles());
                } else {
                   Swal.fire({
                      icon: 'warning',
@@ -95,16 +102,14 @@ export const QrDataTab = ({ clientId }: QrDataTabProps) => {
    }, [clientId, dispatch]);
 
    const showQrModal = async (data: any) => {
-      console.log(data);
-
       const url = `/api/qr/render-image/${clientId}/${data.name}`;
       const response = await fetch(url);
-      console.log(response);
 
       setQrCode(data.code);
       setQrUrl(response.url);
       setQrFileName(data.name);
 
+      dispatch(setIsOpenModal());
       const modal = document.getElementById('showQrModal');
       if (modal) {
          (modal as HTMLDialogElement).showModal();
@@ -164,6 +169,24 @@ export const QrDataTab = ({ clientId }: QrDataTabProps) => {
       };
    }, [files]);
 
+   useEffect(() => {
+      if (status === 'uploadLoading') {
+         Swal.fire({
+            text: 'Please wait, file is uploading...',
+            didOpen: () => {
+               Swal.showLoading();
+            },
+
+            allowEscapeKey: false,
+            allowOutsideClick: false,
+         });
+      }
+
+      return () => {
+         Swal.close();
+      };
+   }, [status]);
+
    const searchChange = (e: any) => {
       setGlobalFilter(e.target.value);
    };
@@ -187,10 +210,17 @@ export const QrDataTab = ({ clientId }: QrDataTabProps) => {
          <button
             className="btn bg-blue-500 text-white hover:bg-blue-600 transition duration-100 ease-in mb-4"
             onClick={handleQrImageUpload}
+            disabled={status === 'uploadLoading'}
          >
-            Upload Qr Image
+            {status === 'uploadLoading' ? (
+               <>
+                  <span className="loading loading-spinner loading-sm"></span>
+                  <span>Please wait...</span>
+               </>
+            ) : (
+               'Upload Qr Data'
+            )}
          </button>
-
          <div className="flex items-center justify-between mb-3">
             <h2 className="text-lg font-bold mb-2">Qr Data File</h2>
             <input
@@ -200,7 +230,6 @@ export const QrDataTab = ({ clientId }: QrDataTabProps) => {
                onChange={searchChange}
             />
          </div>
-
          <table className="border-[1px] w-full">
             <thead className="uppercase">
                {table.getHeaderGroups().map((headerGroup) => (
@@ -325,7 +354,9 @@ export const QrDataTab = ({ clientId }: QrDataTabProps) => {
             </div>
          </div>
 
-         <ShowQrModal modalId="showQrModal" code={qrCode} imgUrl={qrUrl} name={qrFileName} clientId={clientId} />
+         {status === 'success' && (
+            <ShowQrModal modalId="showQrModal" code={qrCode} imgUrl={qrUrl} name={qrFileName} clientId={clientId} />
+         )}
       </>
    );
 };

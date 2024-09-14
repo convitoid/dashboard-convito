@@ -16,8 +16,6 @@ export async function POST(req: NextRequest) {
          },
       });
 
-      console.log('logs', logs.length === 0);
-
       let newClientId;
       let invitationLink;
       if (logs.length === 0) {
@@ -68,7 +66,6 @@ export async function POST(req: NextRequest) {
       );
 
       if (response?.error?.code === 190) {
-         console.log('masuk error', response);
          return NextResponse.json(response, { status: 400 });
       } else {
          await createLogs(
@@ -98,7 +95,6 @@ export async function POST(req: NextRequest) {
 
       return NextResponse.json('', { status: 200 });
    } catch (error) {
-      console.log('error', error);
       return NextResponse.json({ error: error }, { status: 500 });
    }
 }

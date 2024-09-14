@@ -26,8 +26,6 @@ type DynamicRowData = {
 };
 
 export const exportToExcel = (data: any, clientId?: any) => {
-   console.log(data);
-
    // Prepare data for Excel export
    const exportData = data.map((item: any, index: number) => {
       // Base data

@@ -36,7 +36,6 @@ export const ModalAddUser = ({ modalId, title }: ModalUserProps) => {
          dispatch(createUser(newData))
             .unwrap()
             .then((res) => {
-               console.log('response', res);
                if (res.status === 201) {
                   Swal.fire({
                      title: 'Success',

@@ -18,7 +18,7 @@ export const getAllQuestions = createAsyncThunk('questions/getAllQuestions', asy
       const data = await response.json();
       return data;
    } catch (error) {
-      console.log('error', error);
+      return error;
    }
 });
 
@@ -55,7 +55,6 @@ export const addQuestion = createAsyncThunk(
 export const getQuestionById = createAsyncThunk(
    'questions/getQuestionById',
    async (payload: { clientId: string; questionId: string }) => {
-      console.log('payload dari thunk', payload);
       try {
          const getToken = await fetch('/api/auth/session')
             .then((res) => res.json())
@@ -71,10 +70,9 @@ export const getQuestionById = createAsyncThunk(
          });
 
          const data = await response.json();
-         console.log('data', data);
          return data;
       } catch (error) {
-         console.log('error', error);
+         return error;
       }
    }
 );
@@ -104,7 +102,7 @@ export const updateQuestion = createAsyncThunk(
          const data = await response.json();
          return data;
       } catch (error) {
-         console.log('error', error);
+         return error;
       }
    }
 );
@@ -112,7 +110,6 @@ export const updateQuestion = createAsyncThunk(
 export const deleteQuestion = createAsyncThunk(
    'questions/deleteQuestion',
    async (payload: { clientId: string; id: string }) => {
-      console.log('payload', payload);
       try {
          const getToken = await fetch('/api/auth/session')
             .then((res) => res.json())

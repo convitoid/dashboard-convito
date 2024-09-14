@@ -1,7 +1,6 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 
 export const getClientImages = createAsyncThunk('clientUploadImage/getClientImages', async (clientId: string) => {
-   console.log('clientId thunk', clientId);
    const getToken = await fetch('/api/auth/session')
       .then((res) => res.json())
       .then((data) => {
@@ -47,7 +46,6 @@ export const uploadImage = createAsyncThunk('clientUploadImage/uploadImage', asy
 });
 
 export const deleteImage = createAsyncThunk('clientUploadImage/deleteImage', async (id: any) => {
-   console.log('id', id);
    const getToken = await fetch('/api/auth/session')
       .then((res) => res.json())
       .then((data) => {

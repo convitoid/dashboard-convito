@@ -97,8 +97,6 @@ export const ModalEditClient = ({ modalId, clientId, closeModal }: ModalEditClie
          });
    };
 
-   console.log('status update', statusUpdate);
-
    return (
       <ModalComponent
          modalId={modalId}

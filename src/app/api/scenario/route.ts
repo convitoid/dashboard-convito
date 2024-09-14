@@ -1,3 +1,4 @@
+import logger from '@/libs/logger';
 import prisma from '@/libs/prisma';
 import { jwtVerify } from 'jose';
 import { NextRequest, NextResponse } from 'next/server';
@@ -92,6 +93,10 @@ export async function POST(req: NextRequest) {
          broadcast: broadcast,
       };
 
+      logger.info(`Scenario created successfully for client: ${body.clientId}`, {
+         data: response,
+      });
+
       return NextResponse.json(
          {
             status: 201,
@@ -105,6 +110,9 @@ export async function POST(req: NextRequest) {
       const jwtError = error as JWTError;
 
       if (jwtError.code === 'ERR_JWT_EXPIRED' || jwtError.code === 'ERR_JWS_INVALID') {
+         logger.error(`Unauthorized access`, {
+            data: errorMessage.message,
+         });
          return NextResponse.json(
             {
                satatus: 401,
@@ -113,6 +121,10 @@ export async function POST(req: NextRequest) {
             { status: 401 }
          );
       }
+
+      logger.error(`Error creating scenario for client: ${body.clientId}`, {
+         data: errorMessage.message,
+      });
 
       return NextResponse.json(
          {
@@ -187,6 +199,10 @@ export async function PUT(req: NextRequest) {
          broadcast: createScenarionTemplate,
       };
 
+      logger.info(`Scenario updated successfully for client: ${body.clientId}`, {
+         data: response,
+      });
+
       return NextResponse.json(
          {
             status: 201,
@@ -200,6 +216,9 @@ export async function PUT(req: NextRequest) {
       const jwtError = error as JWTError;
 
       if (jwtError.code === 'ERR_JWT_EXPIRED' || jwtError.code === 'ERR_JWS_INVALID') {
+         logger.error(`Unauthorized access`, {
+            data: errorMessage.message,
+         });
          return NextResponse.json(
             {
                satatus: 401,
@@ -208,6 +227,10 @@ export async function PUT(req: NextRequest) {
             { status: 401 }
          );
       }
+
+      logger.error(`Error updating scenario for client: ${body.clientId}`, {
+         data: errorMessage.message,
+      });
 
       return NextResponse.json(
          {

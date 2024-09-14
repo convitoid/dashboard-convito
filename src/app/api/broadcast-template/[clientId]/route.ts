@@ -1,3 +1,4 @@
+import logger from '@/libs/logger';
 import prisma from '@/libs/prisma';
 import { jwtVerify } from 'jose';
 import { NextRequest, NextResponse } from 'next/server';
@@ -32,6 +33,10 @@ export async function GET(req: NextRequest, { params }: { params: { clientId: st
          },
       });
 
+      logger.info(`Broadcast templates fetched successfully for client: ${params.clientId}`, {
+         data: response,
+      });
+
       return NextResponse.json(
          {
             status: 'success',
@@ -44,6 +49,9 @@ export async function GET(req: NextRequest, { params }: { params: { clientId: st
       const jwtError = error as JWTError;
 
       if (jwtError.code === 'ERR_JWT_EXPIRED' || jwtError.code === 'ERR_JWS_INVALID') {
+         logger.error(`Unauthorized access`, {
+            data: errorMessage.message,
+         });
          return NextResponse.json(
             {
                message: 'unauthorized',
@@ -51,6 +59,10 @@ export async function GET(req: NextRequest, { params }: { params: { clientId: st
             { status: 401 }
          );
       }
+
+      logger.error(`Error fetching broadcast templates for client: ${params.clientId}`, {
+         data: errorMessage.message,
+      });
 
       return NextResponse.json(
          {
@@ -101,6 +113,10 @@ export async function POST(req: NextRequest, { params }: { params: { clientId: s
          },
       });
 
+      logger.info(`Broadcast template created successfully for client: ${params.clientId}`, {
+         data: response,
+      });
+
       return NextResponse.json(
          {
             status: 201,
@@ -117,6 +133,9 @@ export async function POST(req: NextRequest, { params }: { params: { clientId: s
       const jwtError = error as JWTError;
 
       if (jwtError.code === 'ERR_JWT_EXPIRED' || jwtError.code === 'ERR_JWS_INVALID') {
+         logger.error(`Unauthorized access`, {
+            data: errorMessage.message,
+         });
          return NextResponse.json(
             {
                status: 401,
@@ -125,6 +144,10 @@ export async function POST(req: NextRequest, { params }: { params: { clientId: s
             { status: 401 }
          );
       }
+
+      logger.error(`Error creating broadcast template for client: ${params.clientId}`, {
+         data: errorMessage.message,
+      });
 
       return NextResponse.json(
          {
@@ -180,6 +203,10 @@ export async function PUT(req: NextRequest, { params }: { params: { clientId: st
          },
       });
 
+      logger.info(`Broadcast template updated successfully for client: ${params.clientId}`, {
+         data: response,
+      });
+
       return NextResponse.json(
          {
             status: 201,
@@ -197,6 +224,9 @@ export async function PUT(req: NextRequest, { params }: { params: { clientId: st
       const jwtError = error as JWTError;
 
       if (jwtError.code === 'ERR_JWT_EXPIRED' || jwtError.code === 'ERR_JWS_INVALID') {
+         logger.error(`Unauthorized access`, {
+            data: errorMessage.message,
+         });
          return NextResponse.json(
             {
                status: 401,
@@ -205,6 +235,10 @@ export async function PUT(req: NextRequest, { params }: { params: { clientId: st
             { status: 401 }
          );
       }
+
+      logger.error(`Error updating broadcast template for client: ${params.clientId}`, {
+         data: errorMessage.message,
+      });
 
       return NextResponse.json(
          {
@@ -267,7 +301,9 @@ export async function DELETE(req: NextRequest, { params }: { params: { clientId:
          },
       });
 
-      // console.log(response);
+      logger.info(`Broadcast template deleted successfully for client: ${params.clientId}`, {
+         data: response,
+      });
 
       return NextResponse.json(
          {
@@ -290,6 +326,10 @@ export async function DELETE(req: NextRequest, { params }: { params: { clientId:
             { status: 401 }
          );
       }
+
+      logger.error(`Error deleting broadcast template for client: ${params.clientId}`, {
+         data: errorMessage.message,
+      });
 
       return NextResponse.json(
          {

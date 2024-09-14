@@ -16,7 +16,6 @@ export async function sendMessage(
    guest_name: string,
    invitation_link: string
 ) {
-   console.log('dari service', authToken);
    try {
       const { payload } = await jwtVerify(jwtToken, secret);
 
@@ -104,8 +103,6 @@ export async function createLogs(
    try {
       const { payload } = await jwtVerify(jwtToken, secret);
 
-      console.log('dari service', to, clientId, guest_name, event_name, sender, invitation_link);
-
       const logs = await prisma.logTestMessage.create({
          data: {
             clientId: clientId,
@@ -118,8 +115,6 @@ export async function createLogs(
             updatedAt: new Date(),
          },
       });
-
-      console.log('data dari service', logs);
 
       return getSuccessReponse(logs, 200, 'Logs created successfully');
    } catch (error) {
@@ -137,7 +132,6 @@ export async function createQuestion(
 ) {
    try {
       const { payload } = await jwtVerify(jwtToken, secret);
-      console.log('dari service', questionLog, guestLog, type, flag);
 
       const question = await prisma.logTestQuestion.create({
          data: {
@@ -150,8 +144,6 @@ export async function createQuestion(
             updatedAt: new Date(),
          },
       });
-
-      console.log('data dari service', question);
 
       return getSuccessReponse(question, 200, 'Question created successfully');
    } catch (error) {

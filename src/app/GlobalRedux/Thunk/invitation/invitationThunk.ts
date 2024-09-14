@@ -12,7 +12,6 @@ export const getInvitation = createAsyncThunk('invitation/getInvitation', async 
 });
 
 export const updateAnswer = createAsyncThunk('invitation/updateAnswer', async (payload: any) => {
-   console.log('payload dari thunk', payload);
    try {
       const response = await fetch(`/api/invitations/answer/${payload.guestId}`, {
          method: 'POST',

@@ -18,7 +18,6 @@ const robotoFont = Roboto({
 });
 
 export const InvitationHome = ({ invitations }: InvitationHomeProps) => {
-   console.log(invitations);
    const [isAnswer, setIsAnswer] = useState<boolean>(false);
    const [disabled, setDisabled] = useState<boolean>(true);
    const [formValues, setFormValues] = useState<any>({});
@@ -28,7 +27,6 @@ export const InvitationHome = ({ invitations }: InvitationHomeProps) => {
    const [firstLine, ...secondLine] = eventName.split(' of ');
    const dispatch = useDispatch<AppDispatch>();
    const status = useSelector((state: RootState) => state.testBlasting.status);
-   console.log('invitations', invitations);
 
    const submitAnswer = async (e: React.FormEvent<HTMLFormElement>) => {
       e.preventDefault();
@@ -36,7 +34,6 @@ export const InvitationHome = ({ invitations }: InvitationHomeProps) => {
       const dataForm = Object.fromEntries(formData.entries());
       const getIdKey = Object.keys(dataForm).filter((key) => key.includes('question_'));
       const getId = getIdKey.map((key) => key.split('_')[1]);
-      console.log(getId);
 
       // jika terdapat jawaban no
       const isNo = getId.some((id) => dataForm[`question_${id}`] === 'no');
@@ -53,7 +50,6 @@ export const InvitationHome = ({ invitations }: InvitationHomeProps) => {
             dispatch(putAnswer(data as any))
                .unwrap()
                .then((res) => {
-                  console.log('res', res);
                   Swal.fire({
                      icon: 'success',
                      title: 'Success',
@@ -62,7 +58,6 @@ export const InvitationHome = ({ invitations }: InvitationHomeProps) => {
                   dispatch(fetchInvitation(invitations.data.clientId));
                })
                .catch((err) => {
-                  console.log(err);
                   Swal.fire({
                      icon: 'error',
                      title: 'Failed',
@@ -73,7 +68,6 @@ export const InvitationHome = ({ invitations }: InvitationHomeProps) => {
       } else {
          const missingFields = getId.filter((id) => dataForm[`question_${id}`]);
 
-         console.log(missingFields.length, invitations?.data?.questions?.length);
          if (missingFields.length !== invitations?.data?.questions?.length) {
             return Swal.fire({
                icon: 'error',
@@ -93,7 +87,6 @@ export const InvitationHome = ({ invitations }: InvitationHomeProps) => {
             dispatch(putAnswer(data as any))
                .unwrap()
                .then((res) => {
-                  console.log(res);
                   Swal.fire({
                      icon: 'success',
                      title: 'Success',
@@ -102,7 +95,6 @@ export const InvitationHome = ({ invitations }: InvitationHomeProps) => {
                   dispatch(fetchInvitation(invitations.data.clientId));
                })
                .catch((err) => {
-                  console.log(err);
                   Swal.fire({
                      icon: 'error',
                      title: 'Failed',

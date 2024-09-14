@@ -58,7 +58,6 @@ export const QrModalAddBroadcastTemplate = ({ modalId, clientId }: QrModalAddBro
       await dispatch(createQrBroadcastTemplate({ clientId, formData }))
          .unwrap()
          .then((res) => {
-            console.log(res);
             if (res.status === 201) {
                Swal.fire({
                   icon: 'success',

@@ -1,7 +1,6 @@
 import slugify from 'slugify';
 
 export const convertToJson = async (header: string[], data: any[]): Promise<any[]> => {
-   console.log('header', header);
    const rows: any[] = [];
 
    // Use map and Promise.all to handle asynchronous operations

@@ -1,3 +1,4 @@
+import logger from '@/libs/logger';
 import prisma from '@/libs/prisma';
 import { jwtVerify } from 'jose';
 import { NextRequest, NextResponse } from 'next/server';
@@ -48,8 +49,6 @@ export async function GET(req: NextRequest, { params }: { params: { clientId: st
          },
       });
 
-      console.log('guest', guest);
-
       const answeredGuests = guest.filter((guest) =>
          guest.Invitations.some((invitation) => invitation.answer !== null)
       );
@@ -96,6 +95,10 @@ export async function GET(req: NextRequest, { params }: { params: { clientId: st
          },
       ];
 
+      logger.info(`Dashboard data fetched successfully for client: ${params.clientId}`, {
+         data: statisticData,
+      });
+
       return NextResponse.json(
          {
             status: 200,
@@ -109,6 +112,10 @@ export async function GET(req: NextRequest, { params }: { params: { clientId: st
       const jwtError = error as JWTError;
 
       if (jwtError.code === 'ERR_JWT_EXPIRED' || jwtError.code === 'ERR_JWS_INVALID') {
+         logger.error(`Failed to fetch dashboard data for client: ${params.clientId}`, {
+            error: 'Unauthorized',
+            timestamp: new Date().toISOString(),
+         });
          return NextResponse.json(
             {
                satatus: 401,
@@ -117,6 +124,11 @@ export async function GET(req: NextRequest, { params }: { params: { clientId: st
             { status: 401 }
          );
       }
+
+      logger.error(`Failed to fetch dashboard data for client: ${params.clientId}`, {
+         error: errorMessage.message,
+         timestamp: new Date().toISOString(),
+      });
 
       return NextResponse.json(
          {
@@ -132,8 +144,6 @@ export async function POST(req: NextRequest, { params }: { params: { clientId: s
    const token = req.headers.get('authorization');
    const jwtToken = token?.split(' ')[1];
    const data = await req.json();
-
-   console.log('data', data);
 
    try {
       const { payload } = await jwtVerify(jwtToken as string, secret);
@@ -198,7 +208,9 @@ export async function POST(req: NextRequest, { params }: { params: { clientId: s
          })
       );
 
-      console.log('guests', guests);
+      logger.info(`Dashboard export data successfully for client: ${params.clientId}`, {
+         data: guests,
+      });
 
       return NextResponse.json(
          {
@@ -213,6 +225,10 @@ export async function POST(req: NextRequest, { params }: { params: { clientId: s
       const jwtError = error as JWTError;
 
       if (jwtError.code === 'ERR_JWT_EXPIRED' || jwtError.code === 'ERR_JWS_INVALID') {
+         logger.error(`Failed export dashboard data for client: ${params.clientId}`, {
+            error: 'Unauthorized',
+            timestamp: new Date().toISOString(),
+         });
          return NextResponse.json(
             {
                satatus: 401,
@@ -221,6 +237,11 @@ export async function POST(req: NextRequest, { params }: { params: { clientId: s
             { status: 401 }
          );
       }
+
+      logger.error(`Failed export dashboard data for client: ${params.clientId}`, {
+         error: errorMessage.message,
+         timestamp: new Date().toISOString(),
+      });
 
       return NextResponse.json(
          {

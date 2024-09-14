@@ -1,8 +1,8 @@
+import logger from '@/libs/logger';
 import prisma from '@/libs/prisma';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(req: NextRequest, { params }: { params: { clientId: string } }) {
-   console.log(params.clientId);
    try {
       const client = await prisma.client.findFirst({
          select: {
@@ -22,6 +22,10 @@ export async function GET(req: NextRequest, { params }: { params: { clientId: st
          },
       });
 
+      logger.info(`QR Guests fetched successfully for client: ${params.clientId}`, {
+         data: guests,
+      });
+
       return NextResponse.json(
          {
             status: 200,
@@ -30,7 +34,10 @@ export async function GET(req: NextRequest, { params }: { params: { clientId: st
          },
          { status: 200 }
       );
-   } catch (error) {
+   } catch (error: any) {
+      logger.info(`Error fetching QR Guests for client: ${params.clientId}`, {
+         error: error,
+      });
       return NextResponse.json(
          {
             status: 500,

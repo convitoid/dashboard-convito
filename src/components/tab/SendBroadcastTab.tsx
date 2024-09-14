@@ -172,8 +172,6 @@ export const SendBroadcastTab = ({ clientId }: SendBroadcastTabProps) => {
          return;
       }
 
-      // console.log('selectedRowsData', selectedRowsData);
-
       dispatch(sendBlasting({ clientId: clientId?.toString() ?? '', data: selectedRowsData }))
          .unwrap()
          .then((res) => {

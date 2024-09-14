@@ -1,7 +1,11 @@
 import prisma from '@/libs/prisma';
 import { getErrorResponse, getSuccessReponse } from '@/utils/response/successResponse';
 import { jwtVerify } from 'jose';
+// import { promises as fs } from 'fs';
+import fs from 'fs';
 import { useSession } from 'next-auth/react';
+import logger from '@/libs/logger';
+import path from 'path';
 
 interface JWTError extends Error {
    code?: string;
@@ -24,7 +28,6 @@ export async function fetchClientsService(jwtToken: string) {
       if (jwtError.code === 'ERR_JWT_EXPIRED') {
          return getErrorResponse(error as string, 401);
       }
-      console.log(error);
       return getErrorResponse('Failed to fetch clients', 500);
    }
 }
@@ -87,6 +90,11 @@ export async function updateClientService(jwtToken: string, data: any) {
 
 export async function deleteClientService(jwtToken: string, clientId: number) {
    try {
+      const clientData = await prisma.client.findFirst({
+         where: {
+            id: clientId,
+         },
+      });
       // const { payload } = await jwtVerify(jwtToken, secret);
       const client = await prisma.client.delete({
          where: {
@@ -94,7 +102,87 @@ export async function deleteClientService(jwtToken: string, clientId: number) {
          },
       });
 
-      return getSuccessReponse(client, 201, 'Client deleted successfully');
+      const clientImage = await prisma.clientImage.findMany({
+         where: {
+            clientId: Number(clientId),
+         },
+      });
+
+      const clientQrImage = await prisma.qrGalleryImage.findMany({
+         where: {
+            clientId: Number(clientId),
+         },
+      });
+
+      const qrFile = await prisma.qrFile.findMany({
+         where: {
+            clientId: Number(clientId),
+         },
+      });
+
+      if (clientImage.length > 0) {
+         clientImage.map(async (image) => {
+            const imageOriginalPath = image.imageOriginalPath;
+            await fs.unlink(imageOriginalPath, (err) => {
+               if (err) {
+                  console.error(err);
+                  return;
+               }
+               //file removed
+               logger.info('File deleted', {
+                  data: { file: imageOriginalPath },
+               });
+            });
+         });
+      }
+
+      if (clientQrImage.length > 0) {
+         clientQrImage.map(async (image) => {
+            const imageOriginalPath = image.originalPath;
+            await fs.unlink(imageOriginalPath, (err) => {
+               if (err) {
+                  console.error(err);
+                  return;
+               }
+               //file removed
+               logger.info('File deleted', {
+                  data: { file: imageOriginalPath },
+               });
+            });
+         });
+      }
+
+      if (qrFile.length > 0) {
+         qrFile.map(async (file) => {
+            const imageOriginalPath = file.originalPath;
+            const targetDir = path.join(
+               process.cwd(),
+               'public',
+               'uploads',
+               'clients',
+               'qr',
+               'file',
+               clientData?.client_id as string
+            );
+
+            await fs.unlink(imageOriginalPath, (err) => {
+               if (err) {
+                  console.error(err);
+                  return;
+               }
+               //file removed
+               logger.info('File deleted', {
+                  data: { file: imageOriginalPath },
+               });
+            });
+
+            if (fs.existsSync(targetDir)) {
+               fs.rmSync(targetDir, { recursive: true, force: true });
+            }
+         });
+      }
+
+      return getSuccessReponse([], 201, 'Client deleted successfully');
    } catch (error) {
       const jwtError = error as JWTError;
 

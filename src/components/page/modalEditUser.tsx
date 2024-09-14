@@ -53,7 +53,6 @@ export const ModalEditUser = ({ modalId, userId, closeModal }: ModalUserProps) =
          dispatch(updateUser(newData))
             .unwrap()
             .then((res) => {
-               console.log('res update dari component', res);
                if (res.status === 201) {
                   Swal.fire({
                      title: 'Success',

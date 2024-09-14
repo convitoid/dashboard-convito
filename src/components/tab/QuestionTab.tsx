@@ -70,9 +70,7 @@ export const QuestionTab = ({ clientId }: QuestionTabProps) => {
             dispatch(deleteQuestion({ clientId: clientId ?? '', id: id.toString() }))
                .unwrap()
                .then((res) => {
-                  console.log('res', res);
                   if (res.status === 200) {
-                     console.log('masuk sini');
                      Swal.fire({
                         title: 'Deleted!',
                         text: 'Your file has been deleted.',

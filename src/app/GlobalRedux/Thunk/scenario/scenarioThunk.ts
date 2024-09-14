@@ -18,12 +18,11 @@ export const getAllScenario = createAsyncThunk('scenario/getAllScenario', async 
       const data = await response.json();
       return data;
    } catch (error) {
-      console.log('error', error);
+      return error;
    }
 });
 
 export const getScenarioById = createAsyncThunk('scenario/getScenarioById', async (payload: any) => {
-   console.log('payload dari thunk', payload);
    try {
       const getToken = await fetch('/api/auth/session')
          .then((res) => res.json())
@@ -39,10 +38,9 @@ export const getScenarioById = createAsyncThunk('scenario/getScenarioById', asyn
       });
 
       const data = await response.json();
-      console.log('data', data);
       return data;
    } catch (error) {
-      console.log('error', error);
+      return error;
    }
 });
 
@@ -71,7 +69,6 @@ export const createScenario = createAsyncThunk('scenario/createScenario', async 
 });
 
 export const updateScenario = createAsyncThunk('scenario/updateScenario', async (payload: any) => {
-   console.log('payload dari thunk', payload);
    try {
       const getToken = await fetch('/api/auth/session')
          .then((res) => res.json())
@@ -94,7 +91,6 @@ export const updateScenario = createAsyncThunk('scenario/updateScenario', async 
 });
 
 export const deleteScenario = createAsyncThunk('scenario/deleteScenario', async (payload: any) => {
-   console.log('payload dari thunk', payload);
    try {
       const getToken = await fetch('/api/auth/session')
          .then((res) => res.json())
@@ -110,7 +106,6 @@ export const deleteScenario = createAsyncThunk('scenario/deleteScenario', async 
          body: JSON.stringify(payload.data),
       });
       const data = await response.json();
-      console.log('data', data);
       return data;
    } catch (error) {
       return error;

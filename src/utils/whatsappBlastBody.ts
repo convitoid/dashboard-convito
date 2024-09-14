@@ -143,7 +143,6 @@ export const WhatsappBlastBody = async ({
          const id = urlArray[5];
 
          const newUrl = `https://drive.google.com/uc?export=download&id=${id}`;
-         console.log('newUrl', newUrl);
 
          const bodyVideo = {
             messaging_product: 'whatsapp',

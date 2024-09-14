@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
 import { PrismaClient } from '@prisma/client';
+import logger from '@/libs/logger';
 
 const prisma = new PrismaClient();
 
@@ -52,6 +53,8 @@ export async function POST(req: NextRequest) {
       fs.mkdirSync(targetDir, { recursive: true });
 
       const extractedFiles = [];
+      let processedFiles = 0;
+      const totalFiles = zipEntries.length;
 
       for (const entry of zipEntries) {
          // Skip _MACOSX folder and hidden files starting with .
@@ -71,8 +74,11 @@ export async function POST(req: NextRequest) {
                originalPath: entryPath,
                clientId: client?.id,
             });
+            processedFiles++;
          }
       }
+
+      // create counting for the files
 
       // Save file metadata to the Prisma database
       const savedFiles = await prisma.qrFile.createMany({
@@ -85,12 +91,24 @@ export async function POST(req: NextRequest) {
          })),
       });
 
+      logger.info(`Uploaded ${processedFiles} files for client ${client_id}`, {
+         clientId: client?.id,
+         files: savedFiles,
+      });
+
       return NextResponse.json(
-         { status: 201, message: 'Upload successful', files: extractedFiles, data: extractedFiles },
+         {
+            status: 201,
+            message: 'Upload successful',
+            files: extractedFiles,
+            processedFiles,
+            totalFiles: zipEntries.length,
+            data: extractedFiles,
+         },
          { status: 201 }
       );
    } catch (error) {
-      console.log(error);
+      logger.error('Failed to extract zip file', { error });
       return NextResponse.json({ status: 500, error: 'Failed to extract zip file' }, { status: 500 });
    }
 }

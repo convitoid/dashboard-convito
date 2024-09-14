@@ -50,10 +50,6 @@ export const createGuests = async (jwtToken: string, clientId: string, file: any
       const filteredJson = newJson.filter((element) => element !== undefined && Object.keys(element).length > 0);
       const toUpdate = filteredJson.filter((guest) => isUpdateStatus(guest.STATUS));
       if (guests.length > 0) {
-         console.log('delete existing data', guests);
-         console.log('insert new data', filteredJson);
-         console.log('toUpdate', toUpdate);
-
          //  update existing data
          if (toUpdate.length > 0) {
             toUpdate.forEach(async (element) => {
@@ -226,7 +222,6 @@ export const createGuests = async (jwtToken: string, clientId: string, file: any
       if (jwtError.code === 'ERR_JWT_EXPIRED') {
          return getErrorResponse(error as string, 401);
       }
-      console.log(error);
       return getErrorResponse('Failed to fetch clients', 500);
    }
 };

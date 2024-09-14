@@ -1,3 +1,4 @@
+import logger from '@/libs/logger';
 import prisma from '@/libs/prisma';
 import { jwtVerify } from 'jose';
 import { NextRequest, NextResponse } from 'next/server';
@@ -43,7 +44,7 @@ export async function GET(req: NextRequest, { params }: { params: { clientId: st
             ScenarioBroadcastTemplate: true,
          },
          orderBy: {
-            createdAt: 'desc',
+            scenario_name: 'asc',
          },
       });
 
@@ -57,6 +58,10 @@ export async function GET(req: NextRequest, { params }: { params: { clientId: st
          );
       }
 
+      logger.info(`Scenarios fetched successfully for client: ${params.clientId}`, {
+         data: scenarios,
+      });
+
       return NextResponse.json({
          status: 200,
          message: 'Scenarios retrieved successfully',
@@ -67,6 +72,9 @@ export async function GET(req: NextRequest, { params }: { params: { clientId: st
       const jwtError = error as JWTError;
 
       if (jwtError.code === 'ERR_JWT_EXPIRED' || jwtError.code === 'ERR_JWS_INVALID') {
+         logger.error(`Unauthorized access`, {
+            data: errorMessage.message,
+         });
          return NextResponse.json(
             {
                satatus: 401,
@@ -75,6 +83,10 @@ export async function GET(req: NextRequest, { params }: { params: { clientId: st
             { status: 401 }
          );
       }
+
+      logger.error(`Error fetching scenarios for client: ${params.clientId}`, {
+         data: errorMessage.message,
+      });
 
       return NextResponse.json(
          {
@@ -90,7 +102,6 @@ export async function DELETE(req: NextRequest, { params }: { params: { clientId:
    const token = req.headers.get('authorization');
    const jwtToken = token?.split(' ')[1];
    const { id } = await req.json();
-   console.log('params', params, id);
 
    try {
       const { payload } = await jwtVerify(jwtToken as string, secret);
@@ -103,8 +114,6 @@ export async function DELETE(req: NextRequest, { params }: { params: { clientId:
             client_id: params.clientId,
          },
       });
-
-      console.log('client', client);
 
       if (!client) {
          return NextResponse.json(
@@ -159,6 +168,10 @@ export async function DELETE(req: NextRequest, { params }: { params: { clientId:
          Scenario: deleteScenario,
       };
 
+      logger.info(`Scenarios deleted successfully for client: ${params.clientId}`, {
+         data: data,
+      });
+
       return NextResponse.json({
          status: 200,
          message: 'Scenarios deleted successfully',
@@ -169,6 +182,9 @@ export async function DELETE(req: NextRequest, { params }: { params: { clientId:
       const jwtError = error as JWTError;
 
       if (jwtError.code === 'ERR_JWT_EXPIRED' || jwtError.code === 'ERR_JWS_INVALID') {
+         logger.error(`Unauthorized access`, {
+            data: errorMessage.message,
+         });
          return NextResponse.json(
             {
                satatus: 401,
@@ -177,6 +193,10 @@ export async function DELETE(req: NextRequest, { params }: { params: { clientId:
             { status: 401 }
          );
       }
+
+      logger.error(`Error deleting scenarios for client: ${params.clientId}`, {
+         data: errorMessage.message,
+      });
 
       return NextResponse.json(
          {

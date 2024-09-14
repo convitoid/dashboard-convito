@@ -5,8 +5,10 @@ import { Card } from '@/components/card';
 import { BarChart } from '@/components/chart/barchart';
 import { UserGroupIcon } from '@/components/icons/userGroup';
 import { UsersIcon } from '@/components/icons/users';
+import axios from 'axios';
+import moment from 'moment';
 import { useSession } from 'next-auth/react';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 const breadcrumbsData = [
    {
@@ -21,9 +23,33 @@ const breadcrumbsData = [
 
 const DashboardPage = () => {
    const { data: session, status } = useSession();
+
+   const [totalClients, setTotalClients] = useState(0);
+   const [totalGuests, setTotalGuests] = useState(0);
+   const [guests, setGuests] = useState([]);
+   const [clients, setClients] = useState([]);
+   const [chartData, setChartData] = useState([]);
+
    useEffect(() => {
       document.title = 'Convito - Dashboard';
    });
+
+   const getData = async () => {
+      const url = '/api/admin/dashboard';
+      const resonse = await axios.get(url);
+
+      if (resonse.status === 200) {
+         setTotalClients(resonse.data.data.totalClients);
+         setTotalGuests(resonse.data.data.totalGuests);
+         setGuests(resonse.data.data.guests);
+         setClients(resonse.data.data.clients);
+         setChartData(resonse.data.data.chartClientData);
+      }
+   };
+
+   useEffect(() => {
+      getData();
+   }, []);
 
    if (status === 'loading') {
       return <div>Loading...</div>;
@@ -37,10 +63,10 @@ const DashboardPage = () => {
          <div className="grid grid-cols-1 md:grid-cols-2 2md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4 mb-8">
             <div className="col-span-1">
                <Card cardWrapper="bg-blue-400 text-white">
-                  <h2 className="2md:text-[1rem] font-semibold">Total Customers</h2>
+                  <h2 className="2md:text-[1rem] font-semibold">Total CLients</h2>
                   <div className="flex items-center gap-3 text-2xl">
                      <UsersIcon />
-                     <span>80</span>
+                     <span>{totalClients ?? 0}</span>
                   </div>
                </Card>
             </div>
@@ -49,27 +75,18 @@ const DashboardPage = () => {
                   <h2 className="2md:text-[1rem] font-semibold">Total Guests</h2>
                   <div className="flex items-center gap-3 text-2xl">
                      <UserGroupIcon />
-                     <span>80</span>
+                     <span>{totalGuests ?? 0}</span>
                   </div>
                </Card>
             </div>
          </div>
          <div className="mt-4">
             <div className="flex items-center justify-between mb-6">
-               <h1 className="font-semibold text-sm lg:text-lg xl:text-xl">Convito customers statistics</h1>
-               <select
-                  name="customers_statistics_year"
-                  id="cusomers_statistics_year"
-                  className="select select-bordered w-full max-w-xs"
-                  defaultValue={''}
-               >
-                  <option disabled={true} value={''}>
-                     Select statistics year
-                  </option>
-                  <option value="2024">2024</option>
-               </select>
+               <h1 className="font-semibold text-sm lg:text-lg xl:text-xl">
+                  Convito clients statistics {moment().format('YYYY')}
+               </h1>
             </div>
-            <BarChart />
+            <BarChart statisticsData={chartData} />
          </div>
       </div>
    );
