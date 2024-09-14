@@ -83,7 +83,10 @@ export const DashboardTab = ({ clientId }: DashboardTabProps) => {
                   return info?.row?.original?.invitationUrl !== '' ? (
                      <>
                         <CopyToClipboard text={invitationLink} onCopy={() => setIsCopy(true)}>
-                           <button className="bg-blue-500 text-white cursor-pointer px-2 py-2 rounded-md hover:bg-blue-600 focus:bg-blue-500">
+                           <button
+                              className="bg-blue-500 text-white cursor-pointer px-2 py-2 rounded-md hover:bg-blue-600 focus:bg-blue-500 tooltip tooltip-bottom"
+                              data-tip="Copy URL to clipboard"
+                           >
                               <svg
                                  xmlns="http://www.w3.org/2000/svg"
                                  viewBox="0 0 20 20"
