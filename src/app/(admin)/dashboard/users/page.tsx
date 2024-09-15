@@ -18,7 +18,7 @@ const breadcrumbsData = [
       href: '/dashboard',
    },
    {
-      name: 'setting',
+      name: 'user settings',
       href: '',
    },
    {
@@ -129,12 +129,12 @@ const UsersPage = () => {
    return (
       <>
          <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-3">
-            <h1 className="text-2xl font-bold">Users data</h1>
+            <h1 className="text-2xl font-bold">Users Data</h1>
             <BreadcrumbsComponent data={breadcrumbsData} />
          </div>
          <div className="overflow-x-auto pt-3">
             <div className="flex flex-col gap-4 md:flex-row md:gap-0 md:items-center md:justify-between mb-3">
-               <ModalAddUser modalId="add_user" title="Add new user" />
+               <ModalAddUser modalId="add_user" title="Add New User" />
                <input
                   type="text"
                   className="border-[1px] border-slate-300 rounded-md px-3 py-2"

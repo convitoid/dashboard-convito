@@ -138,7 +138,7 @@ export const QrDashboardTab = ({ clientId }: QrDashboardTabProps) => {
                <h2 className="text-3xl font-semibold">
                   {dashboardData?.data?.map((data: any) => data.totalBroadcastSend)[0]}
                </h2>
-               <h4 className="text-md font-semibold">Broadcast Send</h4>
+               <h4 className="text-md font-semibold">Broadcast Sent</h4>
             </div>
             <div className="bg-amber-500 p-4 rounded-md text-white mb-4">
                <h2 className="text-3xl font-semibold">

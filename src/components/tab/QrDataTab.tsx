@@ -218,11 +218,11 @@ export const QrDataTab = ({ clientId }: QrDataTabProps) => {
                   <span>Please wait...</span>
                </>
             ) : (
-               'Import Qr Data'
+               'Import QR Data'
             )}
          </button>
          <div className="flex items-center justify-between mb-3">
-            <h2 className="text-lg font-bold mb-2">Qr Data</h2>
+            <h2 className="text-lg font-bold mb-2">QR Data</h2>
             <input
                type="text"
                placeholder="Search"

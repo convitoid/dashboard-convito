@@ -108,7 +108,7 @@ export const ModalAddClient = ({ modalId, title }: ModalAddClientProps) => {
          </button>
          <ModalComponent
             modalId={modalId}
-            modalHeader="Add new client"
+            modalHeader="Add New Client"
             modalWrapper="p-0 w-11/12 max-w-xl"
             backgroundColorHeader="bg-blue-700 text-white px-6 py-5"
             modalBodyStyle="pt-3 px-6 pb-6"
