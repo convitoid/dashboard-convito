@@ -63,8 +63,8 @@ const LoginPage = () => {
    }, []);
 
    return (
-      <Card cardWrapper="bg-slate-950 w-full 2md:w-2/4 lg:w-1/4 xl:w-1/4 shadow-xl px-2 py-4">
-         <h2 className={`card-title text-slate-100 text-xl lg:text-3xl font-semibold mb-5`}>Sign in to your account</h2>
+      <Card cardWrapper="bg-[#1c1c1c] w-full 2md:w-2/4 lg:w-1/4 xl:w-1/4 shadow-xl px-2 py-4">
+         <h2 className={`card-title text-slate-100 text-xl lg:text-2xl font-semibold mb-5`}>Sign In To Your Account</h2>
 
          <form onSubmit={(e) => handleLogin(e)}>
             <div className="mb-3 lg:mb-3">
@@ -96,7 +96,7 @@ const LoginPage = () => {
                      <span className="loading loading-spinner"></span>
                   </button>
                ) : (
-                  <button className="btn btn-primary w-full">Sign in</button>
+                  <button className="btn btn-primary w-full">Sign In</button>
                )}
             </div>
          </form>
