@@ -76,7 +76,7 @@ export async function POST(req: NextRequest, { params }: { params: { clientId: s
       logger.info(`Blasting sent successfully for client: ${clientId}`, {
          data: response,
       });
-      return NextResponse.json(response, { status: 200 });
+      return NextResponse.json({status: 200,message: "Blasting process started"}, { status: 200 });
    } catch (error) {
       const errorMessage = error as ErrorMessage;
       const jwtError = error as JWTError;
