@@ -51,7 +51,7 @@ export const WhatsappBlastBody = async ({
          const token_no_header = uniqueData.filter((t: any) => t.guestId === data.id).map((t: any) => t.token);
          const body = {
             messaging_product: 'whatsapp',
-            to: data.phone_number,
+            to: `+${data.phone_number}`,
             type: 'template',
             template: {
                name: template[0].template_name,
@@ -90,7 +90,7 @@ export const WhatsappBlastBody = async ({
 
          const bodyImage = {
             messaging_product: 'whatsapp',
-            to: data.phone_number,
+            to: `+${data.phone_number}`,
             type: 'template',
             template: {
                name: template[0].template_name,
@@ -146,7 +146,7 @@ export const WhatsappBlastBody = async ({
 
          const bodyVideo = {
             messaging_product: 'whatsapp',
-            to: '6282310421496',
+            to: `+${data.phone_number}`,
             type: 'template',
             template: {
                name: template[0].template_name,
