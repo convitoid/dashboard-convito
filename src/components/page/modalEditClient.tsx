@@ -100,7 +100,7 @@ export const ModalEditClient = ({ modalId, clientId, closeModal }: ModalEditClie
    return (
       <ModalComponent
          modalId={modalId}
-         modalHeader="Edit client"
+         modalHeader="Edit Client"
          modalWrapper="p-0 w-11/12 max-w-xl"
          backgroundColorHeader="bg-yellow-400 px-6 py-5"
          modalBodyStyle="pt-3 px-6 pb-6"

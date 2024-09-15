@@ -97,7 +97,7 @@ export const ModalAddUser = ({ modalId, title }: ModalUserProps) => {
          </button>
          <ModalComponent
             modalId={modalId}
-            modalHeader="Add new user"
+            modalHeader="Add New User"
             modalWrapper="p-0"
             backgroundColorHeader="bg-blue-700 text-white px-6 py-5"
             modalBodyStyle="pt-3 px-6 pb-6"

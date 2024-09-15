@@ -97,7 +97,7 @@ export const ModalEditUser = ({ modalId, userId, closeModal }: ModalUserProps) =
    return (
       <ModalComponent
          modalId={modalId}
-         modalHeader="Edit user"
+         modalHeader="Edit User"
          modalWrapper="p-0"
          backgroundColorHeader="bg-yellow-400 text-slate-900 px-6 py-5"
          modalBodyStyle="pt-3 px-6 pb-6"

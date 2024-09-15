@@ -28,7 +28,7 @@ const breadcrumbsData = [
    },
    {
       name: 'client',
-      href: '/dashboard/customers',
+      href: '/dashboard/clients',
    },
    {
       name: 'RSVP',

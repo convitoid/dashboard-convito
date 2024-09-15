@@ -215,11 +215,11 @@ export const DashboardTab = ({ clientId }: DashboardTabProps) => {
             </div>
             <div className="bg-teal-500 p-4 rounded-md text-white mb-4">
                <h2 className="text-3xl font-semibold">{dashboarData.length > 0 ? dashboarData[0].guest_confirm : 0}</h2>
-               <h4 className="text-md font-semibold">Total Guest(s) Confirmed</h4>
+               <h4 className="text-md font-semibold">Guest(s) Confirmed</h4>
             </div>
             <div className="bg-red-500 p-4 rounded-md text-white mb-4">
                <h2 className="text-3xl font-semibold">{dashboarData.length > 0 ? dashboarData[0].guest_decline : 0}</h2>
-               <h4 className="text-md font-semibold">Total Guest(s) Decline</h4>
+               <h4 className="text-md font-semibold">Guest(s) Decline</h4>
             </div>
          </div>
          <div className="flex justify-between mb-3">
