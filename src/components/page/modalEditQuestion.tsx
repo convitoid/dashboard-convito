@@ -118,7 +118,6 @@ export const ModalEditQuestion = ({ modalId, clientId, questionId }: ModalEditQu
                   <option value="text">Text</option>
                   <option value="number">Number</option>
                   <option value="radio">Radio</option>
-                  <option value="checkbox">Checkbox</option>
                </select>
             </div>
             <div className="flex items-center justify-end">
