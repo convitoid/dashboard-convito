@@ -74,7 +74,7 @@ export default function QrClients({ params }: { params: { clientId: string } }) 
       },
    ];
    useEffect(() => {
-      document.title = 'Convito - QR Clients Detail';
+      document.title = 'Convito - QR Code';
    }, []);
    return (
       <>

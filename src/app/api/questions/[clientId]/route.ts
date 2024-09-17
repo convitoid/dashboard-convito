@@ -155,7 +155,7 @@ export async function POST(req: NextRequest, { params }: { params: { clientId: s
 
       if (questions.length === 0) {
          const defaultQuestion =
-            '<p>Please confirm your attendance, <strong>YES</strong> (joyfully accept), <strong>NO</strong> (regretfully decline) ?</p>';
+            '<p>Please confirm your attendance, <strong>YES</strong> (joyfully accept), <strong>NO</strong> (regretfully decline)</p>';
          const defaultType = 'radio';
          const position = 1;
 

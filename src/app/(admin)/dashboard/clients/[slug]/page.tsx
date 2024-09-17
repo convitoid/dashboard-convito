@@ -82,7 +82,7 @@ const CustomerDetailPage = ({ params }: { params: { slug: string } }) => {
       },
    ];
    useEffect(() => {
-      document.title = 'Convito - Customers Detail';
+      document.title = 'Convito - RSVP';
    }, []);
    return (
       <>
