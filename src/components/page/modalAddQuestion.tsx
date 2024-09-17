@@ -30,13 +30,29 @@ export const ModalAddQuestion = ({ modalId, clientId }: ModalAddQuestionProps) =
 
    const handleSubmit = (e: any) => {
       e.preventDefault();
-      if (formData.question === '' || formData.type === '') {
+
+      console.log('formData', formData);
+
+      if (formData.question === '') {
          Swal.fire({
             icon: 'warning',
             title: 'Oops...',
-            text: 'Please fill all fields!',
+            text: 'Please input question!',
             target: document.getElementById(`${modalId}`),
          });
+
+         return;
+      }
+
+      if (formData.type === '') {
+         Swal.fire({
+            icon: 'warning',
+            title: 'Oops...',
+            text: 'Please choose type!',
+            target: document.getElementById(`${modalId}`),
+         });
+
+         return;
       }
 
       dispatch(addQuestion({ clientId, formData }))
