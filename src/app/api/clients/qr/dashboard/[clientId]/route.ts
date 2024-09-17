@@ -36,6 +36,9 @@ export async function GET(req: NextRequest, { params }: { params: { clientId: st
          where: {
             clientId: client.id,
          },
+         orderBy: {
+            name: 'asc',
+         },
       });
 
       const totalGuests = guests.length;

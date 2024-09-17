@@ -25,6 +25,9 @@ export const getGuests = async (jwtToken: string, clientId: string) => {
          include: {
             GuestDetail: true,
          },
+         orderBy: {
+            name: 'asc',
+         },
       });
 
       return getSuccessReponse(guests, 200, 'Fetch guests successfully');

@@ -29,7 +29,7 @@ const breadcrumbsData = [
       href: '/dashboard/clients',
    },
    {
-      name: 'QR',
+      name: 'QR Code',
       href: '',
    },
 ];
