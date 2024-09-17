@@ -94,11 +94,28 @@ export async function GET(req: NextRequest, { params }: { params: { token: strin
          },
       });
 
+      // const invitationImage = guests?.client?.image.map((image: any) => {}
+
+      const imageUrl = guests?.client?.image
+         ? await Promise.all(
+              guests.client.image.map(async (image: any) => {
+                 const url = `${process.env.NEXTAUTH_URL}/api/qr/render-image/invitation/${image.imageName}`;
+                 const respone = await fetch(url);
+                 return respone.url;
+              })
+           )
+         : [];
+
+      const resData = {
+         ...guests,
+         imageUrl: imageUrl,
+      };
+
       return NextResponse.json(
          {
             status: 200,
             message: 'Invitation data successfully retrieved',
-            data: guests,
+            data: resData,
          },
          { status: 200 }
       );

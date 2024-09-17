@@ -256,12 +256,13 @@ export default function InvitationPage({ params }: { params: { token: string } }
                      invitations?.client?.image?.map((img: any) => (
                         <Image
                            key={img.id}
-                           src={img.imagePath}
+                           src={invitations.imageUrl[0]}
                            alt={img.imageName}
                            width={500}
                            height={500}
                            priority={true}
                            className="w-full h-64 object-cover mb-3"
+                           unoptimized
                         />
                      ))}
                   <div className={`bg-[#E2DCD0] mx-3 mt-3 px-4 py-5 rounded-md`}>
