@@ -34,7 +34,11 @@ export async function POST(req: NextRequest, { params }: { params: { clientId: s
                         token: true,
                      },
                   },
-                  SendBlastingLogs: true,
+                  SendBlastingLogs: {
+                     orderBy: {
+                        createdAt: 'desc',
+                     },
+                  },
                },
                where: {
                   clientId: client?.id,

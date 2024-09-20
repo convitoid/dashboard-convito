@@ -128,7 +128,9 @@ export const DashboardTab = ({ clientId }: DashboardTabProps) => {
                      className={`text-sm px-2 py-1 rounded-md ${
                         info.row.original.status_blasting === 'Success'
                            ? 'bg-green-500 text-white'
-                           : 'bg-red-500 text-white'
+                           : info.row.original.status_blasting === 'Failed'
+                             ? 'bg-red-500 text-white'
+                             : 'bg-amber-500 text-white'
                      }`}
                   >
                      {info.row.original.status_blasting}
@@ -140,10 +142,11 @@ export const DashboardTab = ({ clientId }: DashboardTabProps) => {
 
       setColumns(dynamicColumns);
 
-      if (dashboarData.length > 0) {
+      if (dashboarData?.length > 0) {
          const dynamicData = dashboarData[0]?.guest?.map((item: any, index: number) => {
             const answer = item.Invitations.some((invitation: any) => invitation.answer !== null);
             const statusBlasting = item.SendBlastingLogs.map((log: any) => log.status);
+            console.log('statusBlasting', statusBlasting);
 
             return {
                id: item.id,
@@ -151,7 +154,12 @@ export const DashboardTab = ({ clientId }: DashboardTabProps) => {
                name: item.name,
                scenario: item.scenario,
                answer: answer ? 'Yes' : 'No',
-               status_blasting: statusBlasting[0] === 'success_send_blasting' ? 'Success' : 'Failed',
+               status_blasting:
+                  statusBlasting.length > 0
+                     ? statusBlasting[0] === 'success_send_blasting'
+                        ? 'Success'
+                        : 'Failed'
+                     : 'Not Yet Sent',
                invitationUrl: item?.Invitations?.length > 0 ? item?.Invitations[0]?.token : '',
             };
          });
@@ -173,22 +181,32 @@ export const DashboardTab = ({ clientId }: DashboardTabProps) => {
       )
          .unwrap()
          .then((res) => {
-            const dynamicData = res.data.map((item: any, index: number) => {
-               const answer = item.Invitations.some((invitation: any) => invitation.answer !== null);
-               const statusBlasting = item.SendBlastingLogs.map((log: any) => log.status);
+            console.log('res', res);
+            if (res.status === 200) {
+               const dynamicData = res.data?.map((item: any, index: number) => {
+                  const answer = item.Invitations.some((invitation: any) => invitation.answer !== null);
+                  const statusBlasting = item.SendBlastingLogs.map((log: any) => log.status);
 
-               return {
-                  id: item.id,
-                  guestId: item.guestId,
-                  name: item.name,
-                  scenario: item.scenario,
-                  answer: answer ? 'Yes' : 'No',
-                  status_blasting: statusBlasting[0] === 'success_send_blasting' ? 'Success' : 'Failed',
-                  invitationUrl: item?.Invitations?.length > 0 ? item?.Invitations[0]?.token : '',
-               };
-            });
+                  return {
+                     id: item.id,
+                     guestId: item.guestId,
+                     name: item.name,
+                     scenario: item.scenario,
+                     answer: answer ? 'Yes' : 'No',
+                     status_blasting:
+                        statusBlasting.length > 0
+                           ? statusBlasting[0] === 'success_send_blasting'
+                              ? 'Success'
+                              : 'Failed'
+                           : 'Not Yet Sent',
+                     invitationUrl: item?.Invitations?.length > 0 ? item?.Invitations[0]?.token : '',
+                  };
+               });
 
-            setData(dynamicData);
+               setData(dynamicData);
+            } else {
+               setData([]);
+            }
          });
    };
 
@@ -221,7 +239,12 @@ export const DashboardTab = ({ clientId }: DashboardTabProps) => {
                      name: item.name,
                      scenario: item.scenario,
                      answer: answer ? 'Yes' : 'No',
-                     status_blasting: statusBlasting[0] === 'success_send_blasting' ? 'Success' : 'Failed',
+                     status_blasting:
+                        statusBlasting.length > 0
+                           ? statusBlasting[0] === 'success_send_blasting'
+                              ? 'Success'
+                              : 'Failed'
+                           : 'Not Yet Sent',
                      invitationUrl: item?.Invitations?.length > 0 ? item?.Invitations[0]?.token : '',
                   };
                });
@@ -245,22 +268,34 @@ export const DashboardTab = ({ clientId }: DashboardTabProps) => {
          )
             .unwrap()
             .then((res) => {
-               const dynamicData = res.data.map((item: any, index: number) => {
-                  const answer = item.Invitations.some((invitation: any) => invitation.answer !== null);
-                  const statusBlasting = item.SendBlastingLogs.map((log: any) => log.status);
+               if (res.status === 200) {
+                  const dynamicData = res.data.map((item: any, index: number) => {
+                     const answer = item.Invitations.some((invitation: any) => invitation.answer !== null);
+                     const statusBlasting = item.SendBlastingLogs.map((log: any) => log.status);
 
-                  return {
-                     id: item.id,
-                     guestId: item.guestId,
-                     name: item.name,
-                     scenario: item.scenario,
-                     answer: answer ? 'Yes' : 'No',
-                     status_blasting: statusBlasting[0] === 'success_send_blasting' ? 'Success' : 'Failed',
-                     invitationUrl: item?.Invitations?.length > 0 ? item?.Invitations[0]?.token : '',
-                  };
-               });
+                     console.log('statusBlasting', statusBlasting);
 
-               setData(dynamicData);
+                     return {
+                        id: item.id,
+                        guestId: item.guestId,
+                        name: item.name,
+                        scenario: item.scenario,
+                        answer: answer ? 'Yes' : 'No',
+                        status_blasting:
+                           statusBlasting.length > 0
+                              ? statusBlasting[0] === 'success_send_blasting'
+                                 ? 'Success'
+                                 : 'Failed'
+                              : 'Not Yet Sent',
+                        invitationUrl: item?.Invitations?.length > 0 ? item?.Invitations[0]?.token : '',
+                     };
+                  });
+
+                  setData(dynamicData);
+                  console.log('res', res);
+               } else {
+                  setData([]);
+               }
             });
       }
    };
@@ -284,23 +319,23 @@ export const DashboardTab = ({ clientId }: DashboardTabProps) => {
       <div>
          <div className="grid grid-cols-3 3md:grid-cols-5 lg:grid-cols-5 xl:grid-cols-6 gap-4 mb-14">
             <div className="bg-sky-500 p-4 rounded-md text-white mb-4">
-               <h2 className="text-3xl font-semibold">{dashboarData.length > 0 ? totalGuests : 0}</h2>
+               <h2 className="text-3xl font-semibold">{dashboarData?.length > 0 ? totalGuests : 0}</h2>
                <h4 className="text-md font-semibold">Total Guest(s)</h4>
             </div>
             <div className="bg-green-500 p-4 rounded-md text-white mb-4">
-               <h2 className="text-3xl font-semibold">{dashboarData.length > 0 ? answeredGuests : 0}</h2>
+               <h2 className="text-3xl font-semibold">{dashboarData?.length > 0 ? answeredGuests : 0}</h2>
                <h4 className="text-md font-semibold">Total Answered</h4>
             </div>
             <div className="bg-amber-500 p-4 rounded-md text-white mb-4">
-               <h2 className="text-3xl font-semibold">{dashboarData.length > 0 ? notAnsweredGuests : 0}</h2>
+               <h2 className="text-3xl font-semibold">{dashboarData?.length > 0 ? notAnsweredGuests : 0}</h2>
                <h4 className="text-md font-semibold">Total Unanswered</h4>
             </div>
             <div className="bg-teal-500 p-4 rounded-md text-white mb-4">
-               <h2 className="text-3xl font-semibold">{dashboarData.length > 0 ? guestConfirm : 0}</h2>
+               <h2 className="text-3xl font-semibold">{dashboarData?.length > 0 ? guestConfirm : 0}</h2>
                <h4 className="text-md font-semibold">Guest(s) Confirmed</h4>
             </div>
             <div className="bg-red-500 p-4 rounded-md text-white mb-4">
-               <h2 className="text-3xl font-semibold">{dashboarData.length > 0 ? guestDecline : 0}</h2>
+               <h2 className="text-3xl font-semibold">{dashboarData?.length > 0 ? guestDecline : 0}</h2>
                <h4 className="text-md font-semibold">Guest(s) Decline</h4>
             </div>
          </div>

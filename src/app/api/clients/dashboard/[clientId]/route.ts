@@ -45,7 +45,12 @@ export async function GET(req: NextRequest, { params }: { params: { clientId: st
                   token: true,
                },
             },
-            SendBlastingLogs: true,
+            // get only new log
+            SendBlastingLogs: {
+               orderBy: {
+                  createdAt: 'desc',
+               },
+            },
          },
          where: {
             clientId: client?.id,
@@ -54,6 +59,8 @@ export async function GET(req: NextRequest, { params }: { params: { clientId: st
             name: 'asc',
          },
       });
+
+      console.log('guest', guest);
 
       const answeredGuests = guest.filter((guest) =>
          guest.Invitations.some((invitation) => invitation.answer !== null)
