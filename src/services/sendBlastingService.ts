@@ -1,6 +1,6 @@
 import logger from '@/libs/logger';
 import prisma from '@/libs/prisma';
-import { getSuccessReponse } from '@/utils/response/successResponse';
+import { getErrorResponse, getSuccessReponse } from '@/utils/response/successResponse';
 import { WhatsappBlastBody } from '@/utils/whatsappBlastBody';
 import { Prisma } from '@prisma/client';
 import jwt from 'jsonwebtoken';
@@ -29,7 +29,6 @@ export const sendBlastingService = async (data: any, clientId: any, clientCode: 
       });
 
       const generateLink = async (data: any) => {
-         // invitation/{clientCode}/{id}
          const dataFiltered = {
             id: data.data.id,
             name: data.data.name,
@@ -125,6 +124,25 @@ export const sendBlastingService = async (data: any, clientId: any, clientCode: 
       };
 
       const invitationsData = await createInvitationsData(createInvitation, clientId);
+      // console.log('invitationsData', invitationsData);
+
+      const invitationExist = await prisma.invitations.findMany({
+         where: {
+            guestId: {
+               in: invitationsData.map((i) => i.guestId),
+            },
+         },
+      });
+
+      if (invitationExist.length > 0) {
+         await prisma.invitations.deleteMany({
+            where: {
+               guestId: {
+                  in: invitationExist.map((i) => i.guestId),
+               },
+            },
+         });
+      }
 
       const invitationCreateData = await prisma.invitations.createMany({
          data: invitationsData,
@@ -141,7 +159,6 @@ export const sendBlastingService = async (data: any, clientId: any, clientCode: 
             });
 
             logger.info('templateBodyLog', { data: templateBody });
-            console.log('templateBody', templateBody);
 
             const myHeaders = new Headers();
             myHeaders.append('Content-Type', 'application/json');
@@ -174,6 +191,7 @@ export const sendBlastingService = async (data: any, clientId: any, clientCode: 
       logger.info('Response from whatsapp', sendBlastingProcess);
 
       if (sendBlastingProcess.some((res) => res.error)) {
+         console.log('errorData', sendBlastingProcess[0].error.message);
          const errorData = sendBlastingProcess.filter((res) => res.error);
          const message = errorData.map((e) => e.error.message);
          errorData.map(async (e) => {
@@ -194,7 +212,8 @@ export const sendBlastingService = async (data: any, clientId: any, clientCode: 
             },
          });
 
-         return getSuccessReponse({ error: errorData }, 400, message[0]);
+         // return getSuccessReponse({ error: errorData }, 400, message[0]);
+         return getErrorResponse(sendBlastingProcess[0].error.message, 400, message[0]);
       } else {
          data.map(async (d: any) => {
             await prisma.sendBlastingLogs.create({

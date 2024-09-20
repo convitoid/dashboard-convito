@@ -1,6 +1,7 @@
 import logger from '@/libs/logger';
 import prisma from '@/libs/prisma';
 import { jwtVerify } from 'jose';
+import { revalidatePath } from 'next/cache';
 import { NextRequest, NextResponse } from 'next/server';
 
 interface JWTError extends Error {
@@ -12,6 +13,7 @@ const secret = new TextEncoder().encode(process.env.NEXTAUTH_SECRET ?? '');
 export async function GET(req: NextRequest, { params }: { params: { clientId: string } }) {
    const token = req.headers.get('authorization');
    const jwtToken = token?.split(' ')[1];
+   const path = req.nextUrl.pathname;
 
    try {
       const { payload } = await jwtVerify(jwtToken as string, secret);
@@ -103,6 +105,8 @@ export async function GET(req: NextRequest, { params }: { params: { clientId: st
          data: statisticData,
       });
 
+      revalidatePath(path);
+
       return NextResponse.json(
          {
             status: 200,
@@ -146,81 +150,100 @@ export async function GET(req: NextRequest, { params }: { params: { clientId: st
 
 export async function POST(req: NextRequest, { params }: { params: { clientId: string } }) {
    const token = req.headers.get('authorization');
+   console.log('token', token);
    const jwtToken = token?.split(' ')[1];
-   const data = await req.json();
+   const { filter_by } = await req.json();
+
+   console.log('data', filter_by);
 
    try {
       const { payload } = await jwtVerify(jwtToken as string, secret);
 
-      const guests = await Promise.all(
-         data.data.map(async (clientId: any) => {
-            const guest = await prisma.guest.findMany({
+      const client = await prisma.client.findFirst({
+         select: {
+            id: true,
+         },
+         where: {
+            client_id: params.clientId,
+         },
+      });
+
+      console.log('client', client);
+
+      const guest = await prisma.guest.findMany({
+         select: {
+            id: true,
+            guestId: true,
+            name: true,
+            scenario: true,
+            GuestDetail: true,
+            Invitations: {
                select: {
-                  id: true,
-                  guestId: true,
-                  name: true,
-                  scenario: true,
-                  GuestDetail: true,
-                  Invitations: {
+                  Question: {
                      select: {
-                        Question: {
-                           select: {
-                              id: true,
-                              question: true,
-                           },
-                        },
-                        answer: true,
-                     },
-
-                     orderBy: {
-                        questionId: 'asc',
+                        id: true,
+                        question: true,
                      },
                   },
+                  answer: true,
                },
-               where: {
-                  id: clientId,
+
+               orderBy: {
+                  questionId: 'asc',
                },
-            });
+            },
+         },
+         where: {
+            clientId: client?.id,
+            OR: filter_by
+               ? [
+                    {
+                       Invitations: {
+                          some: {
+                             answer: filter_by === 'yes' ? { not: null } : { equals: null },
+                          },
+                       },
+                    },
+                 ]
+               : undefined,
+         },
+      });
 
-            const formattedGuest = guest.map((guest) => {
-               const detail = guest.GuestDetail.reduce(
-                  (acc: any, detail: any) => {
-                     acc[detail.detail_key] = detail.detail_val;
-                     return acc;
-                  },
-                  { guestId: guest.guestId }
-               );
+      const formattedGuest = guest.map((guest) => {
+         const detail = guest.GuestDetail.reduce(
+            (acc: any, detail: any) => {
+               acc[detail.detail_key] = detail.detail_val;
+               return acc;
+            },
+            { guestId: guest.guestId }
+         );
 
-               const question = guest.Invitations.map((invitation) => {
-                  return {
-                     question: invitation.Question.question,
-                     answer: invitation.answer,
-                  };
-               });
+         const question = guest.Invitations.map((invitation) => {
+            return {
+               question: invitation.Question.question,
+               answer: invitation.answer,
+            };
+         });
 
-               return {
-                  id: guest.id,
-                  guestId: guest.guestId,
-                  name: guest.name,
-                  scenario: guest.scenario,
-                  ...detail,
-                  questions: question,
-               };
-            });
-
-            return formattedGuest[0];
-         })
-      );
+         return {
+            id: guest.id,
+            guestId: guest.guestId,
+            name: guest.name,
+            scenario: guest.scenario,
+            ...detail,
+            questions: question,
+         };
+      });
 
       logger.info(`Dashboard export data successfully for client: ${params.clientId}`, {
-         data: guests,
+         data: formattedGuest,
       });
 
       return NextResponse.json(
          {
             status: 200,
             message: 'Dashboard data fetched successfully',
-            data: guests,
+            data: formattedGuest,
          },
          { status: 200 }
       );

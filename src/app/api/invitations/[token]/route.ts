@@ -2,6 +2,7 @@ import { jwtVerify } from 'jose';
 import { NextRequest, NextResponse } from 'next/server';
 import jwt from 'jsonwebtoken';
 import prisma from '@/libs/prisma';
+import { revalidatePath } from 'next/cache';
 
 interface JwtPayload {
    [key: string]: any;
@@ -9,6 +10,7 @@ interface JwtPayload {
 
 export async function GET(req: NextRequest, { params }: { params: { token: string } }) {
    const token = params.token;
+   console.log(token);
 
    if (!token) {
       return NextResponse.json({
@@ -17,6 +19,22 @@ export async function GET(req: NextRequest, { params }: { params: { token: strin
    }
 
    try {
+      const tokenExist = await prisma.invitations.findFirst({
+         where: {
+            token: token,
+         },
+      });
+
+      if (!tokenExist) {
+         return NextResponse.json(
+            {
+               status: 404,
+               message: 'token not found',
+            },
+            { status: 404 }
+         );
+      }
+
       const decode = jwt.decode(token) as JwtPayload;
 
       const scenarioGuest = await prisma.guest.findFirst({
@@ -110,6 +128,8 @@ export async function GET(req: NextRequest, { params }: { params: { token: strin
          ...guests,
          imageUrl: imageUrl,
       };
+
+      revalidatePath(req.nextUrl.pathname);
 
       return NextResponse.json(
          {

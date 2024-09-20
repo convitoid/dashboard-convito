@@ -1,5 +1,6 @@
 'use client';
 import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 
 export default function NotFound() {
    const { back } = useRouter();
@@ -7,6 +8,10 @@ export default function NotFound() {
    const goBack = () => {
       back();
    };
+
+   useEffect(() => {
+      window.document.title = '404 - Page Not Found';
+   }, []);
 
    return (
       <div className="h-screen flex justify-center items-center">

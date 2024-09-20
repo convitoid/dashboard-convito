@@ -13,6 +13,12 @@ interface ErrorMessage {
    code: string;
 }
 
+interface Response {
+   status: number;
+   message: string;
+   error?: string;
+}
+
 const secret = new TextEncoder().encode(process.env.NEXTAUTH_SECRET ?? '');
 
 export async function POST(req: NextRequest, { params }: { params: { clientId: string } }) {
@@ -71,12 +77,15 @@ export async function POST(req: NextRequest, { params }: { params: { clientId: s
 
       // Flatten the results if needed
       const flattenedResults = blasting.flat();
-      const response = await sendBlastingService(flattenedResults as any, Number(client?.id), clientId);
+      const response = (await sendBlastingService(flattenedResults as any, Number(client?.id), clientId)) as Response;
+
       console.log(response);
+
       logger.info(`Blasting sent successfully for client: ${clientId}`, {
          data: response,
       });
-      return NextResponse.json({status: 200,message: "Blasting process started"}, { status: 200 });
+
+      return NextResponse.json({ status: response.status, message: response.message }, { status: response.status });
    } catch (error) {
       const errorMessage = error as ErrorMessage;
       const jwtError = error as JWTError;

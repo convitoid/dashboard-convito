@@ -1,4 +1,5 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
+import axios from 'axios';
 
 export const getDashboardData = createAsyncThunk('clientDashboard/getDashboardData', async (payload: any) => {
    try {
@@ -14,8 +15,53 @@ export const getDashboardData = createAsyncThunk('clientDashboard/getDashboardDa
             Authorization: `Bearer ${getToken.user.jwt}`,
          },
       });
+
       const res = await response.json();
       return res;
+   } catch (error) {
+      return error;
+   }
+});
+
+export const filterDataByAnswer = createAsyncThunk('clientDashboard/filterData', async (payload: any) => {
+   try {
+      const getToken = await fetch('/api/auth/session')
+         .then((res) => res.json())
+         .then((data) => {
+            return data;
+         });
+
+      const response = await axios.post(`/api/clients/dashboard/${payload.clientId}/filter`, {
+         search_by: payload.search_by,
+         value: payload.value,
+      });
+
+      console.log(response.data);
+
+      return response.data;
+   } catch (error) {
+      return error;
+   }
+});
+
+export const filterDataGlobal = createAsyncThunk('clientDashboard/filterDataGlobal', async (payload: any) => {
+   try {
+      const getToken = await fetch('/api/auth/session')
+         .then((res) => res.json())
+         .then((data) => {
+            return data;
+         });
+
+      console.log('filterDataGlobal', payload);
+
+      const response = await axios.post(`/api/clients/dashboard/${payload.clientId}/filter`, {
+         search_by: payload.search_by,
+         is_answer: payload.is_answer,
+         value: payload.value,
+      });
+
+      // return response.data;
+      return response.data;
    } catch (error) {
       return error;
    }
@@ -29,8 +75,10 @@ export const exportData = createAsyncThunk('clientDashboard/exportData', async (
             return data;
          });
 
+      console.log('payload', payload);
+
       const body = {
-         data: payload.data,
+         filter_by: payload.filter_by,
       };
 
       const response = await fetch(`/api/clients/dashboard/${payload.clientId}`, {
@@ -40,6 +88,8 @@ export const exportData = createAsyncThunk('clientDashboard/exportData', async (
          },
          body: JSON.stringify(body),
       });
+
+      console.log('response', response);
 
       const res = await response.json();
       return res;

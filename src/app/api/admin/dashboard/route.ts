@@ -1,6 +1,7 @@
 import logger from '@/libs/logger';
 import prisma from '@/libs/prisma';
 import { getMonthlyCustomerData } from '@/services/chartService';
+import { revalidatePath } from 'next/cache';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(req: NextRequest) {
@@ -22,6 +23,8 @@ export async function GET(req: NextRequest) {
       };
 
       logger.info('Data admin dashboard fetched successfully', data);
+
+      revalidatePath(req.nextUrl.pathname);
 
       return NextResponse.json(
          {

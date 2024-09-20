@@ -47,6 +47,9 @@ export default function InvitationPage({ params }: { params: { token: string } }
       dispatch(getInvitation(token[0]))
          .unwrap()
          .then((res) => {
+            if (res.status === 404) {
+               return router.push('/404');
+            }
             setGuestDetail(res.data.GuestDetail);
             setFormValues({
                ...formValues,

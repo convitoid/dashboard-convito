@@ -34,7 +34,7 @@ export const exportToExcel = (data: any, clientId?: any) => {
          guestId: item.guestId,
          name: item.name,
          scenario: item.scenario,
-         phone_number: item.phone_number,
+         phone_number: `+${item.phone_number}`,
          pax: item.pax,
          kids_pax: item.kids_pax,
          holmat_pax: item.holmat_pax,
