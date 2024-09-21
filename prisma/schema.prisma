@@ -1,10 +1,22 @@
-generator client {
-  provider = "prisma-client-js"
-}
+// generator client {
+//   provider = "prisma-client-js"
+// }
+
+// datasource db {
+//   provider = "postgresql"
+//   url      = env("DATABASE_URL")
+// }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+  // extensions = [hstore(schema: "myHstoreSchema"), pg_trgm, postgis(version: "2.1")]
+}
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
 }
 
 model Client {
@@ -30,6 +42,7 @@ model Client {
   QrFile              QrFile[]
   QrGuest             QrGuest[]
   QrBroadcastTemplate QrBroadcastTemplate[]
+  Webhook             Webhook[]
 }
 
 model User {
@@ -104,6 +117,7 @@ model Guest {
   updatedAt        DateTime           @updatedAt
   Invitations      Invitations[]
   SendBlastingLogs SendBlastingLogs[]
+  Webhook          Webhook[]
 }
 
 model GuestDetail {
@@ -246,4 +260,20 @@ model QrBroadcastLogs {
   QrGuest   QrGuest  @relation(fields: [QrGuestId], references: [id], onDelete: Cascade)
   status    String
   createdAt DateTime @default(now())
+}
+
+model Webhook {
+  id               Int       @id @default(autoincrement())
+  clientId         Int
+  Client           Client    @relation(fields: [clientId], references: [id])
+  guestId          Int
+  Guest            Guest     @relation(fields: [guestId], references: [id])
+  templateName     String?
+  waId             String?
+  recipientId      String?
+  status           String?
+  statusCode       String?
+  lastUpdateStatus DateTime?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
 }

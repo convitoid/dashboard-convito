@@ -159,6 +159,7 @@ export const sendBlastingService = async (data: any, clientId: any, clientCode: 
             });
 
             logger.info('templateBodyLog', { data: templateBody });
+            console.log('templateBody', templateBody);
 
             const myHeaders = new Headers();
             myHeaders.append('Content-Type', 'application/json');
@@ -175,14 +176,19 @@ export const sendBlastingService = async (data: any, clientId: any, clientCode: 
             );
 
             const res = await response.json();
-            console.log(res);
+
             if (res.error) {
                return {
                   error: res.error,
                   guest: { id: d.id, name: d.name },
                };
             }
-            return res;
+            return {
+               ...res,
+               template_name: templateBody?.template?.name,
+               clientCode: clientCode,
+               guest: { id: d.id, name: d.name },
+            };
          })
       );
 
@@ -224,6 +230,56 @@ export const sendBlastingService = async (data: any, clientId: any, clientCode: 
                },
             });
          });
+
+         console.log('sendBlastingProcess', sendBlastingProcess);
+
+         const webhookData = await Promise.all(
+            sendBlastingProcess.map(async (webhook: any) => {
+               const client = await prisma.client.findFirst({
+                  select: {
+                     id: true,
+                  },
+                  where: {
+                     client_id: webhook.clientCode,
+                  },
+               });
+
+               return {
+                  guestId: webhook.guest.id,
+                  templateName: webhook.template_name,
+                  waId: webhook.messages.map((data: any) => data.id)[0],
+                  status: webhook.messages.map((data: any) => data.message_status)[0],
+                  recipientId: webhook.contacts.map((data: any) => data.wa_id)[0],
+                  clientId: Number(client?.id),
+                  lastUpdateStatus: new Date(),
+               };
+            })
+         );
+
+         console.log('webhookData', webhookData);
+
+         const webhookExist = await prisma.webhook.findMany({
+            where: {
+               guestId: {
+                  in: webhookData.map((w) => w.guestId),
+               },
+            },
+         });
+
+         if (webhookExist.length > 0) {
+            await prisma.webhook.deleteMany({
+               where: {
+                  guestId: {
+                     in: webhookExist.map((w) => w.guestId),
+                  },
+               },
+            });
+         }
+
+         await prisma.webhook.createMany({
+            data: webhookData,
+         });
+
          return getSuccessReponse(invitationCreateData, 200, 'Successfully sent');
       }
    } catch (error) {
