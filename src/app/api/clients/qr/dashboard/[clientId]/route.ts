@@ -1,5 +1,6 @@
 import logger from '@/libs/logger';
 import prisma from '@/libs/prisma';
+import { revalidatePath } from 'next/cache';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(req: NextRequest, { params }: { params: { clientId: string } }) {
@@ -41,6 +42,34 @@ export async function GET(req: NextRequest, { params }: { params: { clientId: st
          },
       });
 
+      const newJson = await Promise.all(
+         guests.map(async (g: any) => {
+            const webhook = await prisma.webhook.findMany({
+               select: {
+                  id: true,
+                  status: true,
+                  statusCode: true,
+                  blastingSource: true,
+                  lastUpdateStatus: true,
+               },
+               where: {
+                  blastingSource: {
+                     not: 'RSVP',
+                  },
+                  recipientId: g.phoneNumber,
+                  clientId: client?.id,
+               },
+            });
+
+            const dashboardTableData = {
+               ...g,
+               webhook: webhook,
+            };
+
+            return dashboardTableData;
+         })
+      );
+
       const totalGuests = guests.length;
       const totalBroadcastSend = guests.filter((guest) => guest.QrBroadcastLogs.length > 0).length;
       const totalNotSendYet = guests.filter((guest) => guest.QrBroadcastLogs.length === 0).length;
@@ -58,13 +87,16 @@ export async function GET(req: NextRequest, { params }: { params: { clientId: st
             totalNotSendYet: totalNotSendYet,
             broadcastSuccess: broadcastSuccess,
             broadcastFailed: broadcastFailed,
-            guests: guests,
+            guests: newJson,
          },
       ];
 
       logger.info(`Dashboard data fetched successfully for client: ${params.clientId}`, {
          data: data,
       });
+
+      revalidatePath(req.nextUrl.pathname);
+
       return NextResponse.json(
          {
             status: 200,

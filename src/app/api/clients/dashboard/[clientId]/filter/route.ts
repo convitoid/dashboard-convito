@@ -1,4 +1,5 @@
 import prisma from '@/libs/prisma';
+import { revalidatePath } from 'next/cache';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(req: NextRequest, { params }: { params: { clientId: string } }) {
@@ -34,9 +35,10 @@ export async function POST(req: NextRequest, { params }: { params: { clientId: s
                         token: true,
                      },
                   },
-                  SendBlastingLogs: {
-                     orderBy: {
-                        createdAt: 'desc',
+                  GuestDetail: {
+                     select: {
+                        detail_key: true,
+                        detail_val: true,
                      },
                   },
                },
@@ -60,10 +62,48 @@ export async function POST(req: NextRequest, { params }: { params: { clientId: s
                });
             }
 
+            const newJson = await Promise.all(
+               guests.map(async (g: any) => {
+                  const detail = g.GuestDetail.reduce(
+                     (acc: any, detail: any) => {
+                        acc[detail.detail_key] = detail.detail_val;
+                        return acc;
+                     },
+                     { guestId: g.guestId }
+                  );
+
+                  const webhookData = await prisma.webhook.findMany({
+                     select: {
+                        id: true,
+                        status: true,
+                        statusCode: true,
+                        blastingSource: true,
+                        lastUpdateStatus: true,
+                     },
+                     where: {
+                        blastingSource: 'RSVP',
+                        recipientId: detail.phone_number,
+                        clientId: client?.id,
+                     },
+                  });
+
+                  const dashboardTableData = {
+                     ...g,
+                     webhook: webhookData,
+                  };
+
+                  return dashboardTableData;
+               })
+            );
+
+            console.log('newJson', newJson);
+
+            revalidatePath(req.nextUrl.pathname);
+
             return NextResponse.json({
                status: 200,
                message: 'filter by answered question',
-               data: guests,
+               data: newJson,
             });
             // code block
             break;
@@ -88,7 +128,12 @@ export async function POST(req: NextRequest, { params }: { params: { clientId: s
                         token: true,
                      },
                   },
-                  SendBlastingLogs: true,
+                  GuestDetail: {
+                     select: {
+                        detail_key: true,
+                        detail_val: true,
+                     },
+                  },
                },
                where: {
                   clientId: client?.id,
@@ -126,9 +171,39 @@ export async function POST(req: NextRequest, { params }: { params: { clientId: s
                },
             });
 
-            console.log('is_answer', is_answer === 'yes' ? 'data yes' : is_answer === 'no' ? 'data no' : 'all data');
+            const newJsonGlobalFilter = await Promise.all(
+               guest.map(async (g: any) => {
+                  const detail = g.GuestDetail.reduce(
+                     (acc: any, detail: any) => {
+                        acc[detail.detail_key] = detail.detail_val;
+                        return acc;
+                     },
+                     { guestId: g.guestId }
+                  );
 
-            console.log(guest);
+                  const webhookData = await prisma.webhook.findMany({
+                     select: {
+                        id: true,
+                        status: true,
+                        statusCode: true,
+                        blastingSource: true,
+                        lastUpdateStatus: true,
+                     },
+                     where: {
+                        blastingSource: 'RSVP',
+                        recipientId: detail.phone_number,
+                        clientId: client?.id,
+                     },
+                  });
+
+                  const dashboardTableData = {
+                     ...g,
+                     webhook: webhookData,
+                  };
+
+                  return dashboardTableData;
+               })
+            );
 
             if (guest.length === 0) {
                return NextResponse.json({
@@ -137,10 +212,12 @@ export async function POST(req: NextRequest, { params }: { params: { clientId: s
                });
             }
 
+            revalidatePath(req.nextUrl.pathname);
+
             return NextResponse.json({
                status: 200,
                message: 'filter by default',
-               data: guest,
+               data: newJsonGlobalFilter,
             });
             break;
       }

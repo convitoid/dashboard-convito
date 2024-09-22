@@ -62,7 +62,10 @@ export async function POST(req: NextRequest, { params }: { params: { clientId: s
 
       const blastingMessage = (await sendBlastingQrService(body, template, image, qrFile)) as BlastingMessageResponse;
 
+      console.log('blastingMessage', blastingMessage);
+
       logger.info('Blasting message sent successfully', { blastingMessage });
+
       return NextResponse.json(
          {
             status: blastingMessage.status,

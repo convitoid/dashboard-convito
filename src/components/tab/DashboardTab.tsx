@@ -24,6 +24,8 @@ import { error } from 'console';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import axios from 'axios';
 import { resetData } from '@/app/GlobalRedux/Features/clients/dashboard/clientDashboardSlice';
+import moment from 'moment';
+import { convertStatus } from '@/utils/convertStatus';
 
 type DashboardTabProps = {
    clientId?: string;
@@ -71,10 +73,6 @@ export const DashboardTab = ({ clientId }: DashboardTabProps) => {
             cell: (info: any) => info.row.index + 1,
          },
          {
-            header: 'Guest ID',
-            accessorKey: 'guestId',
-         },
-         {
             header: 'Name',
             accessorKey: 'name',
          },
@@ -120,20 +118,27 @@ export const DashboardTab = ({ clientId }: DashboardTabProps) => {
             },
          },
          {
-            header: 'Status Blasting',
-            accessorKey: 'status_blasting',
+            header: 'Status',
+            accessorKey: 'status',
             cell: (info: any) => {
                return (
                   <span
-                     className={`text-sm px-2 py-1 rounded-md ${
-                        info.row.original.status_blasting === 'Success'
-                           ? 'bg-green-500 text-white'
-                           : info.row.original.status_blasting === 'Failed'
-                             ? 'bg-red-500 text-white'
-                             : 'bg-amber-500 text-white'
-                     }`}
+                     className={`px-3 py-1 text-[13px] uppercase rounded-md font-semibold ${info.row.original.status === 'NOT SENT YET' ? 'bg-amber-400' : info.row.original.status === 'FAILED' ? 'bg-red-500 text-white' : 'bg-green-500 text-white'}`}
                   >
-                     {info.row.original.status_blasting}
+                     {info.row.original.status === 'FAILED'
+                        ? `Failed: ${info.row.original.statusCode}`
+                        : info.row.original.status}
+                  </span>
+               );
+            },
+         },
+         {
+            header: 'Last Updated',
+            accessorKey: 'lastUpdate',
+            cell: (info: any) => {
+               return (
+                  <span className="text-[14px]">
+                     {info.row.original.lastUpdate ? info.row.original.lastUpdate : '-'}
                   </span>
                );
             },
@@ -145,21 +150,20 @@ export const DashboardTab = ({ clientId }: DashboardTabProps) => {
       if (dashboarData?.length > 0) {
          const dynamicData = dashboarData[0]?.guest?.map((item: any, index: number) => {
             const answer = item.Invitations.some((invitation: any) => invitation.answer !== null);
-            const statusBlasting = item.SendBlastingLogs.map((log: any) => log.status);
-            console.log('statusBlasting', statusBlasting);
+            const webhookStatus = item.webhook.length > 0 ? item.webhook[0] : null;
+            const statusCode = item.webhook.length > 0 ? item.webhook[0].statusCode : null;
+            const lastUpdate = item.webhook.length > 0 ? item.webhook[0].lastUpdateStatus : null;
+
+            const status = convertStatus(webhookStatus?.status);
 
             return {
                id: item.id,
-               guestId: item.guestId,
                name: item.name,
                scenario: item.scenario,
                answer: answer ? 'Yes' : 'No',
-               status_blasting:
-                  statusBlasting.length > 0
-                     ? statusBlasting[0] === 'success_send_blasting'
-                        ? 'Success'
-                        : 'Failed'
-                     : 'Not Yet Sent',
+               status: status,
+               statusCode: statusCode,
+               lastUpdate: lastUpdate ? moment(lastUpdate).format('DD/MM/YYYY HH:mm:ss') : null,
                invitationUrl: item?.Invitations?.length > 0 ? item?.Invitations[0]?.token : '',
             };
          });
@@ -181,24 +185,23 @@ export const DashboardTab = ({ clientId }: DashboardTabProps) => {
       )
          .unwrap()
          .then((res) => {
-            console.log('res', res);
             if (res.status === 200) {
                const dynamicData = res.data?.map((item: any, index: number) => {
                   const answer = item.Invitations.some((invitation: any) => invitation.answer !== null);
-                  const statusBlasting = item.SendBlastingLogs.map((log: any) => log.status);
+                  const webhookStatus = item.webhook.length > 0 ? item.webhook[0] : null;
+                  const statusCode = item.webhook.length > 0 ? item.webhook[0].statusCode : null;
+                  const lastUpdate = item.webhook.length > 0 ? item.webhook[0].lastUpdateStatus : null;
+
+                  const status = convertStatus(webhookStatus?.status);
 
                   return {
                      id: item.id,
-                     guestId: item.guestId,
                      name: item.name,
                      scenario: item.scenario,
                      answer: answer ? 'Yes' : 'No',
-                     status_blasting:
-                        statusBlasting.length > 0
-                           ? statusBlasting[0] === 'success_send_blasting'
-                              ? 'Success'
-                              : 'Failed'
-                           : 'Not Yet Sent',
+                     status: status,
+                     statusCode: statusCode,
+                     lastUpdate: lastUpdate ? moment(lastUpdate).format('DD/MM/YYYY HH:mm:ss') : null,
                      invitationUrl: item?.Invitations?.length > 0 ? item?.Invitations[0]?.token : '',
                   };
                });
@@ -231,20 +234,20 @@ export const DashboardTab = ({ clientId }: DashboardTabProps) => {
 
                const dynamicData = res.payload.data[0].guest.map((item: any, index: number) => {
                   const answer = item.Invitations.some((invitation: any) => invitation.answer !== null);
-                  const statusBlasting = item.SendBlastingLogs.map((log: any) => log.status);
+                  const webhookStatus = item.webhook.length > 0 ? item.webhook[0] : null;
+                  const statusCode = item.webhook.length > 0 ? item.webhook[0].statusCode : null;
+                  const lastUpdate = item.webhook.length > 0 ? item.webhook[0].lastUpdateStatus : null;
+
+                  const status = convertStatus(webhookStatus?.status);
 
                   return {
                      id: item.id,
-                     guestId: item.guestId,
                      name: item.name,
                      scenario: item.scenario,
                      answer: answer ? 'Yes' : 'No',
-                     status_blasting:
-                        statusBlasting.length > 0
-                           ? statusBlasting[0] === 'success_send_blasting'
-                              ? 'Success'
-                              : 'Failed'
-                           : 'Not Yet Sent',
+                     status: status,
+                     statusCode: statusCode,
+                     lastUpdate: lastUpdate ? moment(lastUpdate).format('DD/MM/YYYY HH:mm:ss') : null,
                      invitationUrl: item?.Invitations?.length > 0 ? item?.Invitations[0]?.token : '',
                   };
                });
@@ -271,22 +274,20 @@ export const DashboardTab = ({ clientId }: DashboardTabProps) => {
                if (res.status === 200) {
                   const dynamicData = res.data.map((item: any, index: number) => {
                      const answer = item.Invitations.some((invitation: any) => invitation.answer !== null);
-                     const statusBlasting = item.SendBlastingLogs.map((log: any) => log.status);
+                     const webhookStatus = item.webhook.length > 0 ? item.webhook[0] : null;
+                     const statusCode = item.webhook.length > 0 ? item.webhook[0].statusCode : null;
+                     const lastUpdate = item.webhook.length > 0 ? item.webhook[0].lastUpdateStatus : null;
 
-                     console.log('statusBlasting', statusBlasting);
+                     const status = convertStatus(webhookStatus?.status);
 
                      return {
                         id: item.id,
-                        guestId: item.guestId,
                         name: item.name,
                         scenario: item.scenario,
                         answer: answer ? 'Yes' : 'No',
-                        status_blasting:
-                           statusBlasting.length > 0
-                              ? statusBlasting[0] === 'success_send_blasting'
-                                 ? 'Success'
-                                 : 'Failed'
-                              : 'Not Yet Sent',
+                        status: status,
+                        statusCode: statusCode,
+                        lastUpdate: lastUpdate ? moment(lastUpdate).format('DD/MM/YYYY HH:mm:ss') : null,
                         invitationUrl: item?.Invitations?.length > 0 ? item?.Invitations[0]?.token : '',
                      };
                   });

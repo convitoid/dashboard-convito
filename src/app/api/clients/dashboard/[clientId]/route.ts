@@ -45,12 +45,13 @@ export async function GET(req: NextRequest, { params }: { params: { clientId: st
                   token: true,
                },
             },
-            // get only new log
-            SendBlastingLogs: {
-               orderBy: {
-                  createdAt: 'desc',
+            GuestDetail: {
+               select: {
+                  detail_key: true,
+                  detail_val: true,
                },
             },
+            // get only new log
          },
          where: {
             clientId: client?.id,
@@ -60,7 +61,39 @@ export async function GET(req: NextRequest, { params }: { params: { clientId: st
          },
       });
 
-      console.log('guest', guest);
+      const newJson = await Promise.all(
+         guest.map(async (g: any) => {
+            const detail = g.GuestDetail.reduce(
+               (acc: any, detail: any) => {
+                  acc[detail.detail_key] = detail.detail_val;
+                  return acc;
+               },
+               { guestId: g.guestId }
+            );
+
+            const webhookData = await prisma.webhook.findMany({
+               select: {
+                  id: true,
+                  status: true,
+                  statusCode: true,
+                  blastingSource: true,
+                  lastUpdateStatus: true,
+               },
+               where: {
+                  blastingSource: 'RSVP',
+                  recipientId: detail.phone_number,
+                  clientId: client?.id,
+               },
+            });
+
+            const dashboardTableData = {
+               ...g,
+               webhook: webhookData,
+            };
+
+            return dashboardTableData;
+         })
+      );
 
       const answeredGuests = guest.filter((guest) =>
          guest.Invitations.some((invitation) => invitation.answer !== null)
@@ -104,7 +137,7 @@ export async function GET(req: NextRequest, { params }: { params: { clientId: st
             total_guests: guest.length,
             guest_confirm: guestConfirm,
             guest_decline: guestDecline,
-            guest: guest,
+            guest: newJson,
          },
       ];
 
@@ -157,7 +190,6 @@ export async function GET(req: NextRequest, { params }: { params: { clientId: st
 
 export async function POST(req: NextRequest, { params }: { params: { clientId: string } }) {
    const token = req.headers.get('authorization');
-   console.log('token', token);
    const jwtToken = token?.split(' ')[1];
    const { filter_by } = await req.json();
 
@@ -214,6 +246,10 @@ export async function POST(req: NextRequest, { params }: { params: { clientId: s
                  ]
                : undefined,
          },
+
+         orderBy: {
+            name: 'asc',
+         },
       });
 
       const formattedGuest = guest.map((guest) => {
@@ -245,6 +281,8 @@ export async function POST(req: NextRequest, { params }: { params: { clientId: s
       logger.info(`Dashboard export data successfully for client: ${params.clientId}`, {
          data: formattedGuest,
       });
+
+      revalidatePath(req.nextUrl.pathname);
 
       return NextResponse.json(
          {

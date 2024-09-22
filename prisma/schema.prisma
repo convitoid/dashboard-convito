@@ -117,7 +117,6 @@ model Guest {
   updatedAt        DateTime           @updatedAt
   Invitations      Invitations[]
   SendBlastingLogs SendBlastingLogs[]
-  Webhook          Webhook[]
 }
 
 model GuestDetail {
@@ -266,9 +265,8 @@ model Webhook {
   id               Int       @id @default(autoincrement())
   clientId         Int
   Client           Client    @relation(fields: [clientId], references: [id])
-  guestId          Int
-  Guest            Guest     @relation(fields: [guestId], references: [id])
   templateName     String?
+  blastingSource   String?
   waId             String?
   recipientId      String?
   status           String?

@@ -15,6 +15,8 @@ import { ChevronDoubleRightIcon } from '../icons/chevronDoubleRight';
 import { ChevronRightIcon } from '../icons/chevronRight';
 import { ChevronLeftIcon } from '../icons/chevronLeft';
 import { ChevronDoubleLeftIcon } from '../icons/chevronDoubleLeft';
+import { convertStatus } from '@/utils/convertStatus';
+import moment from 'moment';
 
 type QrDashboardTabProps = {
    clientId: string;
@@ -57,21 +59,56 @@ export const QrDashboardTab = ({ clientId }: QrDashboardTabProps) => {
             accessorKey: 'qr_code',
          },
          {
-            header: 'Broadcast Status',
-            accessorKey: 'broadcastStatus',
+            header: 'Status',
+            accessorKey: 'status',
             cell: (info: any) => {
                return (
-                  <span
-                     className={`px-2 py-1 rounded-md ${
-                        info.row.original.broadcastStatus === 'Broadcast Success'
-                           ? info.row.original.broadcastStatus === 'Broadcast Failed'
-                              ? 'bg-red-500 text-white'
-                              : 'bg-green-500 text-white'
-                           : 'bg-amber-500 text-white'
-                     }`}
-                  >
-                     {info.row.original.broadcastStatus}
-                  </span>
+                  <>
+                     {typeof info.row.original.status === 'object' ? (
+                        <div className="flex gap-2">
+                           {info.row.original.status.map((status: any, index: number) => (
+                              // <>{JSON.stringify(status, null, 2)}</>
+                              <div
+                                 key={index}
+                                 className={`px-3 py-1 text-[13px] uppercase rounded-md font-semibold ${status.status === 'FAILED' ? 'bg-red-500 text-white' : 'bg-green-500 text-white'}`}
+                              >
+                                 {status.status === 'FAILED' ? (
+                                    `Failed: ${info.row.original.statusCode}`
+                                 ) : (
+                                    <span>
+                                       {status.blastingSource} : {status.status}
+                                    </span>
+                                 )}
+                              </div>
+                           ))}
+                        </div>
+                     ) : (
+                        <span className="px-3 py-1 text-[13px] uppercase rounded-md font-semibold bg-amber-400">
+                           {info.row.original.status}
+                        </span>
+                     )}
+                  </>
+               );
+            },
+         },
+         {
+            header: 'Last Updated',
+            accessorKey: 'status',
+            cell: (info: any) => {
+               return (
+                  <>
+                     {typeof info.row.original.status === 'object' ? (
+                        <div className="flex gap-1">
+                           {info.row.original.status.map((status: any, index: number) => (
+                              <div key={index} className="px-3 py-1 text-[13px] uppercase rounded-md font-semibold">
+                                 {status.blastingSource}: {status.lastUpdated}
+                              </div>
+                           ))}
+                        </div>
+                     ) : (
+                        <span className="px-3 py-1 text-[13px] uppercase rounded-md font-semibold">-</span>
+                     )}
+                  </>
                );
             },
          },
@@ -81,25 +118,40 @@ export const QrDashboardTab = ({ clientId }: QrDashboardTabProps) => {
 
       if (dashboardData?.data?.length > 0) {
          const data = dashboardData.data[0].guests.map((guest: any) => {
-            const status = guest.QrBroadcastLogs.map((status: any) => status.status);
-            const statusFiltered = status.length > 0 ? status[status.length - 1] : 'Not Send Yet';
+            const webhookStatus = guest.webhook;
+            // const statusFiltered = status.length > 0 ? status[status.length - 1] : 'Not Send Yet';
 
-            const formattedStatus = (status: any) => {
-               switch (status) {
-                  case 'success_sent':
-                     return 'Broadcast Success';
-                  case 'failed_sent':
-                     return 'Broadcast Failed';
-                  default:
-                     return 'Not Send Yet';
-               }
-            };
+            const status =
+               webhookStatus.length > 0
+                  ? webhookStatus?.map((status: any) => {
+                       const data = {
+                          status: convertStatus(status.status),
+                          blastingSource: status.blastingSource,
+                          lastUpdated: moment(status.lastUpdateStatus).format('DD/MM/YYYY HH:mm:ss'),
+                       };
+
+                       return data;
+                    })
+                  : convertStatus('');
+
+            const lastUpdated =
+               webhookStatus.length > 0
+                  ? moment(webhookStatus[webhookStatus.length - 1].lastUpdateStatus).format('DD/MM/YYYY HH:mm:ss')
+                  : ' - ';
+
+            const statusCode = webhookStatus.length > 0 ? webhookStatus[webhookStatus.length - 1].statusCode : ' - ';
+
+            const blastingSource =
+               webhookStatus.length > 0 ? webhookStatus?.map((from: any) => from.blastingSource) : ' - ';
+            console.log('blastingSource', blastingSource);
 
             return {
                name: guest.name,
                phoneNumber: guest.phoneNumber,
                qr_code: guest.qr_code,
-               broadcastStatus: formattedStatus(statusFiltered),
+               status: status,
+               statusCode: statusCode,
+               // broadcastStatus: formattedStatus(statusFiltered),
             };
          });
 

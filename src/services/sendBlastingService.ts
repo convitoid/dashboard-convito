@@ -231,8 +231,6 @@ export const sendBlastingService = async (data: any, clientId: any, clientCode: 
             });
          });
 
-         console.log('sendBlastingProcess', sendBlastingProcess);
-
          const webhookData = await Promise.all(
             sendBlastingProcess.map(async (webhook: any) => {
                const client = await prisma.client.findFirst({
@@ -245,8 +243,8 @@ export const sendBlastingService = async (data: any, clientId: any, clientCode: 
                });
 
                return {
-                  guestId: webhook.guest.id,
                   templateName: webhook.template_name,
+                  blastingSource: 'RSVP',
                   waId: webhook.messages.map((data: any) => data.id)[0],
                   status: webhook.messages.map((data: any) => data.message_status)[0],
                   recipientId: webhook.contacts.map((data: any) => data.wa_id)[0],
@@ -256,21 +254,28 @@ export const sendBlastingService = async (data: any, clientId: any, clientCode: 
             })
          );
 
-         console.log('webhookData', webhookData);
-
          const webhookExist = await prisma.webhook.findMany({
             where: {
-               guestId: {
-                  in: webhookData.map((w) => w.guestId),
+               recipientId: {
+                  in: webhookData.map((w) => w.recipientId),
+               },
+               blastingSource: 'RSVP',
+               clientId: {
+                  in: webhookData.map((w) => w.clientId),
                },
             },
          });
 
+         console.log('webhookExist', webhookExist);
+
          if (webhookExist.length > 0) {
             await prisma.webhook.deleteMany({
                where: {
-                  guestId: {
-                     in: webhookExist.map((w) => w.guestId),
+                  id: {
+                     in: webhookExist.map((w) => w.id),
+                  },
+                  clientId: {
+                     in: webhookExist.map((w) => w.clientId),
                   },
                },
             });
@@ -301,7 +306,7 @@ export const sendBlastingQrService = async (body: any, template: any, image: any
                   try {
                      const whatsappBodyJsonReminder = {
                         messaging_product: 'whatsapp',
-                        to: `${guest.phoneNumber}`,
+                        to: `+${guest.phoneNumber}`,
                         type: 'template',
                         template: {
                            name: template.find((t: any) => t.type === 'reminder_template')?.name,
@@ -314,6 +319,7 @@ export const sendBlastingQrService = async (body: any, template: any, image: any
                                        type: 'image',
                                        image: {
                                           link: `${process.env.NEXTAUTH_URL}${image[0].path}`,
+                                          // link: `https://images.unsplash.com/photo-1634729108541-516d16ddceec?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D`,
                                        },
                                     },
                                  ],
@@ -329,7 +335,7 @@ export const sendBlastingQrService = async (body: any, template: any, image: any
                      const qrFileUrl = qrFile.filter((qr: any) => qr.code === guest.qr_code);
                      const whatsappBodyJsonQr = {
                         messaging_product: 'whatsapp',
-                        to: `${guest.phoneNumber}`,
+                        to: `+${guest.phoneNumber}`,
                         type: 'template',
                         template: {
                            name: template.find((t: any) => t.type === 'qr_template')?.name,
@@ -342,6 +348,7 @@ export const sendBlastingQrService = async (body: any, template: any, image: any
                                        type: 'image',
                                        image: {
                                           link: `${process.env.NEXTAUTH_URL}/${qrFileUrl[0].path}`,
+                                          // link: `https://images.unsplash.com/photo-1634729108541-516d16ddceec?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D`,
                                        },
                                     },
                                  ],
@@ -365,7 +372,59 @@ export const sendBlastingQrService = async (body: any, template: any, image: any
                      );
 
                      console.log('image', `${process.env.NEXTAUTH_URL}${image[0].path}`);
-                     console.log('response reminder', response);
+                     // console.log('response reminder', await response.json());
+                     const whatsappResponse = await response.json();
+
+                     console.log('response reminder', whatsappResponse);
+
+                     const qrGuest = await prisma.qrGuest.findMany({
+                        select: {
+                           clientId: true,
+                        },
+
+                        where: {
+                           id: guest.id,
+                        },
+                     });
+
+                     const webhookData = {
+                        templateName: template.find((t: any) => t.type === 'reminder_template')?.name,
+                        blastingSource: 'QR_REMINDER',
+                        waId: whatsappResponse.messages.map((data: any) => data.id)[0],
+                        status: whatsappResponse.messages.map((data: any) => data.message_status)[0],
+                        recipientId: whatsappResponse.contacts.map((data: any) => data.wa_id)[0],
+                        clientId: qrGuest[0].clientId,
+                        lastUpdateStatus: new Date(),
+                     };
+
+                     const webhookExist = await prisma.webhook.findMany({
+                        where: {
+                           recipientId: webhookData.recipientId,
+                           blastingSource: 'QR_REMINDER',
+                           clientId: webhookData.clientId,
+                        },
+                     });
+
+                     console.log(
+                        'webhookData',
+                        webhookExist.map((w) => w.id)
+                     );
+
+                     if (webhookExist.length > 0) {
+                        await prisma.webhook.deleteMany({
+                           where: {
+                              id: {
+                                 in: webhookExist.map((w) => w.id),
+                              },
+                              blastingSource: 'QR_REMINDER',
+                              clientId: webhookData.clientId,
+                           },
+                        });
+                     }
+
+                     await prisma.webhook.create({
+                        data: webhookData,
+                     });
 
                      logger.info('Reminder message sent successfully', {
                         data: { guestId: guest.id, guestName: guest.name, response: response },
@@ -385,13 +444,64 @@ export const sendBlastingQrService = async (body: any, template: any, image: any
                            }
                         );
                         console.log('qr image', `${process.env.NEXTAUTH_URL}/${qrFileUrl[0].path}`);
-                        console.log('response qr', responseQr);
+
+                        const whatsappQrResponse = await responseQr.json();
+
+                        const webhookDataQr = {
+                           templateName: template.find((t: any) => t.type === 'qr_template')?.name,
+                           blastingSource: 'QR_CODE',
+                           waId: whatsappQrResponse.messages.map((data: any) => data.id)[0],
+                           status: whatsappQrResponse.messages.map((data: any) => data.message_status)[0],
+                           recipientId: whatsappQrResponse.contacts.map((data: any) => data.wa_id)[0],
+                           clientId: qrGuest[0].clientId,
+                           lastUpdateStatus: new Date(),
+                        };
+
+                        const webhookExistQr = await prisma.webhook.findMany({
+                           where: {
+                              recipientId: webhookDataQr.recipientId,
+                              blastingSource: 'QR_CODE',
+                              clientId: webhookDataQr.clientId,
+                           },
+                        });
+
+                        console.log('webhookExistQr', webhookExistQr);
+
+                        if (webhookExistQr.length > 0) {
+                           await prisma.webhook.deleteMany({
+                              where: {
+                                 id: {
+                                    in: webhookExistQr.map((w) => w.id),
+                                 },
+                                 blastingSource: 'QR_CODE',
+                                 clientId: webhookDataQr.clientId,
+                              },
+                           });
+                        }
+
+                        await prisma.webhook.create({
+                           data: webhookDataQr,
+                        });
 
                         logger.info('QR message sent successfully', {
                            data: { guestId: guest.id, guestName: guest.name, response: responseQr },
                         });
 
                         if (responseQr.ok) {
+                           const qrLogExist = await prisma.qrBroadcastLogs.findMany({
+                              where: {
+                                 QrGuestId: guest.id,
+                              },
+                           });
+
+                           if (qrLogExist.length > 0) {
+                              await prisma.qrBroadcastLogs.deleteMany({
+                                 where: {
+                                    QrGuestId: guest.id,
+                                 },
+                              });
+                           }
+
                            await prisma.qrBroadcastLogs.create({
                               data: { QrGuestId: guest.id, status: 'success_sent' },
                            });
@@ -407,6 +517,20 @@ export const sendBlastingQrService = async (body: any, template: any, image: any
                            });
                         }
                      } else {
+                        const qrLogExist = await prisma.qrBroadcastLogs.findMany({
+                           where: {
+                              QrGuestId: guest.id,
+                           },
+                        });
+
+                        if (qrLogExist.length > 0) {
+                           await prisma.qrBroadcastLogs.deleteMany({
+                              where: {
+                                 QrGuestId: guest.id,
+                              },
+                           });
+                        }
+
                         await prisma.qrBroadcastLogs.create({
                            data: { QrGuestId: guest.id, status: 'failed_sent' },
                         });
@@ -418,6 +542,21 @@ export const sendBlastingQrService = async (body: any, template: any, image: any
                      logger.error('Failed to send broadcast message', {
                         data: { guestId: guest.id, guestName: guest.name, error: error },
                      });
+
+                     const qrLogExist = await prisma.qrBroadcastLogs.findMany({
+                        where: {
+                           QrGuestId: guest.id,
+                        },
+                     });
+
+                     if (qrLogExist.length > 0) {
+                        await prisma.qrBroadcastLogs.deleteMany({
+                           where: {
+                              QrGuestId: guest.id,
+                           },
+                        });
+                     }
+
                      await prisma.qrBroadcastLogs.create({
                         data: { QrGuestId: guest.id, status: 'failed_sent' },
                      });
@@ -428,10 +567,11 @@ export const sendBlastingQrService = async (body: any, template: any, image: any
             // Send broadcast reminder without image
             await Promise.all(
                body.map(async (guest: any) => {
+                  console.log('guest', guest);
                   try {
                      const whatsappBodyJsonReminder = {
                         messaging_product: 'whatsapp',
-                        to: `${guest.phoneNumber}`,
+                        to: `+${guest.phoneNumber}`,
                         type: 'template',
                         template: {
                            name: template.find((t: any) => t.type === 'reminder_template')?.name,
@@ -446,9 +586,10 @@ export const sendBlastingQrService = async (body: any, template: any, image: any
                      };
 
                      const qrFileUrl = qrFile.filter((qr: any) => qr.code === guest.qr_code);
+
                      const whatsappBodyJsonQr = {
                         messaging_product: 'whatsapp',
-                        to: `${guest.phoneNumber}`,
+                        to: `+${guest.phoneNumber}`,
                         type: 'template',
                         template: {
                            name: template.find((t: any) => t.type === 'qr_template')?.name,
@@ -461,6 +602,7 @@ export const sendBlastingQrService = async (body: any, template: any, image: any
                                        type: 'image',
                                        image: {
                                           link: `${process.env.NEXTAUTH_URL}/${qrFileUrl[0].path}`,
+                                          // link: `https://images.unsplash.com/photo-1634729108541-516d16ddceec?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D`,
                                        },
                                     },
                                  ],
@@ -482,6 +624,55 @@ export const sendBlastingQrService = async (body: any, template: any, image: any
                         }
                      );
 
+                     const whatsappResponse = await response.json();
+
+                     const qrGuest = await prisma.qrGuest.findMany({
+                        select: {
+                           clientId: true,
+                        },
+
+                        where: {
+                           id: guest.id,
+                        },
+                     });
+
+                     console.log('response reminder', whatsappResponse);
+                     console.log('qrGuest', qrGuest);
+
+                     const webhookData = {
+                        templateName: template.find((t: any) => t.type === 'reminder_template')?.name,
+                        blastingSource: 'QR_REMINDER',
+                        waId: whatsappResponse.messages.map((data: any) => data.id)[0],
+                        status: whatsappResponse.messages.map((data: any) => data.message_status)[0],
+                        recipientId: whatsappResponse.contacts.map((data: any) => data.wa_id)[0],
+                        clientId: qrGuest[0].clientId,
+                        lastUpdateStatus: new Date(),
+                     };
+
+                     console.log('webhookData', webhookData);
+
+                     const webhookExist = await prisma.webhook.findMany({
+                        where: {
+                           recipientId: webhookData.recipientId,
+                           blastingSource: 'QR_REMINDER',
+                           clientId: webhookData.clientId,
+                        },
+                     });
+
+                     if (webhookExist.length > 0) {
+                        await prisma.webhook.deleteMany({
+                           where: {
+                              id: webhookExist.map((w) => w.id)[0],
+                              blastingSource: 'QR_REMINDER',
+                              clientId: webhookData.clientId,
+                           },
+                        });
+                     }
+
+                     await prisma.webhook.create({
+                        data: webhookData,
+                     });
+
                      logger.info('Reminder message sent successfully', {
                         data: { guestId: guest.id, guestName: guest.name, response: response },
                      });
@@ -499,14 +690,61 @@ export const sendBlastingQrService = async (body: any, template: any, image: any
                            }
                         );
 
-                        console.log('qr image', `${process.env.NEXTAUTH_URL}/${qrFileUrl[0].path}`);
-                        console.log('response qr', responseQr);
+                        const whatsappQrResponse = await responseQr.json();
+
+                        console.log('response qr', whatsappQrResponse);
+
+                        const webhookDataQr = {
+                           templateName: template.find((t: any) => t.type === 'qr_template')?.name,
+                           blastingSource: 'QR_CODE',
+                           waId: whatsappQrResponse.messages.map((data: any) => data.id)[0],
+                           status: whatsappQrResponse.messages.map((data: any) => data.message_status)[0],
+                           recipientId: whatsappQrResponse.contacts.map((data: any) => data.wa_id)[0],
+                           clientId: qrGuest[0].clientId,
+                           lastUpdateStatus: new Date(),
+                        };
+
+                        const webhookExistQr = await prisma.webhook.findMany({
+                           where: {
+                              recipientId: webhookDataQr.recipientId,
+                              blastingSource: 'QR_CODE',
+                              clientId: webhookDataQr.clientId,
+                           },
+                        });
+
+                        if (webhookExistQr.length > 0) {
+                           await prisma.webhook.deleteMany({
+                              where: {
+                                 id: webhookExistQr.map((w) => w.id)[0],
+                                 blastingSource: 'QR_CODE',
+                                 clientId: webhookDataQr.clientId,
+                              },
+                           });
+                        }
+
+                        await prisma.webhook.create({
+                           data: webhookDataQr,
+                        });
 
                         logger.info('QR message sent successfully', {
                            data: { guestId: guest.id, guestName: guest.name, response: responseQr },
                         });
 
                         if (responseQr.ok) {
+                           const qrLogExist = await prisma.qrBroadcastLogs.findMany({
+                              where: {
+                                 QrGuestId: guest.id,
+                              },
+                           });
+
+                           if (qrLogExist.length > 0) {
+                              await prisma.qrBroadcastLogs.deleteMany({
+                                 where: {
+                                    QrGuestId: guest.id,
+                                 },
+                              });
+                           }
+
                            await prisma.qrBroadcastLogs.create({
                               data: { QrGuestId: guest.id, status: 'success_sent' },
                            });
@@ -514,6 +752,19 @@ export const sendBlastingQrService = async (body: any, template: any, image: any
                               data: { guestId: guest.id, guestName: guest.name },
                            });
                         } else {
+                           const qrLogExist = await prisma.qrBroadcastLogs.findMany({
+                              where: {
+                                 QrGuestId: guest.id,
+                              },
+                           });
+
+                           if (qrLogExist.length > 0) {
+                              await prisma.qrBroadcastLogs.deleteMany({
+                                 where: {
+                                    QrGuestId: guest.id,
+                                 },
+                              });
+                           }
                            await prisma.qrBroadcastLogs.create({
                               data: { QrGuestId: guest.id, status: 'failed_sent' },
                            });
@@ -522,6 +773,19 @@ export const sendBlastingQrService = async (body: any, template: any, image: any
                            });
                         }
                      } else {
+                        const qrLogExist = await prisma.qrBroadcastLogs.findMany({
+                           where: {
+                              QrGuestId: guest.id,
+                           },
+                        });
+
+                        if (qrLogExist.length > 0) {
+                           await prisma.qrBroadcastLogs.deleteMany({
+                              where: {
+                                 QrGuestId: guest.id,
+                              },
+                           });
+                        }
                         await prisma.qrBroadcastLogs.create({
                            data: { QrGuestId: guest.id, status: 'failed_sent' },
                         });
@@ -530,6 +794,19 @@ export const sendBlastingQrService = async (body: any, template: any, image: any
                         });
                      }
                   } catch (error) {
+                     const qrLogExist = await prisma.qrBroadcastLogs.findMany({
+                        where: {
+                           QrGuestId: guest.id,
+                        },
+                     });
+
+                     if (qrLogExist.length > 0) {
+                        await prisma.qrBroadcastLogs.deleteMany({
+                           where: {
+                              QrGuestId: guest.id,
+                           },
+                        });
+                     }
                      logger.error('Failed to send broadcast message', {
                         data: { guestId: guest.id, guestName: guest.name, error: error },
                      });
