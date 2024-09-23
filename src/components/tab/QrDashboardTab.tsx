@@ -1,5 +1,6 @@
 import { fetchClientQrDashboard } from '@/app/GlobalRedux/Thunk/clients/clientQrDashboardThunk';
 import { AppDispatch, RootState } from '@/app/store';
+import { convertStatus } from '@/utils/convertStatus';
 import {
    ColumnDef,
    flexRender,
@@ -9,14 +10,13 @@ import {
    RowData,
    useReactTable,
 } from '@tanstack/react-table';
+import moment from 'moment';
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { ChevronDoubleRightIcon } from '../icons/chevronDoubleRight';
-import { ChevronRightIcon } from '../icons/chevronRight';
-import { ChevronLeftIcon } from '../icons/chevronLeft';
 import { ChevronDoubleLeftIcon } from '../icons/chevronDoubleLeft';
-import { convertStatus } from '@/utils/convertStatus';
-import moment from 'moment';
+import { ChevronDoubleRightIcon } from '../icons/chevronDoubleRight';
+import { ChevronLeftIcon } from '../icons/chevronLeft';
+import { ChevronRightIcon } from '../icons/chevronRight';
 
 type QrDashboardTabProps = {
    clientId: string;
@@ -59,54 +59,106 @@ export const QrDashboardTab = ({ clientId }: QrDashboardTabProps) => {
             accessorKey: 'qr_code',
          },
          {
-            header: 'Status',
+            header: 'Status (Reminder)',
             accessorKey: 'status',
             cell: (info: any) => {
                return (
                   <>
                      {typeof info.row.original.status === 'object' ? (
-                        <div className="flex gap-2">
-                           {info.row.original.status.map((status: any, index: number) => (
-                              // <>{JSON.stringify(status, null, 2)}</>
-                              <div
-                                 key={index}
-                                 className={`px-3 py-1 text-[13px] uppercase rounded-md font-semibold ${status.status === 'FAILED' ? 'bg-red-500 text-white' : 'bg-green-500 text-white'}`}
-                              >
-                                 {status.status === 'FAILED' ? (
-                                    `Failed: ${info.row.original.statusCode}`
-                                 ) : (
-                                    <span>
-                                       {status.blastingSource} : {status.status}
-                                    </span>
-                                 )}
-                              </div>
-                           ))}
+                        <div className="flex">
+                           {info.row.original.status
+                              .filter((status: any) => status.blastingSource === 'QR_REMINDER')
+                              .map((status: any, index: number) => (
+                                 <div
+                                    key={index}
+                                    className={`px-3 py-1 text-[13px] uppercase rounded-md font-semibold ${status.status === 'FAILED' ? 'bg-red-500 text-white' : 'bg-green-500 text-white'}`}
+                                 >
+                                    {status.status === 'FAILED' ? (
+                                       `Failed: ${info.row.original.statusCode}`
+                                    ) : (
+                                       <span>{status.status}</span>
+                                    )}
+                                 </div>
+                              ))}
                         </div>
                      ) : (
-                        <span className="px-3 py-1 text-[13px] uppercase rounded-md font-semibold bg-amber-400">
-                           {info.row.original.status}
-                        </span>
+                        '-'
                      )}
                   </>
                );
             },
          },
          {
-            header: 'Last Updated',
+            header: 'Status (QR Code)',
             accessorKey: 'status',
             cell: (info: any) => {
                return (
                   <>
                      {typeof info.row.original.status === 'object' ? (
-                        <div className="flex gap-1">
-                           {info.row.original.status.map((status: any, index: number) => (
-                              <div key={index} className="px-3 py-1 text-[13px] uppercase rounded-md font-semibold">
-                                 {status.blastingSource}: {status.lastUpdated}
-                              </div>
-                           ))}
+                        <div className="flex">
+                           {info.row.original.status
+                              .filter((status: any) => status.blastingSource === 'QR_CODE')
+                              .map((status: any, index: number) => (
+                                 <div
+                                    key={index}
+                                    className={`px-3 py-1 text-[13px] uppercase rounded-md font-semibold ${status.status === 'FAILED' ? 'bg-red-500 text-white' : 'bg-green-500 text-white'}`}
+                                 >
+                                    {status.status === 'FAILED' ? (
+                                       `Failed: ${info.row.original.statusCode}`
+                                    ) : (
+                                       <span>{status.status}</span>
+                                    )}
+                                 </div>
+                              ))}
                         </div>
                      ) : (
-                        <span className="px-3 py-1 text-[13px] uppercase rounded-md font-semibold">-</span>
+                        '-'
+                     )}
+                  </>
+               );
+            },
+         },
+         {
+            header: 'Last Updated (Reminder)',
+            accessorKey: 'status',
+            cell: (info: any) => {
+               return (
+                  <>
+                     {typeof info.row.original.status === 'object' ? (
+                        <div className="flex">
+                           {info.row.original.status
+                              .filter((status: any) => status.blastingSource === 'QR_REMINDER')
+                              .map((status: any, index: number) => (
+                                 <div key={index} className="px-3 py-1 text-[13px] font-semibold">
+                                    {status.lastUpdated}
+                                 </div>
+                              ))}
+                        </div>
+                     ) : (
+                        '-'
+                     )}
+                  </>
+               );
+            },
+         },
+         {
+            header: 'Last Updated (QR Code)',
+            accessorKey: 'status',
+            cell: (info: any) => {
+               return (
+                  <>
+                     {typeof info.row.original.status === 'object' ? (
+                        <div className="flex">
+                           {info.row.original.status
+                              .filter((status: any) => status.blastingSource === 'QR_CODE')
+                              .map((status: any, index: number) => (
+                                 <div key={index} className="px-3 py-1 text-[13px] font-semibold">
+                                    {status.lastUpdated}
+                                 </div>
+                              ))}
+                        </div>
+                     ) : (
+                        '-'
                      )}
                   </>
                );
