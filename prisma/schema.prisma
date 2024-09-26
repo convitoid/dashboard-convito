@@ -1,23 +1,12 @@
-// generator client {
-//   provider = "prisma-client-js"
-// }
-
-// datasource db {
-//   provider = "postgresql"
-//   url      = env("DATABASE_URL")
-// }
+generator client {
+   provider = "prisma-client-js"
+}
 
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
-  // extensions = [hstore(schema: "myHstoreSchema"), pg_trgm, postgis(version: "2.1")]
+   provider = "postgresql"
+   url      = env("DATABASE_URL")
 }
 
-generator client {
-  provider        = "prisma-client-js"
-  previewFeatures = ["postgresqlExtensions"]
-}
 
 model Client {
   id                  Int                   @id @default(autoincrement())
@@ -264,7 +253,7 @@ model QrBroadcastLogs {
 model Webhook {
   id               Int       @id @default(autoincrement())
   clientId         Int
-  Client           Client    @relation(fields: [clientId], references: [id])
+  Client           Client    @relation(fields: [clientId], references: [id], onDelete: Cascade)
   templateName     String?
   blastingSource   String?
   waId             String?

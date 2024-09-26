@@ -1,10 +1,12 @@
 import logger from '@/libs/logger';
 import prisma from '@/libs/prisma';
 import { getErrorResponse, getSuccessReponse } from '@/utils/response/successResponse';
-import { WhatsappBlastBody } from '@/utils/whatsappBlastBody';
-import { Prisma } from '@prisma/client';
 import jwt from 'jsonwebtoken';
-import { NextResponse } from 'next/server';
+import plimit from 'p-limit';
+import { WhatsappBlastBody } from '../utils/whatsappBlastBody';
+
+const limit = plimit(10)
+
 
 type InvitationsWhereUniqueInput = {
    id?: number;
@@ -148,8 +150,53 @@ export const sendBlastingService = async (data: any, clientId: any, clientCode: 
          data: invitationsData,
       });
 
+      // const sendBlastingProcess = await Promise.all(
+      //    data.map(async (d: any) => {
+      //       const templateBody = await WhatsappBlastBody({
+      //          data: d,
+      //          broadcastTemplate: d.broadcastTemplate,
+      //          image: clientImage,
+      //          video: clientVideo,
+      //          clientCode: clientCode,
+      //       });
+
+      //       logger.info('templateBodyLog', { data: templateBody });
+      //       console.log('templateBody', templateBody);
+
+      //       const myHeaders = new Headers();
+      //       myHeaders.append('Content-Type', 'application/json');
+      //       myHeaders.append('Authorization', `Bearer ${process.env.NEXT_WHATSAPP_TOKEN_ID}`);
+
+      //       const response = await fetch(
+      //          `https://graph.facebook.com/v20.0/${process.env.NEXT_PHONE_NUMBER_ID}/messages`,
+      //          {
+      //             method: 'POST',
+      //             headers: myHeaders,
+      //             body: JSON.stringify(templateBody),
+      //             redirect: 'follow',
+      //          }
+      //       );
+
+      //       const res = await response.json();
+
+      //       if (res.error) {
+      //          return {
+      //             error: res.error,
+      //             guest: { id: d.id, name: d.name },
+      //          };
+      //       }
+      //       return {
+      //        template_name: templateBody?.template?.name,
+      //             ...res,
+      //         clientCode: clientCode,
+      //          guest: { id: d.id, name: d.name },
+      //       };
+      //    }
+      // )
+      // );
+
       const sendBlastingProcess = await Promise.all(
-         data.map(async (d: any) => {
+         data.map((d: any) => limit(async () => {
             const templateBody = await WhatsappBlastBody({
                data: d,
                broadcastTemplate: d.broadcastTemplate,
@@ -157,9 +204,6 @@ export const sendBlastingService = async (data: any, clientId: any, clientCode: 
                video: clientVideo,
                clientCode: clientCode,
             });
-
-            logger.info('templateBodyLog', { data: templateBody });
-            console.log('templateBody', templateBody);
 
             const myHeaders = new Headers();
             myHeaders.append('Content-Type', 'application/json');
@@ -184,17 +228,15 @@ export const sendBlastingService = async (data: any, clientId: any, clientCode: 
                };
             }
             return {
-               ...res,
                template_name: templateBody?.template?.name,
+               ...res,
                clientCode: clientCode,
                guest: { id: d.id, name: d.name },
             };
-         })
+         }))
       );
-
-      console.log('Response from whatsapp', sendBlastingProcess);
-
-      logger.info('Response from whatsapp', sendBlastingProcess);
+      console.log('Response from whatsapp', JSON.stringify(sendBlastingProcess))
+      logger.info('Response from whatsapp', JSON.stringify(sendBlastingProcess))
 
       if (sendBlastingProcess.some((res) => res.error)) {
          console.log('errorData', sendBlastingProcess[0].error.message);
@@ -288,7 +330,8 @@ export const sendBlastingService = async (data: any, clientId: any, clientCode: 
          return getSuccessReponse(invitationCreateData, 200, 'Successfully sent');
       }
    } catch (error) {
-      console.log(error);
+      console.log("failed send blasting", error);
+      logger.info('ERROR SEND SRVP: ', error);
       return error;
    }
 };
@@ -302,7 +345,7 @@ export const sendBlastingQrService = async (body: any, template: any, image: any
          if (image?.length > 0) {
             // Send broadcast reminder with image
             await Promise.all(
-               body.map(async (guest: any) => {
+               body.map(async (guest: any) => limit(async () => {
                   try {
                      const whatsappBodyJsonReminder = {
                         messaging_product: 'whatsapp',
@@ -432,7 +475,7 @@ export const sendBlastingQrService = async (body: any, template: any, image: any
 
                      if (response.ok) {
                         // Wait for 10 seconds before sending the next message
-                        await new Promise((resolve) => setTimeout(resolve, 10000));
+                        await new Promise((resolve) => setTimeout(resolve, 5000));
 
                         // Send QR message
                         const responseQr = await fetch(
@@ -561,12 +604,14 @@ export const sendBlastingQrService = async (body: any, template: any, image: any
                         data: { QrGuestId: guest.id, status: 'failed_sent' },
                      });
                   }
-               })
+               }))
             );
          } else {
             // Send broadcast reminder without image
+
             await Promise.all(
-               body.map(async (guest: any) => {
+               body.map(async (guest: any) => limit(async () => {
+                  logger.info("GUEST LENGTH: ", body.length)
                   console.log('guest', guest);
                   try {
                      const whatsappBodyJsonReminder = {
@@ -673,13 +718,13 @@ export const sendBlastingQrService = async (body: any, template: any, image: any
                         data: webhookData,
                      });
 
-                     logger.info('Reminder message sent successfully', {
+                     logger.info('Reminder message sent successfully', JSON.stringify({
                         data: { guestId: guest.id, guestName: guest.name, response: response },
-                     });
+                     }));
 
                      if (response.ok) {
                         // Wait for 10 seconds before sending the next message
-                        await new Promise((resolve) => setTimeout(resolve, 10000));
+                        await new Promise((resolve) => setTimeout(resolve, 5000));
 
                         const responseQr = await fetch(
                            `https://graph.facebook.com/v20.0/${process.env.NEXT_PHONE_NUMBER_ID}/messages`,
@@ -748,9 +793,10 @@ export const sendBlastingQrService = async (body: any, template: any, image: any
                            await prisma.qrBroadcastLogs.create({
                               data: { QrGuestId: guest.id, status: 'success_sent' },
                            });
-                           logger.info('QR broadcast log created successfully', {
+                           logger.info('QR broadcast log created successfully', JSON.stringify({
                               data: { guestId: guest.id, guestName: guest.name },
-                           });
+                           }));
+
                         } else {
                            const qrLogExist = await prisma.qrBroadcastLogs.findMany({
                               where: {
@@ -807,18 +853,19 @@ export const sendBlastingQrService = async (body: any, template: any, image: any
                            },
                         });
                      }
-                     logger.error('Failed to send broadcast message', {
+
+                     logger.error('Failed to send broadcast message', JSON.stringify({
                         data: { guestId: guest.id, guestName: guest.name, error: error },
-                     });
+                     }));
+
                      await prisma.qrBroadcastLogs.create({
                         data: { QrGuestId: guest.id, status: 'failed_sent' },
                      });
                   }
-               })
+               }))
             );
          }
       };
-
       // Trigger the background process
       setTimeout(processBlasting, 0);
    });
