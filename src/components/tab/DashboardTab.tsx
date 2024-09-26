@@ -5,6 +5,8 @@ import {
    getDashboardData,
 } from '@/app/GlobalRedux/Thunk/clients/clientDashboardThunk';
 import { AppDispatch, RootState } from '@/app/store';
+import { convertStatus } from '@/utils/convertStatus';
+import { exportToExcel } from '@/utils/exportToExcel';
 import {
    flexRender,
    getCoreRowModel,
@@ -12,20 +14,15 @@ import {
    getPaginationRowModel,
    useReactTable,
 } from '@tanstack/react-table';
-import { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { ChevronDoubleRightIcon } from '../icons/chevronDoubleRight';
-import { ChevronRightIcon } from '../icons/chevronRight';
-import { ChevronLeftIcon } from '../icons/chevronLeft';
-import { ChevronDoubleLeftIcon } from '../icons/chevronDoubleLeft';
-import { ExcelIcon } from '../icons/excel';
-import { exportToExcel } from '@/utils/exportToExcel';
-import { error } from 'console';
-import { CopyToClipboard } from 'react-copy-to-clipboard';
-import axios from 'axios';
-import { resetData } from '@/app/GlobalRedux/Features/clients/dashboard/clientDashboardSlice';
 import moment from 'moment';
-import { convertStatus } from '@/utils/convertStatus';
+import { useEffect, useState } from 'react';
+import { CopyToClipboard } from 'react-copy-to-clipboard';
+import { useDispatch, useSelector } from 'react-redux';
+import { ChevronDoubleLeftIcon } from '../icons/chevronDoubleLeft';
+import { ChevronDoubleRightIcon } from '../icons/chevronDoubleRight';
+import { ChevronLeftIcon } from '../icons/chevronLeft';
+import { ChevronRightIcon } from '../icons/chevronRight';
+import { ExcelIcon } from '../icons/excel';
 
 type DashboardTabProps = {
    clientId?: string;
@@ -149,10 +146,17 @@ export const DashboardTab = ({ clientId }: DashboardTabProps) => {
 
       if (dashboarData?.length > 0) {
          const dynamicData = dashboarData[0]?.guest?.map((item: any, index: number) => {
-            const answer = item.Invitations.some((invitation: any) => invitation.answer !== null);
+            // const answer = item.Invitations.some((invitation: any) => invitation.answer !== null);
+            // console.log('item', item?.Invitations.);
+
+            console.log('answer', item?.Invitations[0]?.Question?.position === 1 ? item?.Invitations : null);
             const webhookStatus = item.webhook.length > 0 ? item.webhook[0] : null;
             const statusCode = item.webhook.length > 0 ? item.webhook[0].statusCode : null;
             const lastUpdate = item.webhook.length > 0 ? item.webhook[0].lastUpdateStatus : null;
+
+            const answer = item?.Invitations.filter((invitation: any) => invitation.Question.position === 1);
+
+            console.log('answer', answer.map((ans: any) => ans.answer)[0]);
 
             const status = convertStatus(webhookStatus?.status);
 
@@ -160,7 +164,12 @@ export const DashboardTab = ({ clientId }: DashboardTabProps) => {
                id: item.id,
                name: item.name,
                scenario: item.scenario,
-               answer: answer ? 'Yes' : 'No',
+               answer:
+                  answer.map((ans: any) => ans.answer)[0] === 'yes'
+                     ? 'Yes'
+                     : answer.map((ans: any) => ans.answer)[0] === 'no'
+                       ? 'No'
+                       : ' - ',
                status: status,
                statusCode: statusCode,
                lastUpdate: lastUpdate ? moment(lastUpdate).format('DD/MM/YYYY HH:mm:ss') : null,

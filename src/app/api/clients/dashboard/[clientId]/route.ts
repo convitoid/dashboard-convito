@@ -43,6 +43,11 @@ export async function GET(req: NextRequest, { params }: { params: { clientId: st
                   questionId: true,
                   answer: true,
                   token: true,
+                  Question: {
+                     select: {
+                        position: true,
+                     }
+                  }
                },
             },
             GuestDetail: {
@@ -236,14 +241,14 @@ export async function POST(req: NextRequest, { params }: { params: { clientId: s
             clientId: client?.id,
             OR: filter_by
                ? [
-                    {
-                       Invitations: {
-                          some: {
-                             answer: filter_by === 'yes' ? { not: null } : { equals: null },
-                          },
-                       },
-                    },
-                 ]
+                  {
+                     Invitations: {
+                        some: {
+                           answer: filter_by === 'yes' ? { not: null } : { equals: null },
+                        },
+                     },
+                  },
+               ]
                : undefined,
          },
 

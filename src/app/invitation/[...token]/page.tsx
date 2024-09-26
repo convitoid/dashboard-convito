@@ -1,20 +1,16 @@
 'use client';
 
-import { fetchInvitation } from '@/app/GlobalRedux/Features/test/testBlastingSlicer';
+import { resetStatus } from '@/app/GlobalRedux/Features/invitation/invitationSlice';
 import { getAnswer, getInvitation, updateAnswer } from '@/app/GlobalRedux/Thunk/invitation/invitationThunk';
-import NotFound from '@/app/not-found';
 import { AppDispatch, RootState } from '@/app/store';
-import { InvitationHome } from '@/components/page/invitationHome';
+import jwt from 'jsonwebtoken';
+import Mustache from 'mustache';
 import { Roboto } from 'next/font/google';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import Mustache from 'mustache';
 import Swal from 'sweetalert2';
-import { resetStatus } from '@/app/GlobalRedux/Features/invitation/invitationSlice';
-import jwt from 'jsonwebtoken';
-import { decode } from 'punycode';
 import './style.css';
 
 const robotoFont = Roboto({
@@ -94,16 +90,10 @@ export default function InvitationPage({ params }: { params: { token: string } }
          question = Mustache.render(question, guestDetailFormated);
       }
       return Mustache.render(question, guestDetailFormated);
-
-      return question;
    }
 
    const handleChangeRadio = (e: React.ChangeEvent<HTMLInputElement>) => {
       const { name, value } = e.target;
-
-      if (value === 'no') {
-         setDisabled(true);
-      }
 
       if (value === 'yes') {
          setDisabled(false);
@@ -119,6 +109,7 @@ export default function InvitationPage({ params }: { params: { token: string } }
       const value = event.target.value;
       const name = event.target.name;
       let valid = true;
+
       // get data-question
       const questionDataInput = event.target.getAttribute('data-question');
 
@@ -145,24 +136,25 @@ export default function InvitationPage({ params }: { params: { token: string } }
          if (!/^\d*$/.test(value)) {
             valid = false;
          }
-
          // Batasi panjang input angka hingga 3 digit
          if (value.length > 3) {
             valid = false;
          }
 
-         // Potong nilai ke 3 digit jika panjang lebih dari 3
+         // // Potong nilai ke 3 digit jika panjang lebih dari 3
          const trimmedValue = value.slice(0, 3);
-
          if (parseInt(trimmedValue) > parseInt(guestDetailFormated[test[0]])) {
             valid = false;
          }
 
-         // Set value to 0 if the value is not valid or parseInt is NaN
+         // console.log('trrimedValue', trimmedValue);
+         // // Set value to 0 if the value is not valid or parseInt is NaN
          const parsedValue = parseInt(trimmedValue);
+
          setFormValues({
             ...formValues,
-            [name]: isNaN(parsedValue) ? 0 : parsedValue,
+            // [name]: isNaN(parsedValue) ? 0 : parsedValue,
+            [name]: trimmedValue,
          });
       } else if (type === 'text') {
          // Validasi input hanya berupa teks (tanpa angka) boleh - dan /
@@ -175,6 +167,11 @@ export default function InvitationPage({ params }: { params: { token: string } }
             [name]: value,
          });
       }
+
+      // setFormValues({
+      //    ...formValues,
+      //    [name]: value,
+      // });
 
       setIsInvalid({
          ...isInvalid,
@@ -241,6 +238,8 @@ export default function InvitationPage({ params }: { params: { token: string } }
             });
       }
    };
+
+   console.log('formValues', formValues);
 
    useEffect(() => {
       document.title = 'Convito - Reservations wedding and event';
