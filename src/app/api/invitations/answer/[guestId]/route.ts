@@ -24,6 +24,7 @@ export async function POST(req: NextRequest, { params }: { params: { guestId: st
                },
                data: {
                   answer: data.answer,
+                  answerAt: new Date(),
                },
             });
 

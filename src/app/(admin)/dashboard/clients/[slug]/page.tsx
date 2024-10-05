@@ -1,6 +1,5 @@
 'use client';
 import { BreadcrumbsComponent } from '@/components/breadcrumbs';
-import { Card } from '@/components/card';
 import { ArrowUturnLeftIcon } from '@/components/icons/arrowUturnLeft';
 import { ChatBubleLeftRight } from '@/components/icons/chatBubleLeftRight';
 import { Data } from '@/components/icons/data';
@@ -17,9 +16,12 @@ import { GalleryTab } from '@/components/tab/GalleryTab';
 import { QuestionTab } from '@/components/tab/QuestionTab';
 import { ScenarioTab } from '@/components/tab/ScenarioTab';
 import { SendBroadcastTab } from '@/components/tab/SendBroadcastTab';
-import { ADDRGETNETWORKPARAMS } from 'dns';
+import axios from 'axios';
 import Link from 'next/link';
 import { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { clientSlice } from '../../../../GlobalRedux/Features/clients/clientSlice';
+import { AppDispatch, RootState } from '../../../../store';
 
 const breadcrumbsData = [
    {
@@ -37,11 +39,14 @@ const breadcrumbsData = [
 ];
 
 const CustomerDetailPage = ({ params }: { params: { slug: string } }) => {
+   const dispatch = useDispatch<AppDispatch>();
+   const NavbarTitle = useSelector((state: RootState) => state.clients.navbarTitle);
+
    const tabs = [
       {
          name: 'Dashboard',
          icon: <PresentationChartLine />,
-         content: <DashboardTab clientId={params.slug} />,
+         content: <DashboardTab clientId={params.slug.toString()} />,
          disabled: false,
       },
       {
@@ -81,11 +86,28 @@ const CustomerDetailPage = ({ params }: { params: { slug: string } }) => {
          disabled: false,
       },
    ];
+
+   const getClientName = async () => {
+      const response = await axios.get(`/api/clients/${params.slug}`);
+      console.log(`${response.data.data.client_id} - ${response.data.data.client_name}`);
+
+      dispatch(
+         clientSlice.actions.setNavbarTitle(`${response.data.data.client_id} - ${response.data.data.client_name}`)
+      );
+
+      return `${response.data.data.client_id} - ${response.data.data.client_name}`;
+   };
+
+   useEffect(() => {
+      getClientName();
+   }, [params.slug]);
+
+
    useEffect(() => {
       document.title = 'Convito - RSVP';
    }, []);
    return (
-      <>
+      <div>
          <div className="flex items-center justify-between mb-8">
             <Link
                href="/dashboard/clients"
@@ -97,7 +119,7 @@ const CustomerDetailPage = ({ params }: { params: { slug: string } }) => {
             <BreadcrumbsComponent data={breadcrumbsData} />
          </div>
          <Tab clientId={params.slug} tabs={tabs} />
-      </>
+      </div>
    );
 };
 

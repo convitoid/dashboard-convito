@@ -6,7 +6,6 @@ import {
 } from '@/app/GlobalRedux/Thunk/clients/clientDashboardThunk';
 import { AppDispatch, RootState } from '@/app/store';
 import { convertStatus } from '@/utils/convertStatus';
-import { exportToExcel } from '@/utils/exportToExcel';
 import {
    flexRender,
    getCoreRowModel,
@@ -18,6 +17,7 @@ import moment from 'moment';
 import { useEffect, useState } from 'react';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import { useDispatch, useSelector } from 'react-redux';
+import { exportToExcel } from '../../utils/exportToExcel';
 import { ChevronDoubleLeftIcon } from '../icons/chevronDoubleLeft';
 import { ChevronDoubleRightIcon } from '../icons/chevronDoubleRight';
 import { ChevronLeftIcon } from '../icons/chevronLeft';
@@ -25,10 +25,10 @@ import { ChevronRightIcon } from '../icons/chevronRight';
 import { ExcelIcon } from '../icons/excel';
 
 type DashboardTabProps = {
-   clientId?: string;
+   clientId: string;
 };
 
-export const DashboardTab = ({ clientId }: DashboardTabProps) => {
+export const DashboardTab: React.FC<DashboardTabProps> = ({ clientId }) => {
    const [columns, setColumns] = useState<any[]>([]);
    const [data, setData] = useState<any[]>([]);
    const [pagination, setPagination] = useState({
@@ -87,28 +87,26 @@ export const DashboardTab = ({ clientId }: DashboardTabProps) => {
             cell: (info: any) => {
                const invitationLink = `${process.env.NEXT_PUBLIC_API_URL}/invitation/${info.row.original.invitationUrl}`;
                return info?.row?.original?.invitationUrl !== '' ? (
-                  <>
-                     <CopyToClipboard text={invitationLink} onCopy={() => setIsCopy(true)}>
-                        <button
-                           className="bg-blue-500 text-white cursor-pointer px-2 py-2 rounded-md hover:bg-blue-600 focus:bg-blue-500 tooltip tooltip-bottom"
-                           data-tip="Copy URL to clipboard"
+                  <CopyToClipboard text={invitationLink} onCopy={() => setIsCopy(true)}>
+                     <button
+                        className="bg-blue-500 text-white cursor-pointer px-2 py-2 rounded-md hover:bg-blue-600 focus:bg-blue-500 tooltip tooltip-bottom"
+                        data-tip="Copy URL to clipboard"
+                     >
+                        <svg
+                           xmlns="http://www.w3.org/2000/svg"
+                           viewBox="0 0 20 20"
+                           fill="currentColor"
+                           className="size-5"
                         >
-                           <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              viewBox="0 0 20 20"
-                              fill="currentColor"
-                              className="size-5"
-                           >
-                              <path
-                                 fillRule="evenodd"
-                                 d="M15.988 3.012A2.25 2.25 0 0 1 18 5.25v6.5A2.25 2.25 0 0 1 15.75 14H13.5v-3.379a3 3 0 0 0-.879-2.121l-3.12-3.121a3 3 0 0 0-1.402-.791 2.252 2.252 0 0 1 1.913-1.576A2.25 2.25 0 0 1 12.25 1h1.5a2.25 2.25 0 0 1 2.238 2.012ZM11.5 3.25a.75.75 0 0 1 .75-.75h1.5a.75.75 0 0 1 .75.75v.25h-3v-.25Z"
-                                 clipRule="evenodd"
-                              />
-                              <path d="M3.5 6A1.5 1.5 0 0 0 2 7.5v9A1.5 1.5 0 0 0 3.5 18h7a1.5 1.5 0 0 0 1.5-1.5v-5.879a1.5 1.5 0 0 0-.44-1.06L8.44 6.439A1.5 1.5 0 0 0 7.378 6H3.5Z" />
-                           </svg>
-                        </button>
-                     </CopyToClipboard>
-                  </>
+                           <path
+                              fillRule="evenodd"
+                              d="M15.988 3.012A2.25 2.25 0 0 1 18 5.25v6.5A2.25 2.25 0 0 1 15.75 14H13.5v-3.379a3 3 0 0 0-.879-2.121l-3.12-3.121a3 3 0 0 0-1.402-.791 2.252 2.252 0 0 1 1.913-1.576A2.25 2.25 0 0 1 12.25 1h1.5a2.25 2.25 0 0 1 2.238 2.012ZM11.5 3.25a.75.75 0 0 1 .75-.75h1.5a.75.75 0 0 1 .75.75v.25h-3v-.25Z"
+                              clipRule="evenodd"
+                           />
+                           <path d="M3.5 6A1.5 1.5 0 0 0 2 7.5v9A1.5 1.5 0 0 0 3.5 18h7a1.5 1.5 0 0 0 1.5-1.5v-5.879a1.5 1.5 0 0 0-.44-1.06L8.44 6.439A1.5 1.5 0 0 0 7.378 6H3.5Z" />
+                        </svg>
+                     </button>
+                  </CopyToClipboard>
                ) : (
                   <span className="text-red-500"> - </span>
                );
@@ -196,18 +194,25 @@ export const DashboardTab = ({ clientId }: DashboardTabProps) => {
          .then((res) => {
             if (res.status === 200) {
                const dynamicData = res.data?.map((item: any, index: number) => {
-                  const answer = item.Invitations.some((invitation: any) => invitation.answer !== null);
+                  // const answer = item.Invitations.some((invitation: any) => invitation.answer !== null);
                   const webhookStatus = item.webhook.length > 0 ? item.webhook[0] : null;
                   const statusCode = item.webhook.length > 0 ? item.webhook[0].statusCode : null;
                   const lastUpdate = item.webhook.length > 0 ? item.webhook[0].lastUpdateStatus : null;
 
                   const status = convertStatus(webhookStatus?.status);
 
+                  const answer = item?.Invitations.filter((invitation: any) => invitation.Question.position === 1);
+
                   return {
                      id: item.id,
                      name: item.name,
                      scenario: item.scenario,
-                     answer: answer ? 'Yes' : 'No',
+                     answer:
+                        answer.map((ans: any) => ans.answer)[0] === 'yes'
+                           ? 'Yes'
+                           : answer.map((ans: any) => ans.answer)[0] === 'no'
+                             ? 'No'
+                             : ' - ',
                      status: status,
                      statusCode: statusCode,
                      lastUpdate: lastUpdate ? moment(lastUpdate).format('DD/MM/YYYY HH:mm:ss') : null,
@@ -239,21 +244,31 @@ export const DashboardTab = ({ clientId }: DashboardTabProps) => {
       if (selectedScenario === 'all') {
          dispatch(getDashboardData({ clientId: clientId?.toString() })).then((res) => {
             if (res.payload) {
-               console.log(res.payload.data[0].guest);
-
                const dynamicData = res.payload.data[0].guest.map((item: any, index: number) => {
-                  const answer = item.Invitations.some((invitation: any) => invitation.answer !== null);
+                  // const answer = item.Invitations.some((invitation: any) => invitation.answer !== null);
                   const webhookStatus = item.webhook.length > 0 ? item.webhook[0] : null;
                   const statusCode = item.webhook.length > 0 ? item.webhook[0].statusCode : null;
                   const lastUpdate = item.webhook.length > 0 ? item.webhook[0].lastUpdateStatus : null;
 
                   const status = convertStatus(webhookStatus?.status);
 
+                  console.log(
+                     'item',
+                     item?.Invitations.filter((invitation: any) => invitation.Question.position === 1)
+                  );
+
+                  const answer = item?.Invitations.filter((invitation: any) => invitation.Question.position === 1);
+
                   return {
                      id: item.id,
                      name: item.name,
                      scenario: item.scenario,
-                     answer: answer ? 'Yes' : 'No',
+                     answer:
+                        answer.map((ans: any) => ans.answer)[0] === 'yes'
+                           ? 'Yes'
+                           : answer.map((ans: any) => ans.answer)[0] === 'no'
+                             ? 'No'
+                             : ' - ',
                      status: status,
                      statusCode: statusCode,
                      lastUpdate: lastUpdate ? moment(lastUpdate).format('DD/MM/YYYY HH:mm:ss') : null,
@@ -282,18 +297,37 @@ export const DashboardTab = ({ clientId }: DashboardTabProps) => {
             .then((res) => {
                if (res.status === 200) {
                   const dynamicData = res.data.map((item: any, index: number) => {
-                     const answer = item.Invitations.some((invitation: any) => invitation.answer !== null);
+                     // const answer = item.Invitations.some((invitation: any) => invitation.answer !== null);
                      const webhookStatus = item.webhook.length > 0 ? item.webhook[0] : null;
                      const statusCode = item.webhook.length > 0 ? item.webhook[0].statusCode : null;
                      const lastUpdate = item.webhook.length > 0 ? item.webhook[0].lastUpdateStatus : null;
 
                      const status = convertStatus(webhookStatus?.status);
 
+                     const answer = item?.Invitations.filter((invitation: any) => invitation?.Question?.position === 1);
+
+                     if (selectedScenario === 'yes') {
+                        console.log(
+                           'question_answered',
+                           item?.Invitations.filter((invitation: any) => invitation?.Question?.position === 1)
+                        );
+                     } else {
+                        console.log(
+                           'question_not_answered',
+                           item?.Invitations.filter((invitation: any) => invitation?.Question?.position === 1)
+                        );
+                     }
+
                      return {
                         id: item.id,
                         name: item.name,
                         scenario: item.scenario,
-                        answer: answer ? 'Yes' : 'No',
+                        answer:
+                           answer.map((ans: any) => ans.answer)[0] === 'yes'
+                              ? 'Yes'
+                              : answer.map((ans: any) => ans.answer)[0] === 'no'
+                                ? 'No'
+                                : ' - ',
                         status: status,
                         statusCode: statusCode,
                         lastUpdate: lastUpdate ? moment(lastUpdate).format('DD/MM/YYYY HH:mm:ss') : null,
@@ -302,7 +336,6 @@ export const DashboardTab = ({ clientId }: DashboardTabProps) => {
                   });
 
                   setData(dynamicData);
-                  console.log('res', res);
                } else {
                   setData([]);
                }
@@ -404,29 +437,25 @@ export const DashboardTab = ({ clientId }: DashboardTabProps) => {
             </thead>
             <tbody>
                {data?.length > 0 ? (
-                  <>
-                     {status === 'loading' ? (
-                        <tr>
-                           <td colSpan={columns.length} className="px-4 py-2 ">
-                              <div className="flex items-center justify-center gap-2">
-                                 <span className="loading loading-spinner loading-sm"></span> <span>Loading</span>
-                              </div>
-                           </td>
-                        </tr>
-                     ) : (
-                        <>
-                           {table.getRowModel().rows.map((row) => (
-                              <tr key={row.id}>
-                                 {row.getVisibleCells().map((cell) => (
-                                    <td key={cell.id} className="px-4 py-2 border-b-[1px] border-slate-300">
-                                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                                    </td>
-                                 ))}
-                              </tr>
+                  status === 'loading' ? (
+                     <tr>
+                        <td colSpan={columns.length} className="px-4 py-2 ">
+                           <div className="flex items-center justify-center gap-2">
+                              <span className="loading loading-spinner loading-sm"></span> <span>Loading</span>
+                           </div>
+                        </td>
+                     </tr>
+                  ) : (
+                     table.getRowModel().rows.map((row) => (
+                        <tr key={row.id}>
+                           {row.getVisibleCells().map((cell) => (
+                              <td key={cell.id} className="px-4 py-2 border-b-[1px] border-slate-300">
+                                 {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                              </td>
                            ))}
-                        </>
-                     )}
-                  </>
+                        </tr>
+                     ))
+                  )
                ) : status === 'loading' ? (
                   <tr>
                      <td colSpan={columns.length} className="px-4 py-2 ">

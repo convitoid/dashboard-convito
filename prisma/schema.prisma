@@ -1,12 +1,13 @@
 generator client {
-   provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
 }
 
 datasource db {
-   provider = "postgresql"
-   url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
-
 
 model Client {
   id                  Int                   @id @default(autoincrement())
@@ -179,17 +180,18 @@ model ScenarioBroadcastTemplate {
 }
 
 model Invitations {
-  id         Int      @id @default(autoincrement())
+  id         Int       @id @default(autoincrement())
   clientId   Int
-  Client     Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  Client     Client    @relation(fields: [clientId], references: [id], onDelete: Cascade)
   guestId    Int
-  Guest      Guest    @relation(fields: [guestId], references: [id], onDelete: Cascade)
+  Guest      Guest     @relation(fields: [guestId], references: [id], onDelete: Cascade)
   questionId Int
-  Question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  Question   Question  @relation(fields: [questionId], references: [id], onDelete: Cascade)
   answer     String?
   token      String?
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  answerAt   DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
 }
 
 model SendBlastingLogs {

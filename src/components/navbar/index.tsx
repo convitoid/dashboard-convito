@@ -1,17 +1,28 @@
 'use client';
 
 import { signOut, useSession } from 'next-auth/react';
-import { DrawerComponent } from '../drawer';
 import { usePathname, useRouter } from 'next/navigation';
-import { SkeletonComponent } from '../skeleton';
-import { ProfileDropdownComponent } from '../dropdown/profileDropdown';
 import { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { clientSlice } from '../../app/GlobalRedux/Features/clients/clientSlice';
+import { AppDispatch, RootState } from '../../app/store';
+import { DrawerComponent } from '../drawer';
+import { ProfileDropdownComponent } from '../dropdown/profileDropdown';
+import { SkeletonComponent } from '../skeleton';
 
 export const NavbarComponent = () => {
    const router = useRouter();
    const pathname = usePathname();
+   const dispatch = useDispatch<AppDispatch>();
    const { data: session, status } = useSession();
    const [isLoading, setIsLoading] = useState(false);
+   const NavbarTitle = useSelector((state: RootState) => state.clients.navbarTitle);
+
+   if ('/dashboard/clients' === pathname) {
+      dispatch(clientSlice.actions.setNavbarTitle('Clients'));
+   } else if ('/dashboard/users' === pathname) {
+      dispatch(clientSlice.actions.setNavbarTitle('Users'));
+   }
 
    // pathname to array
    const pathArray = pathname.split('/');
@@ -64,9 +75,7 @@ export const NavbarComponent = () => {
          <div className="flex justify-between items-center py-5">
             <div className="flex items-center justify-between gap-3">
                <DrawerComponent />
-               <h1 className="text-slate-900 uppercase font-semibold text-lg lg:text-2xl">
-                  {pathArray.length > 3 ? activePath : activePath.replace('-', ' ')}
-               </h1>
+               <h1 className="text-slate-900 uppercase font-semibold text-lg lg:text-2xl">{NavbarTitle}</h1>
             </div>
             <div className="flex items-center gap-3">
                <span className="text-slate-900">{status === 'loading' ? <SkeletonComponent /> : name}</span>

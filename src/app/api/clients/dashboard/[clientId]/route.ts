@@ -230,6 +230,7 @@ export async function POST(req: NextRequest, { params }: { params: { clientId: s
                      },
                   },
                   answer: true,
+                  answerAt: true,
                },
 
                orderBy: {
@@ -239,17 +240,6 @@ export async function POST(req: NextRequest, { params }: { params: { clientId: s
          },
          where: {
             clientId: client?.id,
-            OR: filter_by
-               ? [
-                  {
-                     Invitations: {
-                        some: {
-                           answer: filter_by === 'yes' ? { not: null } : { equals: null },
-                        },
-                     },
-                  },
-               ]
-               : undefined,
          },
 
          orderBy: {
@@ -270,6 +260,7 @@ export async function POST(req: NextRequest, { params }: { params: { clientId: s
             return {
                question: invitation.Question.question,
                answer: invitation.answer,
+               answer_at: invitation.answerAt,
             };
          });
 
@@ -283,8 +274,26 @@ export async function POST(req: NextRequest, { params }: { params: { clientId: s
          };
       });
 
+      console.log("filterBy", filter_by);
+
+
+      console.log('formattedGuest', formattedGuest.filter((item: any) => item.questions.length > 0 && item.questions[0].answer !== null));
+
+      const filteredData = () => {
+         if (filter_by === 'yes') {
+            return formattedGuest.filter((item: any) => item.questions.length > 0 && item.questions[0].answer !== null)
+         } else if (filter_by === 'no') {
+            return formattedGuest.filter((item: any) => item.questions.length > 0 && item.questions[0].answer === null)
+         } else {
+            return formattedGuest;
+         }
+      }
+
+      console.log('filteredData', filteredData());
+
+
       logger.info(`Dashboard export data successfully for client: ${params.clientId}`, {
-         data: formattedGuest,
+         data: filteredData(),
       });
 
       revalidatePath(req.nextUrl.pathname);
@@ -293,7 +302,7 @@ export async function POST(req: NextRequest, { params }: { params: { clientId: s
          {
             status: 200,
             message: 'Dashboard data fetched successfully',
-            data: formattedGuest,
+            data: filteredData(),
          },
          { status: 200 }
       );

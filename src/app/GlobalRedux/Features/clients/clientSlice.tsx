@@ -1,11 +1,11 @@
-import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import {
-   fetchClients,
    createCLient,
    deleteClient,
+   fetchClients,
    getClientById,
    updateClient,
 } from '@/app/GlobalRedux/Thunk/clients/clientThunk';
+import { createSlice } from '@reduxjs/toolkit';
 
 interface Client {
    clients: any | '';
@@ -15,6 +15,7 @@ interface Client {
    statusGetId: 'idle' | 'loading' | 'failed' | 'success';
    statusUpdate: 'idle' | 'loading' | 'failed' | 'success';
    error: any | null;
+   navbarTitle: string;
 }
 
 const initialState: Client = {
@@ -25,12 +26,17 @@ const initialState: Client = {
    statusGetId: 'idle',
    statusUpdate: 'idle',
    error: null,
+   navbarTitle: 'Clients',
 };
 
 export const clientSlice = createSlice({
    name: 'client',
    initialState,
-   reducers: {},
+   reducers: {
+      setNavbarTitle: (state, action) => {
+         state.navbarTitle = action.payload;
+      },
+   },
    extraReducers: (builder) => {
       builder
          .addCase(fetchClients.pending, (state) => {

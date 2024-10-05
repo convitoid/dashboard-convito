@@ -36,7 +36,7 @@ export const filterDataByAnswer = createAsyncThunk('clientDashboard/filterData',
          value: payload.value,
       });
 
-      console.log(response.data);
+      console.log("payload", payload);
 
       return response.data;
    } catch (error) {
@@ -75,7 +75,6 @@ export const exportData = createAsyncThunk('clientDashboard/exportData', async (
             return data;
          });
 
-      console.log('payload', payload);
 
       const body = {
          filter_by: payload.filter_by,
@@ -88,8 +87,6 @@ export const exportData = createAsyncThunk('clientDashboard/exportData', async (
          },
          body: JSON.stringify(body),
       });
-
-      console.log('response', response);
 
       const res = await response.json();
       return res;

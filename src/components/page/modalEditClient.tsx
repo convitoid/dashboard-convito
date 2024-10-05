@@ -1,15 +1,14 @@
 'use client';
+import { fetchClients, getClientById, updateClient } from '@/app/GlobalRedux/Thunk/clients/clientThunk';
+import { AppDispatch, RootState } from '@/app/store';
+import { createClientValidation } from '@/utils/formValidation/clients/createValidation';
+import moment from 'moment';
+import { useSession } from 'next-auth/react';
+import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import Swal from 'sweetalert2';
 import { FormIinput } from '../formInput';
 import { ModalComponent } from '../modal';
-import { AppDispatch, RootState } from '@/app/store';
-import { fetchClients, getClientById, updateClient } from '@/app/GlobalRedux/Thunk/clients/clientThunk';
-import { useEffect, useState } from 'react';
-import moment from 'moment';
-import { createValidation } from '@/utils/formValidation/user/createValidation';
-import { createClientValidation } from '@/utils/formValidation/clients/createValidation';
-import Swal from 'sweetalert2';
-import { useSession } from 'next-auth/react';
 
 type ModalEditClientProps = {
    modalId?: string;
@@ -80,6 +79,8 @@ export const ModalEditClient = ({ modalId, clientId, closeModal }: ModalEditClie
          updated_by: session?.user?.name,
       };
 
+      console.log('newFormData', newFormData);
+
       dispatch(updateClient(newFormData))
          .unwrap()
          .then((res) => {
@@ -146,6 +147,19 @@ export const ModalEditClient = ({ modalId, clientId, closeModal }: ModalEditClie
                      disabled={true}
                   />
                </div>
+            </div>
+            <div className="mb-1 md:flex-grow">
+               <FormIinput
+                  label="Client Name"
+                  inputName="client_name"
+                  inputType="text"
+                  placeholder="e.g. John Doe"
+                  labelStyle="text-slate-900 font-semibold text-sm"
+                  inputStyle="input input-bordered h-10"
+                  value={formData.client_name}
+                  onChange={handleInputChange}
+                  autoFocus={true}
+               />
             </div>
             <div className="mb-1 md:flex-grow">
                <FormIinput

@@ -1,4 +1,4 @@
-import moment from 'moment';
+import moment from "moment";
 import * as XLSX from 'xlsx';
 
 interface Question {
@@ -26,6 +26,7 @@ type DynamicRowData = {
 };
 
 export const exportToExcel = (data: any, clientId?: any) => {
+   console.log('data', data);
    // Prepare data for Excel export
    const exportData = data.map((item: any, index: number) => {
       // Base data
@@ -44,13 +45,20 @@ export const exportToExcel = (data: any, clientId?: any) => {
 
       // Add each question and answer to its own column
       item.questions.forEach((q: any, index: number) => {
+         // get index 0
          const questionNumber = index + 1;
          rowData[`question_${questionNumber}`] = q.question.replace(/<\/?[^>]+(>|$)/g, ''); // Remove HTML tags
          rowData[`answer_${questionNumber}`] = q.answer || 'N/A';
+         // rowData[`answer_at_${questionNumber}`] = q.answer_at || 'N/A';
+         // rowData['answer_at'] = moment(q.answer_at).format('DD/MM/YYYY HH:mm:ss') || 'N/A';
+         rowData['answer_at'] = item.questions[0]?.answer_at ? moment(item.questions[0]?.answer_at).format('DD/MM/YYYY HH:mm:ss') : 'N/A';
       });
 
       return rowData;
    });
+
+   console.log('exportData', exportData);
+
 
    // Create a worksheet from the data
    const worksheet = XLSX.utils.json_to_sheet(exportData);

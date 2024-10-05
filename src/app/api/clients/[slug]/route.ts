@@ -1,5 +1,6 @@
 import prisma from '@/libs/prisma';
 import { getSuccessReponse } from '@/utils/response/successResponse';
+import { revalidatePath } from 'next/cache';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(req: NextRequest, { params }: { params: { slug: string } }) {
@@ -11,6 +12,8 @@ export async function GET(req: NextRequest, { params }: { params: { slug: string
       });
 
       const response = getSuccessReponse(client, 200, 'Client data fetched successfully');
+
+      revalidatePath(req.nextUrl.pathname);
 
       if (client) {
          return NextResponse.json(response, { status: 200 });

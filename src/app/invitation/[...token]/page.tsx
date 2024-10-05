@@ -239,8 +239,6 @@ export default function InvitationPage({ params }: { params: { token: string } }
       }
    };
 
-   console.log('formValues', formValues);
-
    useEffect(() => {
       document.title = 'Convito - Reservations wedding and event';
    }, []);
@@ -295,7 +293,7 @@ export default function InvitationPage({ params }: { params: { token: string } }
                            </div>
                         </div>
                      ) : (
-                        <>
+                        <div>
                            <h1 className="text-center flex flex-col gap-1">
                               <span>{invitations?.client?.event_title}</span>
                               <span className="text-lg font-semibold">{invitations?.client?.event_name}</span>
@@ -345,7 +343,7 @@ export default function InvitationPage({ params }: { params: { token: string } }
                                           </div>
                                        </div>
                                     ) : (
-                                       <>
+                                       <div>
                                           <input
                                              type={question.Question.type}
                                              className={`rounded-md px-3 py-2 ${
@@ -366,7 +364,7 @@ export default function InvitationPage({ params }: { params: { token: string } }
                                                 Input is Invalid.
                                              </span>
                                           )}
-                                       </>
+                                       </div>
                                     )}
                                  </div>
                               ))}
@@ -392,7 +390,7 @@ export default function InvitationPage({ params }: { params: { token: string } }
                                  />
                               </div>
                            </form>
-                        </>
+                        </div>
                      )}
                   </div>
                </div>

@@ -33,7 +33,17 @@ export async function POST(req: NextRequest, { params }: { params: { clientId: s
                         questionId: true,
                         answer: true,
                         token: true,
+                        Question: {
+                           select: {
+                              position: true,
+                           },
+                        },
                      },
+                     orderBy: {
+                        Question: {
+                           position: 'asc',
+                        }
+                     }
                   },
                   GuestDetail: {
                      select: {
@@ -44,11 +54,6 @@ export async function POST(req: NextRequest, { params }: { params: { clientId: s
                },
                where: {
                   clientId: client?.id,
-                  Invitations: {
-                     some: {
-                        answer: value === 'yes' ? { not: null } : { equals: null },
-                     },
-                  },
                },
                orderBy: {
                   name: 'asc',
@@ -96,20 +101,23 @@ export async function POST(req: NextRequest, { params }: { params: { clientId: s
                })
             );
 
-            console.log('newJson', newJson);
-
-            revalidatePath(req.nextUrl.pathname);
+            const filteredGuests = () => {
+               if (value === 'yes') {
+                  return newJson.filter((item: any) => item.Invitations.length > 0 && item.Invitations[0].answer !== null)
+               } else {
+                  return newJson.filter((item: any) => item.Invitations.length > 0 && item.Invitations[0].answer === null)
+               }
+            }
 
             return NextResponse.json({
                status: 200,
                message: 'filter by answered question',
-               data: newJson,
+               data: filteredGuests(),
             });
-            // code block
-            break;
 
          default:
             // code block
+            console.log('default');
             const guest = await prisma.guest.findMany({
                select: {
                   id: true,
@@ -153,17 +161,17 @@ export async function POST(req: NextRequest, { params }: { params: { clientId: s
                   ],
                   AND: is_answer
                      ? [
-                          {
-                             Invitations: {
-                                some: {
-                                   answer:
-                                      is_answer === 'yes'
-                                         ? { not: null } // Cari answer yang bukan null
-                                         : { equals: null }, // Cari answer yang null
-                                },
-                             },
-                          },
-                       ]
+                        {
+                           Invitations: {
+                              some: {
+                                 answer:
+                                    is_answer === 'yes'
+                                       ? { not: null } // Cari answer yang bukan null
+                                       : { equals: null }, // Cari answer yang null
+                              },
+                           },
+                        },
+                     ]
                      : undefined,
                },
                orderBy: {
@@ -219,7 +227,6 @@ export async function POST(req: NextRequest, { params }: { params: { clientId: s
                message: 'filter by default',
                data: newJsonGlobalFilter,
             });
-            break;
       }
    } catch (error) {
       return NextResponse.json({
