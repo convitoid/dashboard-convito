@@ -117,7 +117,7 @@ export async function POST(req: NextRequest, { params }: { params: { clientId: s
 
          default:
             // code block
-            console.log('default');
+            console.log("filter global");
             const guest = await prisma.guest.findMany({
                select: {
                   id: true,
@@ -134,7 +134,17 @@ export async function POST(req: NextRequest, { params }: { params: { clientId: s
                         questionId: true,
                         answer: true,
                         token: true,
+                        Question: {
+                           select: {
+                              position: true,
+                           },
+                        },
                      },
+                     orderBy: {
+                        Question: {
+                           position: 'asc',
+                        }
+                     }
                   },
                   GuestDetail: {
                      select: {
@@ -159,20 +169,20 @@ export async function POST(req: NextRequest, { params }: { params: { clientId: s
                         },
                      },
                   ],
-                  AND: is_answer
-                     ? [
-                        {
-                           Invitations: {
-                              some: {
-                                 answer:
-                                    is_answer === 'yes'
-                                       ? { not: null } // Cari answer yang bukan null
-                                       : { equals: null }, // Cari answer yang null
-                              },
-                           },
-                        },
-                     ]
-                     : undefined,
+                  // AND: is_answer
+                  //    ? [
+                  //       {
+                  //          Invitations: {
+                  //             some: {
+                  //                answer:
+                  //                   is_answer === 'yes'
+                  //                      ? { not: null } // Cari answer yang bukan null
+                  //                      : { equals: null }, // Cari answer yang null
+                  //             },
+                  //          },
+                  //       },
+                  //    ]
+                  //    : undefined,
                },
                orderBy: {
                   name: 'asc',
@@ -213,6 +223,19 @@ export async function POST(req: NextRequest, { params }: { params: { clientId: s
                })
             );
 
+            console.log("newJsonGlobalFilter", newJsonGlobalFilter);
+
+            const filteredGuestsGlobal = () => {
+               if (is_answer === 'yes') {
+                  return newJsonGlobalFilter.filter((item: any) => item.Invitations.length > 0 && item.Invitations[0].answer !== null)
+               } else if (is_answer === 'no') {
+                  return newJsonGlobalFilter.filter((item: any) => item.Invitations.length > 0 && item.Invitations[0].answer === null)
+               } else {
+                  return newJsonGlobalFilter;
+               }
+            }
+
+
             if (guest.length === 0) {
                return NextResponse.json({
                   status: 404,
@@ -225,7 +248,7 @@ export async function POST(req: NextRequest, { params }: { params: { clientId: s
             return NextResponse.json({
                status: 200,
                message: 'filter by default',
-               data: newJsonGlobalFilter,
+               data: filteredGuestsGlobal(),
             });
       }
    } catch (error) {

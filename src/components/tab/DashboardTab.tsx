@@ -144,9 +144,6 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({ clientId }) => {
 
       if (dashboarData?.length > 0) {
          const dynamicData = dashboarData[0]?.guest?.map((item: any, index: number) => {
-            // const answer = item.Invitations.some((invitation: any) => invitation.answer !== null);
-            // console.log('item', item?.Invitations.);
-
             console.log('answer', item?.Invitations[0]?.Question?.position === 1 ? item?.Invitations : null);
             const webhookStatus = item.webhook.length > 0 ? item.webhook[0] : null;
             const statusCode = item.webhook.length > 0 ? item.webhook[0].statusCode : null;
@@ -192,8 +189,13 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({ clientId }) => {
       )
          .unwrap()
          .then((res) => {
+            console.log('res', res);
             if (res.status === 200) {
                const dynamicData = res.data?.map((item: any, index: number) => {
+                  console.log(
+                     'item',
+                     item.Invitations.filter((invitation: any) => invitation.Question.position === 1)
+                  );
                   // const answer = item.Invitations.some((invitation: any) => invitation.answer !== null);
                   const webhookStatus = item.webhook.length > 0 ? item.webhook[0] : null;
                   const statusCode = item.webhook.length > 0 ? item.webhook[0].statusCode : null;
@@ -219,6 +221,8 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({ clientId }) => {
                      invitationUrl: item?.Invitations?.length > 0 ? item?.Invitations[0]?.token : '',
                   };
                });
+
+               console.log('dynamicData', dynamicData);
 
                setData(dynamicData);
             } else {
@@ -305,18 +309,6 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({ clientId }) => {
                      const status = convertStatus(webhookStatus?.status);
 
                      const answer = item?.Invitations.filter((invitation: any) => invitation?.Question?.position === 1);
-
-                     if (selectedScenario === 'yes') {
-                        console.log(
-                           'question_answered',
-                           item?.Invitations.filter((invitation: any) => invitation?.Question?.position === 1)
-                        );
-                     } else {
-                        console.log(
-                           'question_not_answered',
-                           item?.Invitations.filter((invitation: any) => invitation?.Question?.position === 1)
-                        );
-                     }
 
                      return {
                         id: item.id,
@@ -493,7 +485,7 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({ clientId }) => {
                   <input
                      type="number"
                      min="1"
-                     max={table.getPageCount()}
+                     max={table?.getPageCount()}
                      defaultValue={table.getState().pagination.pageIndex + 1}
                      onChange={(e) => {
                         const page = e.target.value ? Number(e.target.value) - 1 : 0;

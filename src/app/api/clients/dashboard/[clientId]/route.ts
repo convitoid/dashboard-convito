@@ -198,8 +198,6 @@ export async function POST(req: NextRequest, { params }: { params: { clientId: s
    const jwtToken = token?.split(' ')[1];
    const { filter_by } = await req.json();
 
-   console.log('data', filter_by);
-
    try {
       const { payload } = await jwtVerify(jwtToken as string, secret);
 
@@ -211,8 +209,6 @@ export async function POST(req: NextRequest, { params }: { params: { clientId: s
             client_id: params.clientId,
          },
       });
-
-      console.log('client', client);
 
       const guest = await prisma.guest.findMany({
          select: {
@@ -274,8 +270,7 @@ export async function POST(req: NextRequest, { params }: { params: { clientId: s
          };
       });
 
-      console.log("filterBy", filter_by);
-
+      console.log('formattedGuest', formattedGuest);
 
       console.log('formattedGuest', formattedGuest.filter((item: any) => item.questions.length > 0 && item.questions[0].answer !== null));
 

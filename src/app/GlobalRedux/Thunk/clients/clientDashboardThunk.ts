@@ -52,8 +52,6 @@ export const filterDataGlobal = createAsyncThunk('clientDashboard/filterDataGlob
             return data;
          });
 
-      console.log('filterDataGlobal', payload);
-
       const response = await axios.post(`/api/clients/dashboard/${payload.clientId}/filter`, {
          search_by: payload.search_by,
          is_answer: payload.is_answer,
