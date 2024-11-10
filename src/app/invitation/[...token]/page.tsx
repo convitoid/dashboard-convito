@@ -97,12 +97,40 @@ export default function InvitationPage({ params }: { params: { token: string } }
 
       if (value === 'yes') {
          setDisabled(false);
-      }
+         setFormValues({
+            ...formValues,
+            [name]: value, // Set question_1 to 'yes' when 'yes' is selected
+         });
+      } else {
+         setDisabled(true);
 
-      setFormValues({
-         ...formValues,
-         [name]: value,
-      });
+         // Remove question_2 when 'no' is selected for question_1
+         const newFormValues = { ...formValues };
+         delete newFormValues['question_2']; // Remove question_2 from the form
+
+         setFormValues({
+            ...newFormValues,
+            [name]: value, // Set question_1 to 'no' (0) when 'no' is selected
+         });
+
+         // Optionally, reset other form fields if necessary
+         const typeQuestion = invitations?.client?.Scenario[0].ScenarioQuestion.map(
+            (question: any) => question.Question.type
+         ).filter((type: any) => type !== 'radio');
+
+         const questionElement = document.querySelector(`input[type="${typeQuestion[0]}"]`);
+         const nameElement = questionElement?.getAttribute('name');
+
+         setFormValues((prevValues: any) => ({
+            ...prevValues,
+         }));
+
+         // reset isInvalid
+         setIsInvalid({
+            ...isInvalid,
+            [nameElement ?? '']: false,
+         });
+      }
    };
 
    const handleChangeInput = (type: string) => (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -181,6 +209,7 @@ export default function InvitationPage({ params }: { params: { token: string } }
 
    const submitAnswer = (e: React.FormEvent<HTMLFormElement>) => {
       e.preventDefault();
+      console.log('formValues', formValues);
       const formData = new FormData(e.currentTarget);
       const dataForm = Object.fromEntries(formData.entries());
       const getIdKey = Object.keys(dataForm).filter((key) => key.includes('question_'));
@@ -312,7 +341,6 @@ export default function InvitationPage({ params }: { params: { token: string } }
                                           htmlFor=""
                                           className="mb-3"
                                           dangerouslySetInnerHTML={{
-                                             // __html: question.Question.question,
                                              __html: Mustache.render(question.Question.question, guestDetailFormated),
                                           }}
                                        ></label>
@@ -343,7 +371,7 @@ export default function InvitationPage({ params }: { params: { token: string } }
                                           </div>
                                        </div>
                                     ) : (
-                                       <div>
+                                       <div className="flex flex-col">
                                           <input
                                              type={question.Question.type}
                                              className={`rounded-md px-3 py-2 ${
