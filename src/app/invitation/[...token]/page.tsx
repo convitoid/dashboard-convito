@@ -123,6 +123,7 @@ export default function InvitationPage({ params }: { params: { token: string } }
 
          setFormValues((prevValues: any) => ({
             ...prevValues,
+            [nameElement ?? '']: '',
          }));
 
          // reset isInvalid

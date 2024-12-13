@@ -1,3 +1,6 @@
+import {
+   openModalEditQuestionAction
+} from '@/app/GlobalRedux/Features/question/questionSlice';
 import { deleteQuestion, getAllQuestions, getQuestionById } from '@/app/GlobalRedux/Thunk/questions/questionThunk';
 import { AppDispatch, RootState } from '@/app/store';
 import {
@@ -9,19 +12,15 @@ import {
 } from '@tanstack/react-table';
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import Swal from 'sweetalert2';
+import { ChevronDoubleLeftIcon } from '../icons/chevronDoubleLeft';
+import { ChevronDoubleRightIcon } from '../icons/chevronDoubleRight';
 import { ChevronLeftIcon } from '../icons/chevronLeft';
 import { ChevronRightIcon } from '../icons/chevronRight';
-import { ChevronDoubleRightIcon } from '../icons/chevronDoubleRight';
-import { ChevronDoubleLeftIcon } from '../icons/chevronDoubleLeft';
-import { EditIcon } from '../icons/edit';
 import { DeleteIcon } from '../icons/delete';
+import { EditIcon } from '../icons/edit';
 import { ModalAddQuestion } from '../page/modalAddQuestion';
 import { ModalEditQuestion } from '../page/modalEditQuestion';
-import {
-   closeModalEditQuestionAction,
-   openModalEditQuestionAction,
-} from '@/app/GlobalRedux/Features/question/questionSlice';
-import Swal from 'sweetalert2';
 
 type QuestionTabProps = {
    clientId?: string;
