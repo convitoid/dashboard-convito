@@ -187,20 +187,15 @@ export default function InvitationPage({ params }: { params: { token: string } }
          });
       } else if (type === 'text') {
          // Validasi input hanya berupa teks (tanpa angka) boleh - dan /
-         if (!/^[a-zA-Z\s-\/]*$/.test(value)) {
-            valid = false;
-         }
+         // if (!/^[a-zA-Z\s-\/]*$/.test(value)) {
+         //    valid = false;
+         // }
 
          setFormValues({
             ...formValues,
             [name]: value,
          });
       }
-
-      // setFormValues({
-      //    ...formValues,
-      //    [name]: value,
-      // });
 
       setIsInvalid({
          ...isInvalid,
