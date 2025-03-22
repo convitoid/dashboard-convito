@@ -195,7 +195,6 @@ export const QrDashboardTab = ({ clientId }: QrDashboardTabProps) => {
 
             const blastingSource =
                webhookStatus.length > 0 ? webhookStatus?.map((from: any) => from.blastingSource) : ' - ';
-            console.log('blastingSource', blastingSource);
 
             return {
                name: guest.name,

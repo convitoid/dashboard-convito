@@ -1,94 +1,92 @@
-import { createAsyncThunk } from '@reduxjs/toolkit';
+import {createAsyncThunk} from '@reduxjs/toolkit';
 import axios from 'axios';
 
 export const getDashboardData = createAsyncThunk('clientDashboard/getDashboardData', async (payload: any) => {
-   try {
-      const getToken = await fetch('/api/auth/session')
-         .then((res) => res.json())
-         .then((data) => {
-            return data;
-         });
+    try {
+        const getToken = await fetch('/api/auth/session')
+            .then((res) => res.json())
+            .then((data) => {
+                return data;
+            });
 
-      const response = await fetch(`/api/clients/dashboard/${payload.clientId}`, {
-         method: 'GET',
-         headers: {
-            Authorization: `Bearer ${getToken.user.jwt}`,
-         },
-      });
+        const response = await fetch(`/api/clients/dashboard/${payload.clientId}`, {
+            method: 'GET',
+            headers: {
+                Authorization: `Bearer ${getToken.user.jwt}`,
+            },
+        });
 
-      const res = await response.json();
-      return res;
-   } catch (error) {
-      return error;
-   }
+        const res = await response.json();
+        return res;
+    } catch (error) {
+        return error;
+    }
 });
 
 export const filterDataByAnswer = createAsyncThunk('clientDashboard/filterData', async (payload: any) => {
-   try {
-      const getToken = await fetch('/api/auth/session')
-         .then((res) => res.json())
-         .then((data) => {
-            return data;
-         });
+    try {
+        const getToken = await fetch('/api/auth/session')
+            .then((res) => res.json())
+            .then((data) => {
+                return data;
+            });
 
-      const response = await axios.post(`/api/clients/dashboard/${payload.clientId}/filter`, {
-         search_by: payload.search_by,
-         value: payload.value,
-      });
+        const response = await axios.post(`/api/clients/dashboard/${payload.clientId}/filter`, {
+            search_by: payload.search_by,
+            value: payload.value,
+        });
 
-      console.log("payload", payload);
-
-      return response.data;
-   } catch (error) {
-      return error;
-   }
+        return response.data;
+    } catch (error) {
+        return error;
+    }
 });
 
 export const filterDataGlobal = createAsyncThunk('clientDashboard/filterDataGlobal', async (payload: any) => {
-   try {
-      const getToken = await fetch('/api/auth/session')
-         .then((res) => res.json())
-         .then((data) => {
-            return data;
-         });
+    try {
+        const getToken = await fetch('/api/auth/session')
+            .then((res) => res.json())
+            .then((data) => {
+                return data;
+            });
 
-      const response = await axios.post(`/api/clients/dashboard/${payload.clientId}/filter`, {
-         search_by: payload.search_by,
-         is_answer: payload.is_answer,
-         value: payload.value,
-      });
+        const response = await axios.post(`/api/clients/dashboard/${payload.clientId}/filter`, {
+            search_by: payload.search_by,
+            is_answer: payload.is_answer,
+            value: payload.value,
+        });
 
-      // return response.data;
-      return response.data;
-   } catch (error) {
-      return error;
-   }
+        // return response.data;
+        return response.data;
+    } catch (error) {
+        return error;
+    }
 });
 
 export const exportData = createAsyncThunk('clientDashboard/exportData', async (payload: any) => {
-   try {
-      const getToken = await fetch('/api/auth/session')
-         .then((res) => res.json())
-         .then((data) => {
-            return data;
-         });
+    try {
+        const getToken = await fetch('/api/auth/session')
+            .then((res) => res.json())
+            .then((data) => {
+                return data;
+            });
 
 
-      const body = {
-         filter_by: payload.filter_by,
-      };
+        const body = {
+            filter_by: payload.filter_by,
+        };
 
-      const response = await fetch(`/api/clients/dashboard/${payload.clientId}`, {
-         method: 'POST',
-         headers: {
-            Authorization: `Bearer ${getToken.user.jwt}`,
-         },
-         body: JSON.stringify(body),
-      });
+        const response = await fetch(`/api/clients/dashboard/${payload.clientId}`, {
+            method: 'POST',
+            headers: {
+                Authorization: `Bearer ${getToken.user.jwt}`,
+            },
+            body: JSON.stringify(body),
+        });
 
-      const res = await response.json();
-      return res;
-   } catch (error) {
-      return error;
-   }
+        const res = await response.json();
+        return res;
+    } catch (error) {
+        return error;
+    }
 });

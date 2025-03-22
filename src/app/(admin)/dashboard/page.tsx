@@ -38,7 +38,6 @@ const DashboardPage = () => {
       const url = '/api/admin/dashboard';
       const response = await axios.get(url);
 
-      console.log(response);
 
       if (response.status === 200) {
          setTotalClients(response.data.data.totalClients);

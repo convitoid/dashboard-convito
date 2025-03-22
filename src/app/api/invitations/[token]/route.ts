@@ -10,7 +10,6 @@ interface JwtPayload {
 
 export async function GET(req: NextRequest, { params }: { params: { token: string } }) {
    const token = params.token;
-   console.log(token);
 
    if (!token) {
       return NextResponse.json({

@@ -79,7 +79,6 @@ export async function POST(req: NextRequest, { params }: { params: { clientId: s
       const flattenedResults = blasting.flat();
       const response = (await sendBlastingService(flattenedResults as any, Number(client?.id), clientId)) as Response;
 
-      console.log(response);
 
       logger.info(`Blasting sent successfully for client: ${clientId}`, {
          data: response,

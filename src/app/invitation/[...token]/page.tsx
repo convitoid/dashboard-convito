@@ -205,7 +205,6 @@ export default function InvitationPage({ params }: { params: { token: string } }
 
    const submitAnswer = (e: React.FormEvent<HTMLFormElement>) => {
       e.preventDefault();
-      console.log('formValues', formValues);
       const formData = new FormData(e.currentTarget);
       const dataForm = Object.fromEntries(formData.entries());
       const getIdKey = Object.keys(dataForm).filter((key) => key.includes('question_'));

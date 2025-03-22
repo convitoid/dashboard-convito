@@ -3,6 +3,7 @@ import prisma from '@/libs/prisma';
 import { jwtVerify } from 'jose';
 import { revalidatePath } from 'next/cache';
 import { NextRequest, NextResponse } from 'next/server';
+import { cleanPhoneNumber, cleanString, detectHiddenChars } from '@/utils/clearPhoneNumber';
 
 interface JWTError extends Error {
    code?: string;
@@ -46,8 +47,8 @@ export async function GET(req: NextRequest, { params }: { params: { clientId: st
                   Question: {
                      select: {
                         position: true,
-                     }
-                  }
+                     },
+                  },
                },
             },
             GuestDetail: {
@@ -55,11 +56,16 @@ export async function GET(req: NextRequest, { params }: { params: { clientId: st
                   detail_key: true,
                   detail_val: true,
                },
+               //    where: {
+               //       id: 21679,
+               //    },
             },
             // get only new log
          },
          where: {
             clientId: client?.id,
+            // clientId: client,
+            // id: 5831,
          },
          orderBy: {
             name: 'asc',
@@ -75,6 +81,27 @@ export async function GET(req: NextRequest, { params }: { params: { clientId: st
                },
                { guestId: g.guestId }
             );
+
+            if (detail.phone_number) {
+               detail.phone_number = cleanPhoneNumber(detail.phone_number);
+            }
+
+            if (detail.phone_number) {
+               // Deteksi karakter tersembunyi untuk debugging
+               const hiddenChars = detectHiddenChars(detail.phone_number);
+               if (hiddenChars.length > 0) {
+                  console.log('Nomor telepon asli:', detail.phone_number);
+                  console.log('Karakter tersembunyi:', hiddenChars);
+               }
+
+               // Bersihkan nomor telepon
+               detail.phone_number = cleanString(detail.phone_number);
+
+               // Verifikasi bahwa hasilnya benar
+               if (!/^\+?\d+$/.test(detail.phone_number)) {
+                  console.warn(`Nomor telepon masih mengandung karakter non-digit: ${detail.phone_number}`);
+               }
+            }
 
             const webhookData = await prisma.webhook.findMany({
                select: {
@@ -270,22 +297,15 @@ export async function POST(req: NextRequest, { params }: { params: { clientId: s
          };
       });
 
-      console.log('formattedGuest', formattedGuest);
-
-      console.log('formattedGuest', formattedGuest.filter((item: any) => item.questions.length > 0 && item.questions[0].answer !== null));
-
       const filteredData = () => {
          if (filter_by === 'yes') {
-            return formattedGuest.filter((item: any) => item.questions.length > 0 && item.questions[0].answer !== null)
+            return formattedGuest.filter((item: any) => item.questions.length > 0 && item.questions[0].answer !== null);
          } else if (filter_by === 'no') {
-            return formattedGuest.filter((item: any) => item.questions.length > 0 && item.questions[0].answer === null)
+            return formattedGuest.filter((item: any) => item.questions.length > 0 && item.questions[0].answer === null);
          } else {
             return formattedGuest;
          }
-      }
-
-      console.log('filteredData', filteredData());
-
+      };
 
       logger.info(`Dashboard export data successfully for client: ${params.clientId}`, {
          data: filteredData(),

@@ -31,7 +31,6 @@ export const ModalAddQuestion = ({ modalId, clientId }: ModalAddQuestionProps) =
    const handleSubmit = (e: any) => {
       e.preventDefault();
 
-      console.log('formData', formData);
 
       if (formData.question === '') {
          Swal.fire({

@@ -89,7 +89,6 @@ const CustomerDetailPage = ({ params }: { params: { slug: string } }) => {
 
    const getClientName = async () => {
       const response = await axios.get(`/api/clients/${params.slug}`);
-      console.log(`${response.data.data.client_id} - ${response.data.data.client_name}`);
 
       dispatch(
          clientSlice.actions.setNavbarTitle(`${response.data.data.client_id} - ${response.data.data.client_name}`)
