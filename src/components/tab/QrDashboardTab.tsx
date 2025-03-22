@@ -172,6 +172,7 @@ export const QrDashboardTab = ({ clientId }: QrDashboardTabProps) => {
          const data = dashboardData.data[0].guests.map((guest: any) => {
             const webhookStatus = guest.webhook;
             // const statusFiltered = status.length > 0 ? status[status.length - 1] : 'Not Send Yet';
+            console.log('webhookStatus', webhookStatus);
 
             const status =
                webhookStatus.length > 0
