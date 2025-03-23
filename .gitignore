@@ -42,3 +42,5 @@ next-env.d.ts
 
 # don't include logs
 /logs
+
+.idea

@@ -3,6 +3,7 @@ import prisma from '@/libs/prisma';
 import { convertToJson } from '@/utils/convertToJson';
 import { NextRequest, NextResponse } from 'next/server';
 import * as XLSX from 'xlsx';
+import { cleanString } from '@/utils/clearPhoneNumber';
 
 export async function POST(req: NextRequest) {
    try {
@@ -60,7 +61,7 @@ export async function POST(req: NextRequest) {
                data: filteredData.map((guest: any) => ({
                   clientId: Number(client?.id),
                   name: guest.NAME,
-                  phoneNumber: guest.PHONE_NUMBER.toString(),
+                  phoneNumber: cleanString(guest.PHONE_NUMBER.toString()),
                   qr_code: guest.QR_CODE,
                   createdAt: new Date(),
                })),
@@ -72,7 +73,7 @@ export async function POST(req: NextRequest) {
                data: {
                   clientId: Number(client?.id),
                   name: guest.NAME,
-                  phoneNumber: guest.PHONE_NUMBER.toString(),
+                  phoneNumber: cleanString(guest.PHONE_NUMBER.toString()),
                   qr_code: guest.QR_CODE,
                   createdAt: new Date(),
                },

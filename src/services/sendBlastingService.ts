@@ -235,11 +235,9 @@ export const sendBlastingService = async (data: any, clientId: any, clientCode: 
             };
          }))
       );
-      console.log('Response from whatsapp', JSON.stringify(sendBlastingProcess))
       logger.info('Response from whatsapp', JSON.stringify(sendBlastingProcess))
 
       if (sendBlastingProcess.some((res) => res.error)) {
-         console.log('errorData', sendBlastingProcess[0].error.message);
          const errorData = sendBlastingProcess.filter((res) => res.error);
          const message = errorData.map((e) => e.error.message);
          errorData.map(async (e) => {
@@ -308,7 +306,6 @@ export const sendBlastingService = async (data: any, clientId: any, clientCode: 
             },
          });
 
-         console.log('webhookExist', webhookExist);
 
          if (webhookExist.length > 0) {
             await prisma.webhook.deleteMany({
@@ -330,7 +327,6 @@ export const sendBlastingService = async (data: any, clientId: any, clientCode: 
          return getSuccessReponse(invitationCreateData, 200, 'Successfully sent');
       }
    } catch (error) {
-      console.log("failed send blasting", error);
       logger.info('ERROR SEND SRVP: ', error);
       return error;
    }
@@ -414,11 +410,8 @@ export const sendBlastingQrService = async (body: any, template: any, image: any
                         }
                      );
 
-                     console.log('image', `${process.env.NEXTAUTH_URL}${image[0].path}`);
-                     // console.log('response reminder', await response.json());
                      const whatsappResponse = await response.json();
 
-                     console.log('response reminder', whatsappResponse);
 
                      const qrGuest = await prisma.qrGuest.findMany({
                         select: {
@@ -447,11 +440,6 @@ export const sendBlastingQrService = async (body: any, template: any, image: any
                            clientId: webhookData.clientId,
                         },
                      });
-
-                     console.log(
-                        'webhookData',
-                        webhookExist.map((w) => w.id)
-                     );
 
                      if (webhookExist.length > 0) {
                         await prisma.webhook.deleteMany({
@@ -486,7 +474,6 @@ export const sendBlastingQrService = async (body: any, template: any, image: any
                               body: JSON.stringify(whatsappBodyJsonQr),
                            }
                         );
-                        console.log('qr image', `${process.env.NEXTAUTH_URL}/${qrFileUrl[0].path}`);
 
                         const whatsappQrResponse = await responseQr.json();
 
@@ -508,7 +495,6 @@ export const sendBlastingQrService = async (body: any, template: any, image: any
                            },
                         });
 
-                        console.log('webhookExistQr', webhookExistQr);
 
                         if (webhookExistQr.length > 0) {
                            await prisma.webhook.deleteMany({
@@ -612,7 +598,6 @@ export const sendBlastingQrService = async (body: any, template: any, image: any
             await Promise.all(
                body.map(async (guest: any) => limit(async () => {
                   logger.info("GUEST LENGTH: ", body.length)
-                  console.log('guest', guest);
                   try {
                      const whatsappBodyJsonReminder = {
                         messaging_product: 'whatsapp',
@@ -681,8 +666,6 @@ export const sendBlastingQrService = async (body: any, template: any, image: any
                         },
                      });
 
-                     console.log('response reminder', whatsappResponse);
-                     console.log('qrGuest', qrGuest);
 
                      const webhookData = {
                         templateName: template.find((t: any) => t.type === 'reminder_template')?.name,
@@ -694,7 +677,6 @@ export const sendBlastingQrService = async (body: any, template: any, image: any
                         lastUpdateStatus: new Date(),
                      };
 
-                     console.log('webhookData', webhookData);
 
                      const webhookExist = await prisma.webhook.findMany({
                         where: {
@@ -737,7 +719,6 @@ export const sendBlastingQrService = async (body: any, template: any, image: any
 
                         const whatsappQrResponse = await responseQr.json();
 
-                        console.log('response qr', whatsappQrResponse);
 
                         const webhookDataQr = {
                            templateName: template.find((t: any) => t.type === 'qr_template')?.name,

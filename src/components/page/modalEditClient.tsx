@@ -79,8 +79,6 @@ export const ModalEditClient = ({ modalId, clientId, closeModal }: ModalEditClie
          updated_by: session?.user?.name,
       };
 
-      console.log('newFormData', newFormData);
-
       dispatch(updateClient(newFormData))
          .unwrap()
          .then((res) => {

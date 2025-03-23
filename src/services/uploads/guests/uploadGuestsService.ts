@@ -4,6 +4,7 @@ import generateGuestId from '@/utils/generateGuestId';
 import { getErrorResponse, getSuccessReponse } from '@/utils/response/successResponse';
 import { jwtVerify } from 'jose';
 import { NextResponse } from 'next/server';
+import { cleanString } from '@/utils/clearPhoneNumber';
 import * as XLSX from 'xlsx';
 
 interface JWTError extends Error {
@@ -24,7 +25,7 @@ export const createGuests = async (jwtToken: string, clientId: string, file: any
       const workbook = XLSX.read(arrayBuffer, { type: 'array' });
       const sheetName = workbook.SheetNames[0];
       const sheet = workbook.Sheets[sheetName];
-      const data = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+      const data = XLSX.utils.sheet_to_json(sheet, { header: 1, raw: false });
       const header = data[0];
 
       data.splice(0, 1);
@@ -86,15 +87,20 @@ export const createGuests = async (jwtToken: string, clientId: string, file: any
                   .map(([key, value]) => {
                      return {
                         detail_key: key.toLowerCase(),
-                        detail_val: String(value),
+                        detail_val: cleanString(String(value)),
                      };
                   });
+
+               console.log('guestDetail 1', guestDetail);
 
                const createGuestDetail = await prisma.guestDetail.createMany({
                   data: guestDetail.map((detail: any) => {
                      return {
                         guestId: createGuest.id,
-                        ...detail,
+                        detail_key: detail.detail_key,
+                        detail_val: cleanString(detail.detail_val),
+                        createdAt: new Date(),
+                        updatedAt: new Date(),
                      };
                   }),
                });
@@ -151,15 +157,20 @@ export const createGuests = async (jwtToken: string, clientId: string, file: any
                   .map(([key, value]) => {
                      return {
                         detail_key: key.toLowerCase(),
-                        detail_val: String(value),
+                        detail_val: cleanString(String(value)),
                      };
                   });
+
+               console.log('guestDetail 2', guestDetail);
 
                const createGuestDetail = await prisma.guestDetail.createMany({
                   data: guestDetail.map((detail: any) => {
                      return {
                         guestId: createGuest.id,
-                        ...detail,
+                        detail_key: detail.detail_key,
+                        detail_val: cleanString(detail.detail_val),
+                        createdAt: new Date(),
+                        updatedAt: new Date(),
                      };
                   }),
                });
@@ -201,15 +212,20 @@ export const createGuests = async (jwtToken: string, clientId: string, file: any
                .map(([key, value]) => {
                   return {
                      detail_key: key.toLowerCase(),
-                     detail_val: String(value),
+                     detail_val: cleanString(String(value)),
                   };
                });
+
+            console.log('guestDetail 3', guestDetail);
 
             const createGuestDetail = await prisma.guestDetail.createMany({
                data: guestDetail.map((detail: any) => {
                   return {
                      guestId: createGuest.id,
-                     ...detail,
+                     detail_key: detail.detail_key,
+                     detail_val: cleanString(detail.detail_val),
+                     createdAt: new Date(),
+                     updatedAt: new Date(),
                   };
                }),
             });
