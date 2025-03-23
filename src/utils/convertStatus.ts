@@ -14,6 +14,7 @@ export const convertStatus = (status: string) => {
 
       case 'read':
          return 'READ';
+         
       default:
          return 'NOT SENT YET';
    }
