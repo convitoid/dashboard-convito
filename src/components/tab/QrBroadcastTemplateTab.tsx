@@ -183,6 +183,7 @@ export const QrBroadcastTemplateTab = ({ clientId }: QrBroadcastTemplateTabProps
       getPaginationRowModel: getPaginationRowModel(),
       onPaginationChange: setPagination,
       onGlobalFilterChange: setGlobalFilter,
+      autoResetPageIndex: false, // Prevent pagination reset
       state: {
          globalFilter,
          pagination,

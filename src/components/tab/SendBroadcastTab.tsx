@@ -23,6 +23,8 @@ interface RowData {
    id: number;
    phone_number: string;
    name: string;
+   answer: string;
+   scenario: string;
 }
 
 // Definisikan tipe untuk status checkbox
@@ -35,7 +37,7 @@ type SendBroadcastTabProps = {
 };
 
 export const SendBroadcastTab = ({ clientId }: SendBroadcastTabProps) => {
-   const [columns, setColumns] = useState<ColumnDef<RowData, any>[]>([]);
+
    const [data, setData] = useState<RowData[]>([]);
    const [pagination, setPagination] = useState({
       pageIndex: 0,
@@ -45,6 +47,7 @@ export const SendBroadcastTab = ({ clientId }: SendBroadcastTabProps) => {
    const [selectAll, setSelectAll] = useState(false);
    const [selectedRows, setSelectedRows] = useState<SelectedRows>({});
    const [selectedData, setSelectedData] = useState<RowData[]>([]);
+   const [selectedFilter, setSelectedFilter] = useState('');
 
    const dispatch = useDispatch<AppDispatch>();
    const guests = useSelector((state: RootState) => state.guests.guests);
@@ -53,17 +56,7 @@ export const SendBroadcastTab = ({ clientId }: SendBroadcastTabProps) => {
 
    useEffect(() => {
       dispatch(fetchGuests(clientId?.toString() ?? ''));
-   }, [dispatch, clientId, selectAll, selectedRows]);
-
-   const handleSelectAll = () => {
-      setSelectAll((prev) => !prev);
-      setSelectedRows((prev) =>
-         data.reduce((acc, row) => {
-            acc[row.id] = !selectAll;
-            return acc;
-         }, {} as SelectedRows)
-      );
-   };
+   }, [dispatch, clientId]);
 
    const handleRowSelect = (rowId: number) => {
       setSelectedRows((prev) => ({
@@ -72,69 +65,100 @@ export const SendBroadcastTab = ({ clientId }: SendBroadcastTabProps) => {
       }));
    };
 
+   const columns: ColumnDef<RowData, any>[] = [
+      {
+         header: () => {
+            const currentPageRows = table?.getRowModel().rows || [];
+            const allCurrentPageSelected = currentPageRows.every(row => selectedRows[row.original.id]);
+            const someCurrentPageSelected = currentPageRows.some(row => selectedRows[row.original.id]);
+            
+            return (
+               <input 
+                  className="w-4 h-4" 
+                  type="checkbox" 
+                  onChange={handleSelectAll} 
+                  checked={allCurrentPageSelected}
+                  ref={(input) => {
+                     if (input) input.indeterminate = someCurrentPageSelected && !allCurrentPageSelected;
+                  }}
+               />
+            );
+         },
+         accessorKey: 'validation',
+         cell: ({ row }) => (
+            <input
+               className="w-4 h-4"
+               type="checkbox"
+               checked={selectedRows[row.original.id] || false}
+               onChange={() => handleRowSelect(row.original.id)}
+            />
+         ),
+      },
+      {
+         header: 'Name',
+         accessorKey: 'name',
+      },
+      {
+         header: 'Phone Number',
+         accessorKey: 'phone_number',
+      },
+      {
+         header: 'Answer',
+         accessorKey: 'answer',
+         cell: (info) => {
+            const answer = info.getValue();
+            return answer === 'yes' ? 'Yes' : answer === 'no' ? 'No' : '-';
+         },
+      },
+      {
+         header: 'Scenario',
+         accessorKey: 'scenario',
+         cell: (info) => {
+            const value = info.getValue();
+            if (!value) return '';
+            return value
+               .replace(/-/g, ' ')
+               .toLowerCase()
+               .split(' ')
+               .map((word: any) => word.charAt(0).toUpperCase() + word.slice(1))
+               .join(' ');
+         },
+      },
+   ];
+
    useEffect(() => {
-      if (guests?.length > 0) {
-         const columns: ColumnDef<RowData, any>[] = [
-            {
-               header: () => (
-                  <input className="w-4 h-4" type="checkbox" onChange={handleSelectAll} checked={selectAll} />
-               ),
-               accessorKey: 'validation',
-               cell: ({ row }) => (
-                  <input
-                     className="w-4 h-4"
-                     type="checkbox"
-                     checked={selectedRows[row.original.id] || false}
-                     onChange={() => handleRowSelect(row.original.id)}
-                  />
-               ),
-            },
-            {
-               header: 'Phone Number',
-               accessorKey: 'phone_number',
-            },
-            {
-               header: 'Name',
-               accessorKey: 'name',
-            },
-            {
-               header: 'Scenario',
-               accessorKey: 'scenario',
-               cell: (info) => {
-                  return info
-                     .getValue()
-                     .replace(/-/g, ' ')
-                     .toLowerCase()
-                     .split(' ')
-                     .map((word: any) => word.charAt(0).toUpperCase() + word.slice(1))
-                     .join(' ');
-               },
-            },
-         ];
+      if (guests && guests.length > 0) {
 
-         setColumns(columns);
+         const formatedData: RowData[] = [...guests]
+            .filter((guest: any) => {
+               // Exclude if guest is marked as excluded from broadcast
+               return !guest.excluded_from_broadcast;
+            })
+            .sort((a: any, b: any) => a.id - b.id) // Sort by ID for consistent order
+            .map((guest: any) => {
+               const details = guest.GuestDetail?.reduce((acc: any, detail: any) => {
+                  acc[detail.detail_key] = detail.detail_val;
+                  return acc;
+               }, {}) || {};
 
-         const formatedData: RowData[] = guests.map((guest: any) => {
-            const details = guest.GuestDetail.reduce((acc: any, detail: any) => {
-               acc[detail.detail_key] = detail.detail_val;
-               return acc;
-            }, {});
+               // Get answer from invitations (position 1 is main question)
+               const answer = guest.Invitations?.filter((invitation: any) => invitation.Question?.position === 1);
+               const answerValue = answer?.length > 0 ? answer[0]?.answer : null;
 
-            return {
-               id: guest.id,
-               name: guest.name,
-               phone_number: details.phone_number,
-               scenario: details.scenario_slug,
-            };
-         });
+               return {
+                  id: guest.id,
+                  name: guest.name,
+                  phone_number: details.phone_number,
+                  answer: answerValue,
+                  scenario: guest.scenario || details.scenario_slug,
+               };
+            });
 
          setData(formatedData);
-      }
-
-      return () => {
+      } else if (guests && guests.length === 0) {
+         // If guests array is empty, clear data
          setData([]);
-         setColumns([]);
-      };
+      }
    }, [guests]);
 
    const searchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -149,14 +173,99 @@ export const SendBroadcastTab = ({ clientId }: SendBroadcastTabProps) => {
       getPaginationRowModel: getPaginationRowModel(),
       onPaginationChange: setPagination,
       onGlobalFilterChange: setGlobalFilter,
+      autoResetPageIndex: false, // Prevent pagination reset
       state: {
          pagination,
          globalFilter,
       },
    });
 
+   const handleSelectAll = () => {
+      const currentPageRows = table.getRowModel().rows;
+      const allCurrentPageSelected = currentPageRows.every(row => selectedRows[row.original.id]);
+      
+      const newSelectedRows = { ...selectedRows };
+      currentPageRows.forEach(row => {
+         newSelectedRows[row.original.id] = !allCurrentPageSelected;
+      });
+      
+      setSelectedRows(newSelectedRows);
+      setSelectAll(!allCurrentPageSelected);
+   };
+
+   const currentPageRows = table.getRowModel().rows;
+   const allCurrentPageSelected = currentPageRows.every(row => selectedRows[row.original.id]);
+   const someCurrentPageSelected = currentPageRows.some(row => selectedRows[row.original.id]);
+
    const getSelectedRowsData = () => {
       return data.filter((row) => selectedRows[row.id]);
+   };
+
+   const handleFilterDataBySelected = (e: React.ChangeEvent<HTMLSelectElement>) => {
+      const selectedValue = e.target.value;
+      setSelectedFilter(selectedValue);
+      
+      if (selectedValue === 'all') {
+         // Show all guests
+         const formatedData: RowData[] = [...guests]
+            .filter((guest: any) => {
+               return !guest.excluded_from_broadcast;
+            })
+            .sort((a: any, b: any) => a.id - b.id)
+            .map((guest: any) => {
+               const details = guest.GuestDetail?.reduce((acc: any, detail: any) => {
+                  acc[detail.detail_key] = detail.detail_val;
+                  return acc;
+               }, {}) || {};
+
+               const answer = guest.Invitations?.filter((invitation: any) => invitation.Question?.position === 1);
+               const answerValue = answer?.length > 0 ? answer[0]?.answer : null;
+
+               return {
+                  id: guest.id,
+                  name: guest.name,
+                  phone_number: details.phone_number,
+                  answer: answerValue,
+                  scenario: guest.scenario || details.scenario_slug,
+               };
+            });
+         setData(formatedData);
+      } else {
+         // Filter by answer status
+         const formatedData: RowData[] = [...guests]
+            .filter((guest: any) => {
+               if (guest.excluded_from_broadcast) return false;
+               
+               const answer = guest.Invitations?.filter((invitation: any) => invitation.Question?.position === 1);
+               const answerValue = answer?.length > 0 ? answer[0]?.answer : null;
+               
+               if (selectedValue === 'yes') {
+                  return answerValue === 'yes';
+               } else if (selectedValue === 'no') {
+                  return !answerValue; // No answer at all
+               }
+               return true;
+            })
+            .sort((a: any, b: any) => a.id - b.id)
+            .map((guest: any) => {
+               const details = guest.GuestDetail?.reduce((acc: any, detail: any) => {
+                  acc[detail.detail_key] = detail.detail_val;
+                  return acc;
+               }, {}) || {};
+
+               const answer = guest.Invitations?.filter((invitation: any) => invitation.Question?.position === 1);
+               const answerValue = answer?.length > 0 ? answer[0]?.answer : null;
+
+               return {
+                  id: guest.id,
+                  name: guest.name,
+                  phone_number: details.phone_number,
+                  answer: answerValue,
+                  scenario: guest.scenario || details.scenario_slug,
+               };
+            });
+         setData(formatedData);
+      }
    };
 
    const handleSendBlasting = () => {
@@ -176,6 +285,10 @@ export const SendBroadcastTab = ({ clientId }: SendBroadcastTabProps) => {
          .unwrap()
          .then((res) => {
             if (res.status === 200) {
+               // Reset checkbox selections after successful send
+               setSelectedRows({});
+               setSelectAll(false);
+               
                Swal.fire({
                   icon: 'success',
                   title: 'Success',
@@ -193,25 +306,56 @@ export const SendBroadcastTab = ({ clientId }: SendBroadcastTabProps) => {
 
    return (
       <>
-         <button
-            className="btn bg-blue-500 text-white hover:bg-blue-600 transition duration-100 mb-5"
-            onClick={handleSendBlasting}
-            disabled={sendingStatus === 'sending'}
-         >
-            {sendingStatus === 'sending' ? (
-               <span className="loading loading-spinner loading-sm"></span>
-            ) : (
-               'Send Broadcast'
-            )}
-         </button>
+         <div className="mb-5">
+            <div className="bg-blue-100 border border-blue-300 rounded-lg p-4 mb-4">
+               <div className="flex items-center justify-between">
+                  <div>
+                     <h3 className="text-lg font-semibold text-blue-800">Total Guest untuk Broadcast</h3>
+
+                  </div>
+                  <div className="text-right">
+                     <div className="text-3xl font-bold text-blue-800">{data.length}</div>
+                     <div className="text-sm text-blue-600">dari {guests?.length || 0} total guest</div>
+                  </div>
+               </div>
+            </div>
+            <button
+               className="btn bg-blue-500 text-white hover:bg-blue-600 transition duration-100"
+               onClick={handleSendBlasting}
+               disabled={sendingStatus === 'sending'}
+            >
+               {sendingStatus === 'sending' ? (
+                  <span className="loading loading-spinner loading-sm"></span>
+               ) : (
+                  'Send Broadcast'
+               )}
+            </button>
+         </div>
          <div className="flex items-center justify-between mb-3">
             <h1 className="text-lg font-semibold">Broadcast Data</h1>
-            <input
-               type="text"
-               placeholder="Search"
-               className="border-[1px] px-3 py-1 rounded-md"
-               onChange={searchChange}
-            />
+            <div className="flex items-center gap-3">
+               <span className="text-sm">Filter data : </span>
+               <select
+                  name="filter_data"
+                  id="filter_data"
+                  onChange={handleFilterDataBySelected}
+                  className="select select-sm select-bordered"
+                  value={selectedFilter || 'all'}
+               >
+                  <option value="" disabled>
+                     Filtered answer
+                  </option>
+                  <option value="all">All</option>
+                  <option value="yes">Answered</option>
+                  <option value="no">Not Answered</option>
+               </select>
+               <input
+                  type="text"
+                  placeholder="Search"
+                  className="border-[1px] px-3 py-1 rounded-md"
+                  onChange={searchChange}
+               />
+            </div>
          </div>
          {statusGuest === 'loading' ? (
             <div className="skeleton h-[20rem] w-full"></div>

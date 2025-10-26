@@ -34,7 +34,7 @@ interface RowData {
 }
 
 export const QrSendBroadcast = ({ clientId }: QrSendBroadcastProps) => {
-   const [columns, setColumns] = useState<ColumnDef<any, any>[]>([]);
+
    const [data, setData] = useState<any[]>([]);
    const [pagination, setPagination] = useState({
       pageIndex: 0,
@@ -50,13 +50,16 @@ export const QrSendBroadcast = ({ clientId }: QrSendBroadcastProps) => {
    const [selectedRows, setSelectedRows] = useState<SelectedRows>({});
 
    const handleSelectAll = () => {
-      setSelectAll((prev) => !prev);
-      setSelectedRows((prev) =>
-         data.reduce((acc, row) => {
-            acc[row.id] = !selectAll;
-            return acc;
-         }, {} as SelectedRows)
-      );
+      const currentPageRows = table.getRowModel().rows;
+      const allCurrentPageSelected = currentPageRows.every(row => selectedRows[row.original.id]);
+      
+      const newSelectedRows = { ...selectedRows };
+      currentPageRows.forEach(row => {
+         newSelectedRows[row.original.id] = !allCurrentPageSelected;
+      });
+      
+      setSelectedRows(newSelectedRows);
+      setSelectAll(!allCurrentPageSelected);
    };
 
    const handleRowSelect = (rowId: number) => {
@@ -78,35 +81,50 @@ export const QrSendBroadcast = ({ clientId }: QrSendBroadcastProps) => {
       };
    }, [dispatch]);
 
-   useEffect(() => {
-      const columns: ColumnDef<RowData, any>[] = [
-         {
-            header: () => <input className="w-4 h-4" type="checkbox" onChange={handleSelectAll} checked={selectAll} />,
-            accessorKey: 'validation',
-            cell: ({ row }) => (
-               <input
-                  className="w-4 h-4"
-                  type="checkbox"
-                  checked={selectedRows[row.original.id] || false}
-                  onChange={() => handleRowSelect(row.original.id)}
+   const columns: ColumnDef<RowData, any>[] = [
+      {
+         header: () => {
+            const currentPageRows = table?.getRowModel().rows || [];
+            const allCurrentPageSelected = currentPageRows.every(row => selectedRows[row.original.id]);
+            const someCurrentPageSelected = currentPageRows.some(row => selectedRows[row.original.id]);
+            
+            return (
+               <input 
+                  className="w-4 h-4" 
+                  type="checkbox" 
+                  onChange={handleSelectAll} 
+                  checked={allCurrentPageSelected}
+                  ref={(input) => {
+                     if (input) input.indeterminate = someCurrentPageSelected && !allCurrentPageSelected;
+                  }}
                />
-            ),
+            );
          },
-         {
-            header: 'Guest Name',
-            accessorKey: 'name',
-         },
-         {
-            header: 'Phone Number',
-            accessorKey: 'phoneNumber',
-         },
-         {
-            header: 'Qr Code',
-            accessorKey: 'qr_code',
-         },
-      ];
+         accessorKey: 'validation',
+         cell: ({ row }) => (
+            <input
+               className="w-4 h-4"
+               type="checkbox"
+               checked={selectedRows[row.original.id] || false}
+               onChange={() => handleRowSelect(row.original.id)}
+            />
+         ),
+      },
+      {
+         header: 'Guest Name',
+         accessorKey: 'name',
+      },
+      {
+         header: 'Phone Number',
+         accessorKey: 'phoneNumber',
+      },
+      {
+         header: 'Qr Code',
+         accessorKey: 'qr_code',
+      },
+   ];
 
-      setColumns(columns);
+   useEffect(() => {
 
       if (qrGuests?.data?.length > 0) {
          const dynamicData = qrGuests.data.map((guest: any) => {
@@ -122,10 +140,9 @@ export const QrSendBroadcast = ({ clientId }: QrSendBroadcastProps) => {
       }
 
       return () => {
-         setColumns([]);
          setData([]);
       };
-   }, [qrGuests, selectAll, selectedRows]);
+   }, [qrGuests]);
 
    const searchChange = (e: any) => {
       setGlobalFilter(e.target.value);
@@ -139,6 +156,7 @@ export const QrSendBroadcast = ({ clientId }: QrSendBroadcastProps) => {
       getPaginationRowModel: getPaginationRowModel(),
       onPaginationChange: setPagination,
       onGlobalFilterChange: setGlobalFilter,
+      autoResetPageIndex: false, // Prevent pagination reset
       state: {
          globalFilter,
          pagination,
@@ -159,6 +177,10 @@ export const QrSendBroadcast = ({ clientId }: QrSendBroadcastProps) => {
             .unwrap()
             .then((res) => {
                if (res.status === 200) {
+                  // Reset checkbox selections after successful send
+                  setSelectedRows({});
+                  setSelectAll(false);
+                  
                   Swal.fire({
                      icon: 'success',
                      title: 'Success',

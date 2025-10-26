@@ -4,6 +4,7 @@ import { jwtVerify } from 'jose';
 import { revalidatePath } from 'next/cache';
 import { NextRequest, NextResponse } from 'next/server';
 import { cleanPhoneNumber, cleanString, detectHiddenChars } from '@/utils/clearPhoneNumber';
+import { convertStatus } from '@/utils/convertStatus';
 
 interface JWTError extends Error {
    code?: string;
@@ -134,17 +135,8 @@ export async function GET(req: NextRequest, { params }: { params: { clientId: st
       const answeredGuestsCount = answeredGuests.length;
 
       const notAnsweredGuests = guest.filter((guest) => {
-         // Count the number of unanswered invitations
-         const unansweredCount = guest.Invitations.filter((invitation) => invitation.answer === null).length;
-
-         // Count the number of "no" answers
-         const noCount = guest.Invitations.filter((invitation) => invitation.answer === 'no').length;
-
-         // Adjust the unanswered count based on the "no" answers
-         const adjustedUnansweredCount = unansweredCount - 2 * noCount;
-
-         // Keep guests where the adjusted unanswered count is greater than 0
-         return adjustedUnansweredCount > 0;
+         // Guest is truly unanswered if they have NO answers at all (never submitted)
+         return !guest.Invitations.some((invitation) => invitation.answer !== null);
       });
 
       const totalGuestConfirmYes = guest.filter((guest) =>
@@ -153,9 +145,10 @@ export async function GET(req: NextRequest, { params }: { params: { clientId: st
 
       const guestConfirm = totalGuestConfirmYes.length;
 
-      const totalGuestConfirmNo = guest.filter((guest) =>
-         guest.Invitations.some((invitation) => invitation.answer === 'no')
-      );
+      const totalGuestConfirmNo = guest.filter((guest) => {
+         const mainAnswer = guest.Invitations.find((invitation) => invitation.Question.position === 1);
+         return mainAnswer?.answer === 'no';
+      });
 
       const guestDecline = totalGuestConfirmNo.length;
 
@@ -270,32 +263,60 @@ export async function POST(req: NextRequest, { params }: { params: { clientId: s
          },
       });
 
-      const formattedGuest = guest.map((guest) => {
-         const detail = guest.GuestDetail.reduce(
-            (acc: any, detail: any) => {
-               acc[detail.detail_key] = detail.detail_val;
-               return acc;
-            },
-            { guestId: guest.guestId }
-         );
+      const formattedGuest = await Promise.all(
+         guest.map(async (guest) => {
+            const detail = guest.GuestDetail.reduce(
+               (acc: any, detail: any) => {
+                  acc[detail.detail_key] = detail.detail_val;
+                  return acc;
+               },
+               { guestId: guest.guestId }
+            );
 
-         const question = guest.Invitations.map((invitation) => {
+            // Clean phone number for webhook lookup
+            if (detail.phone_number) {
+               detail.phone_number = cleanPhoneNumber(detail.phone_number);
+               detail.phone_number = cleanString(detail.phone_number);
+            }
+
+            // Get webhook data for status
+            const webhookData = await prisma.webhook.findMany({
+               select: {
+                  status: true,
+                  statusCode: true,
+               },
+               where: {
+                  blastingSource: 'RSVP',
+                  recipientId: detail.phone_number,
+                  clientId: client?.id,
+               },
+            });
+
+            const webhookStatus = webhookData?.length > 0 ? webhookData[0] : null;
+            const status = convertStatus(webhookStatus?.status);
+            const statusText = status === 'FAILED' 
+               ? `Failed: ${webhookStatus.statusCode}` 
+               : status;
+
+            const question = guest.Invitations.map((invitation) => {
+               return {
+                  question: invitation.Question.question,
+                  answer: invitation.answer,
+                  answer_at: invitation.answerAt,
+               };
+            });
+
             return {
-               question: invitation.Question.question,
-               answer: invitation.answer,
-               answer_at: invitation.answerAt,
+               id: guest.id,
+               guestId: guest.guestId,
+               name: guest.name,
+               scenario: guest.scenario,
+               status: statusText || 'NOT SENT YET',
+               ...detail,
+               questions: question,
             };
-         });
-
-         return {
-            id: guest.id,
-            guestId: guest.guestId,
-            name: guest.name,
-            scenario: guest.scenario,
-            ...detail,
-            questions: question,
-         };
-      });
+         })
+      );
 
       const filteredData = () => {
          if (filter_by === 'yes') {

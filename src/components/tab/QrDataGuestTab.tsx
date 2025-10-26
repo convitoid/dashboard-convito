@@ -67,7 +67,9 @@ export const QrDataGuestTab = ({ clientId }: QrDataGuestTabProps) => {
       setColumns(dynamicColumns);
 
       if (guests?.data?.length > 0) {
-         const dynamicData = guests.data.map((guest: any) => {
+         const dynamicData = [...guests.data]
+            .sort((a: any, b: any) => a.id - b.id) // Sort by ID for consistent order
+            .map((guest: any) => {
             return {
                id: guest.id,
                name: guest.name,
@@ -153,6 +155,8 @@ export const QrDataGuestTab = ({ clientId }: QrDataGuestTabProps) => {
       getPaginationRowModel: getPaginationRowModel(),
       onPaginationChange: setPagination,
       onGlobalFilterChange: setGlobalFilter,
+      autoResetPageIndex: false, // Prevent pagination reset
+      autoResetPageIndex: false, // Prevent pagination reset
       state: {
          globalFilter,
          pagination,

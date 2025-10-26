@@ -15,6 +15,7 @@ import { ChevronLeftIcon } from '../icons/chevronLeft';
 import { ChevronRightIcon } from '../icons/chevronRight';
 import { ChevronDoubleRightIcon } from '../icons/chevronDoubleRight';
 import Swal from 'sweetalert2';
+import { ModalAddGuest } from '../page/modalAddGuest';
 
 type DataTabProps = {
    clientId?: string;
@@ -34,23 +35,89 @@ export const DataTab = ({ clientId }: DataTabProps) => {
    const status = useSelector((state: RootState) => state.guests.status);
    const statusUpload = useSelector((state: RootState) => state.guests.statusGuestsUpload);
 
-   useEffect(() => {
-      dispatch(fetchGuests(clientId?.toString() ?? ''));
-   }, [dispatch]);
+   const toggleBroadcast = async (dbId: number, currentExcluded: boolean, guestName: string, guestId: string) => {
+      // currentExcluded = true berarti saat ini TIDAK dikirim (OFF)
+      // currentExcluded = false berarti saat ini AKAN dikirim (ON)
+      const action = currentExcluded ? 'mengaktifkan' : 'menonaktifkan';
+      
+      const result = await Swal.fire({
+         title: 'Konfirmasi',
+         text: `Apakah Anda yakin akan ${action} broadcast untuk guest ID ${guestId} dengan nama ${guestName}?`,
+         icon: 'question',
+         showCancelButton: true,
+         confirmButtonColor: '#3085d6',
+         cancelButtonColor: '#d33',
+         confirmButtonText: 'Ya, lanjutkan',
+         cancelButtonText: 'Batal'
+      });
+
+      if (!result.isConfirmed) return;
+
+      try {
+         const response = await fetch(`/api/guests/${dbId}/broadcast-status`, {
+            method: 'PATCH',
+            headers: {
+               'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ excluded: !currentExcluded })
+         });
+
+         if (response.ok) {
+            // Update local data to preserve pagination
+            setData(prevData => 
+               prevData.map(guest => 
+                  guest.id === dbId 
+                     ? { ...guest, excluded_from_broadcast: !currentExcluded }
+                     : guest
+               )
+            );
+            
+            // Success toast
+            Swal.fire({
+               icon: 'success',
+               title: 'Berhasil!',
+               text: `Broadcast untuk ${guestName} berhasil ${action.replace('mengaktifkan', 'diaktifkan').replace('menonaktifkan', 'dinonaktifkan')}`,
+               toast: true,
+               position: 'top-end',
+               showConfirmButton: false,
+               timer: 3000
+            });
+         } else {
+            throw new Error('API request failed');
+         }
+      } catch (error) {
+         console.error('Error updating broadcast status:', error);
+         
+         // Error toast
+         Swal.fire({
+            icon: 'error',
+            title: 'Gagal!',
+            text: `Gagal ${action} broadcast untuk ${guestName}. Silakan coba lagi.`,
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 3000
+         });
+      }
+   };
 
    useEffect(() => {
-      if (guests.length > 0) {
+      dispatch(fetchGuests(clientId?.toString() ?? ''));
+   }, [dispatch, clientId]);
+
+   useEffect(() => {
+      if (guests && guests.length > 0) {
          const firstGuest = guests[0];
          const keys = Object.keys(firstGuest).filter(
-            (key) => !['GuestDetail', 'createdAt', 'updatedAt', 'clientId', 'id'].includes(key)
+            (key) => !['GuestDetail', 'createdAt', 'updatedAt', 'clientId', 'id', 'excluded_from_broadcast', 'Invitations'].includes(key)
          );
          const guestDetail = firstGuest.GuestDetail.map((detail: any) => detail.detail_key);
 
          const dynamicColumns = [
             {
-               header: 'No', // Add "No" column
+               header: 'No',
                accessorKey: 'no',
-               cell: (info: any) => info.row.index + 1, // Calculate index + 1
+               cell: (info: any) => info.row.index + 1,
             },
             ...keys.map((key) => ({
                header: key.charAt(0).toUpperCase() + key.slice(1),
@@ -58,22 +125,44 @@ export const DataTab = ({ clientId }: DataTabProps) => {
             })),
          ];
 
-         setColumns(dynamicColumns);
-
          guestDetail.forEach((detail: any) => {
             dynamicColumns.push({
-               header: detail.charAt(0).toUpperCase() + detail.slice(1), // Capitalize header
+               header: detail.charAt(0).toUpperCase() + detail.slice(1),
                accessorKey: detail,
             });
          });
 
-         const formattedData = guests.map((guest: any, index: any) => {
+         // Add Broadcast toggle switch
+         dynamicColumns.push({
+            header: 'Broadcast',
+            accessorKey: 'broadcast_status',
+            cell: (info: any) => {
+               const guestId = info.row.original.id;
+               const isExcluded = info.row.original.excluded_from_broadcast;
+               
+               return (
+                  <label className="inline-flex items-center cursor-pointer">
+                     <input 
+                        type="checkbox" 
+                        className="sr-only peer"
+                        checked={!isExcluded}
+                        onChange={() => toggleBroadcast(guestId, isExcluded, info.row.original.name, info.row.original.guestId)}
+                     />
+                     <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                  </label>
+               );
+            },
+         });
+
+         setColumns(dynamicColumns);
+
+         const formattedData = [...guests]
+            .sort((a: any, b: any) => a.id - b.id) // Sort by ID for consistent order
+            .map((guest: any) => {
             const details = guest.GuestDetail.reduce((acc: any, detail: any) => {
                acc[detail.detail_key] = detail.detail_val;
                return acc;
             }, {});
-
-            // add no to the dynamic columns
 
             return {
                ...guest,
@@ -83,12 +172,7 @@ export const DataTab = ({ clientId }: DataTabProps) => {
 
          setData(formattedData);
       }
-
-      return () => {
-         setData([]);
-         setColumns([]);
-      };
-   }, [guests]);
+   }, [guests, clientId]);
 
    const searchChange = (e: any) => {
       setGlobalFilter(e.target.value);
@@ -102,6 +186,7 @@ export const DataTab = ({ clientId }: DataTabProps) => {
       getPaginationRowModel: getPaginationRowModel(),
       onPaginationChange: setPagination,
       onGlobalFilterChange: setGlobalFilter,
+      autoResetPageIndex: false, // Prevent pagination reset
       state: {
          pagination,
          globalFilter,
@@ -179,6 +264,7 @@ export const DataTab = ({ clientId }: DataTabProps) => {
             >
                Download Template
             </button>
+            <ModalAddGuest modalId="add_guest" title="Add Guest" clientId={clientId || ''} />
          </div>
          <div className="flex items-center justify-between mb-3">
             <h2 className="text-lg font-bold mb-2">Guest Data</h2>
@@ -191,7 +277,7 @@ export const DataTab = ({ clientId }: DataTabProps) => {
          </div>
          {status === 'loading' ? (
             <div className="skeleton h-[20rem] w-full"></div>
-         ) : data.length > 0 ? (
+         ) : data && data.length > 0 ? (
             <>
                <table
                   className="border-[1px] w-full"

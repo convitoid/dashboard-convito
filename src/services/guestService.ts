@@ -24,6 +24,15 @@ export const getGuests = async (jwtToken: string, clientId: string) => {
          },
          include: {
             GuestDetail: true,
+            Invitations: {
+               include: {
+                  Question: {
+                     select: {
+                        position: true,
+                     },
+                  },
+               },
+            },
          },
          orderBy: {
             name: 'asc',

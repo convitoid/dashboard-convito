@@ -232,35 +232,29 @@ export const AddScenario = ({ clientId }: AddScenarioProps) => {
 
          <div className="card bg-base-100 shadow-md mb-4">
             <div className="card-body p-7">
-               <div className="grid grid-cols-4">
-                  <div className="col-span-3">
-                     <h1 className="text-[16px] font-semibold mb-3 pb-3">Question</h1>
-                     <div className="flex flex-col gap-5">
+               <div className="flex justify-between items-start">
+                  <div className="flex-1">
+                     <h1 className="text-[16px] font-semibold mb-6">Question</h1>
+                     <div className="space-y-5">
                         {loading === 'loading'
                            ? 'Loading...'
                            : questions.length > 0
                              ? questions.map((question: any) => (
-                                  <label htmlFor={`question${question.id}`} key={question.id}>
-                                     <div dangerouslySetInnerHTML={{ __html: question.question }}></div>
-                                  </label>
+                                  <div key={question.id} className="flex items-center justify-between">
+                                     <label htmlFor={`question${question.id}`} className="flex-1 cursor-pointer">
+                                        <div dangerouslySetInnerHTML={{ __html: question.question }}></div>
+                                     </label>
+                                     <input
+                                        type="checkbox"
+                                        name={`q${question.position}`}
+                                        id={`question${question.id}`}
+                                        className="checkbox checkbox-accent ml-4"
+                                        checked={selectedQuestions?.some((q) => q.id === question.id && q.status)}
+                                        onChange={(e) => handleCheckboxChange(e, question.id, 'question')}
+                                     />
+                                  </div>
                                ))
                              : 'No data available'}
-                     </div>
-                  </div>
-                  <div className="col-span-1 w-[20%] flex flex-col items-center">
-                     <h1 className="text-[16px] font-semibold mb-3 pb-3">Active</h1>
-                     <div className="flex flex-col gap-5">
-                        {questions.map((question: any) => (
-                           <input
-                              key={question.id}
-                              type="checkbox"
-                              name={`q${question.position}`}
-                              id={`question${question.id}`}
-                              className="checkbox checkbox-accent"
-                              checked={selectedQuestions?.some((q) => q.id === question.id && q.status)}
-                              onChange={(e) => handleCheckboxChange(e, question.id, 'question')}
-                           />
-                        ))}
                      </div>
                   </div>
                </div>
@@ -269,37 +263,31 @@ export const AddScenario = ({ clientId }: AddScenarioProps) => {
 
          <div className="card bg-base-100 shadow-md mb-3">
             <div className="card-body p-7">
-               <div className="grid grid-cols-4">
-                  <div className="col-span-3">
-                     <h1 className="text-[16px] font-semibold mb-3 pb-3">Broadcast Template</h1>
-                     <div className="flex flex-col gap-5">
+               <div className="flex justify-between items-start">
+                  <div className="flex-1">
+                     <h1 className="text-[16px] font-semibold mb-6">Broadcast Template</h1>
+                     <div className="space-y-5">
                         {broadcastLoading === 'loading'
                            ? 'Loading...'
                            : broadcastTemplates.length > 0
                              ? broadcastTemplates.map((broadcastTemplate: any) => (
-                                  <label htmlFor={`broadcast${broadcastTemplate.id}`} key={broadcastTemplate.id}>
-                                     {broadcastTemplate.template_name}
-                                  </label>
+                                  <div key={broadcastTemplate.id} className="flex items-center justify-between">
+                                     <label htmlFor={`broadcast${broadcastTemplate.id}`} className="flex-1 cursor-pointer">
+                                        {broadcastTemplate.template_name}
+                                     </label>
+                                     <input
+                                        type="checkbox"
+                                        name={`${broadcastTemplate.template_name}`}
+                                        id={`broadcast${broadcastTemplate.id}`}
+                                        className="checkbox checkbox-accent ml-4"
+                                        checked={selectedBroadcastTemplate?.some(
+                                           (bt) => bt.id === broadcastTemplate.id && bt.status
+                                        )}
+                                        onChange={(e) => handleCheckboxChange(e, broadcastTemplate.id, 'broadcast_template')}
+                                     />
+                                  </div>
                                ))
                              : 'No data available'}
-                     </div>
-                  </div>
-                  <div className="col-span-1 w-[20%] flex flex-col items-center">
-                     <h1 className="text-[16px] font-semibold mb-3 pb-3">Active</h1>
-                     <div className="flex flex-col gap-5">
-                        {broadcastTemplates.map((broadcastTemplate: any) => (
-                           <input
-                              key={broadcastTemplate.id}
-                              type="checkbox"
-                              name={`${broadcastTemplate.template_name}`}
-                              id={`broadcast${broadcastTemplate.id}`}
-                              className="checkbox checkbox-accent"
-                              checked={selectedBroadcastTemplate?.some(
-                                 (bt) => bt.id === broadcastTemplate.id && bt.status
-                              )}
-                              onChange={(e) => handleCheckboxChange(e, broadcastTemplate.id, 'broadcast_template')}
-                           />
-                        ))}
                      </div>
                   </div>
                </div>
