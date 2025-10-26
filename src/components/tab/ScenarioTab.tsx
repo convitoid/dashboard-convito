@@ -207,6 +207,7 @@ export const ScenarioTab = ({ clientId }: ScenarioTabProps) => {
       getPaginationRowModel: getPaginationRowModel(),
       onPaginationChange: setPagination,
       onGlobalFilterChange: setGlobalFilter,
+      autoResetPageIndex: false, // Prevent pagination reset
       state: {
          globalFilter,
          pagination,

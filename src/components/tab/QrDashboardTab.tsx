@@ -223,6 +223,7 @@ export const QrDashboardTab = ({ clientId }: QrDashboardTabProps) => {
       getPaginationRowModel: getPaginationRowModel(),
       onPaginationChange: setPagination,
       onGlobalFilterChange: setGlobalFilter,
+      autoResetPageIndex: false, // Prevent pagination reset
       state: {
          globalFilter,
          pagination,

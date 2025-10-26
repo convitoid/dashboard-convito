@@ -47,11 +47,12 @@ export const clientDashboardSlice = createSlice({
          .addCase(getDashboardData.fulfilled, (state, action) => {
             state.status = 'success';
             state.datas = action.payload.data;
-            state.answeredGuests = action.payload?.data[0]?.answered_guest;
-            state.notAnsweredGuests = action.payload?.data[0]?.not_answered_guest;
-            state.totalGuests = action.payload?.data[0]?.total_guests;
-            state.guestConfirm = action.payload?.data[0]?.guest_confirm;
-            state.guestDecline = action.payload?.data[0]?.guest_decline;
+            const firstData = action.payload?.data?.[0];
+            state.answeredGuests = firstData?.answered_guest || '';
+            state.notAnsweredGuests = firstData?.not_answered_guest || '';
+            state.totalGuests = firstData?.total_guests || '';
+            state.guestConfirm = firstData?.guest_confirm || '';
+            state.guestDecline = firstData?.guest_decline || '';
          })
          .addCase(getDashboardData.rejected, (state, action) => {
             state.status = 'failed';

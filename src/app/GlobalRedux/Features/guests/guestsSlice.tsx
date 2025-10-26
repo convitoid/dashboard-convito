@@ -1,5 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { fetchGuests, uploadGuests } from '../../Thunk/guests/guestThunk';
+import { fetchGuests, uploadGuests, updateBroadcastStatus } from '../../Thunk/guests/guestThunk';
 
 interface Guest {
    guests: any | '';
@@ -20,7 +20,15 @@ const initialState: Guest = {
 export const guestSlice = createSlice({
    name: 'guest',
    initialState,
-   reducers: {},
+   reducers: {
+      updateGuestBroadcastStatus: (state, action) => {
+         const { guestId, excluded } = action.payload;
+         const guestIndex = state.guests.findIndex((guest: any) => guest.id === guestId);
+         if (guestIndex !== -1) {
+            state.guests[guestIndex].excluded_from_broadcast = excluded;
+         }
+      },
+   },
    extraReducers: (builder) => {
       builder
          .addCase(fetchGuests.pending, (state) => {
@@ -44,8 +52,16 @@ export const guestSlice = createSlice({
          .addCase(uploadGuests.rejected, (state, action) => {
             state.statusGuestsUpload = 'failed';
             state.error = action.error.message;
+         })
+         .addCase(updateBroadcastStatus.fulfilled, (state, action) => {
+            const { guestId, excluded } = action.payload;
+            const guestIndex = state.guests.findIndex((guest: any) => guest.id === guestId);
+            if (guestIndex !== -1) {
+               state.guests[guestIndex].excluded_from_broadcast = excluded;
+            }
          });
    },
 });
 
+export const { updateGuestBroadcastStatus } = guestSlice.actions;
 export default guestSlice.reducer;

@@ -18,6 +18,10 @@ import { QrGallerytab } from '@/components/tab/QrGallerytab';
 import { QrSendBroadcast } from '@/components/tab/QrSendBroadcast';
 import Link from 'next/link';
 import { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { clientSlice } from '../../../../../GlobalRedux/Features/clients/clientSlice';
+import { AppDispatch, RootState } from '../../../../../store';
+import axios from 'axios';
 
 const breadcrumbsData = [
    {
@@ -35,6 +39,19 @@ const breadcrumbsData = [
 ];
 
 export default function QrClients({ params }: { params: { clientId: string } }) {
+   const dispatch = useDispatch<AppDispatch>();
+   const NavbarTitle = useSelector((state: RootState) => state.clients.navbarTitle);
+
+   const getClientName = async () => {
+      const response = await axios.get(`/api/clients/${params.clientId}`);
+
+      dispatch(
+         clientSlice.actions.setNavbarTitle(`${response.data.data.client_id} - ${response.data.data.client_name}`)
+      );
+
+      return `${response.data.data.client_id} - ${response.data.data.client_name}`;
+   };
+
    const tabs = [
       {
          name: 'Dashboard',
@@ -73,6 +90,10 @@ export default function QrClients({ params }: { params: { clientId: string } }) 
          disabled: false,
       },
    ];
+   useEffect(() => {
+      getClientName();
+   }, [params.clientId]);
+
    useEffect(() => {
       document.title = 'Convito - QR Code';
    }, []);

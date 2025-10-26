@@ -343,23 +343,23 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({clientId}) => {
         <div>
             <div className="grid grid-cols-3 3md:grid-cols-5 lg:grid-cols-5 xl:grid-cols-6 gap-4 mb-14">
                 <div className="bg-sky-500 p-4 rounded-md text-white mb-4">
-                    <h2 className="text-3xl font-semibold">{dashboarData?.length > 0 ? totalGuests : 0}</h2>
+                    <h2 className="text-3xl font-semibold">{dashboarData?.length > 0 ? (totalGuests || '-') : '-'}</h2>
                     <h4 className="text-md font-semibold">Total Guest(s)</h4>
                 </div>
                 <div className="bg-green-500 p-4 rounded-md text-white mb-4">
-                    <h2 className="text-3xl font-semibold">{dashboarData?.length > 0 ? answeredGuests : 0}</h2>
+                    <h2 className="text-3xl font-semibold">{dashboarData?.length > 0 ? (answeredGuests || '-') : '-'}</h2>
                     <h4 className="text-md font-semibold">Total Answered</h4>
                 </div>
                 <div className="bg-amber-500 p-4 rounded-md text-white mb-4">
-                    <h2 className="text-3xl font-semibold">{dashboarData?.length > 0 ? notAnsweredGuests : 0}</h2>
+                    <h2 className="text-3xl font-semibold">{dashboarData?.length > 0 ? (notAnsweredGuests || '-') : '-'}</h2>
                     <h4 className="text-md font-semibold">Total Unanswered</h4>
                 </div>
                 <div className="bg-teal-500 p-4 rounded-md text-white mb-4">
-                    <h2 className="text-3xl font-semibold">{dashboarData?.length > 0 ? guestConfirm : 0}</h2>
+                    <h2 className="text-3xl font-semibold">{dashboarData?.length > 0 ? (guestConfirm || '-') : '-'}</h2>
                     <h4 className="text-md font-semibold">Guest(s) Confirmed</h4>
                 </div>
                 <div className="bg-red-500 p-4 rounded-md text-white mb-4">
-                    <h2 className="text-3xl font-semibold">{dashboarData?.length > 0 ? guestDecline : 0}</h2>
+                    <h2 className="text-3xl font-semibold">{dashboarData?.length > 0 ? (guestDecline || '-') : '-'}</h2>
                     <h4 className="text-md font-semibold">Guest(s) Decline</h4>
                 </div>
             </div>

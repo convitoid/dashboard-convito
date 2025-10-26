@@ -35,3 +35,22 @@ export const uploadGuests = createAsyncThunk('guest/uploadGuest', async (data: a
    const res = await response.json();
    return res;
 });
+
+export const updateBroadcastStatus = createAsyncThunk(
+   'guest/updateBroadcastStatus', 
+   async ({ guestId, excluded }: { guestId: number; excluded: boolean }) => {
+      const response = await fetch(`/api/guests/${guestId}/broadcast-status`, {
+         method: 'PATCH',
+         headers: {
+            'Content-Type': 'application/json'
+         },
+         body: JSON.stringify({ excluded })
+      });
+      
+      if (!response.ok) {
+         throw new Error('Failed to update broadcast status');
+      }
+      
+      return { guestId, excluded };
+   }
+);

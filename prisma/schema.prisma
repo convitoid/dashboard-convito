@@ -1,12 +1,23 @@
 generator client {
-  provider        = "prisma-client-js"
+  provider = "prisma-client-js"
 }
 
 datasource db {
-  provider   = "postgresql"
-  url        = env("DATABASE_URL")
-  directUrl  = env("DIRECT_URL")
-  extensions = [uuid_ossp(map: "uuid-ossp", schema: "extensions")]
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model BroadcastTemplate {
+  id                        Int                         @id @default(autoincrement())
+  template_name             String
+  client_id                 Int
+  createdAt                 DateTime                    @default(now())
+  updatedAt                 DateTime                    @updatedAt
+  template_type             String?
+  enable                    Boolean                     @default(false)
+  Client                    Client                      @relation(fields: [client_id], references: [id], onDelete: Cascade)
+  ScenarioBroadcastTemplate ScenarioBroadcastTemplate[]
 }
 
 model Client {
@@ -15,7 +26,7 @@ model Client {
   client_name         String
   event_date          DateTime
   createdAt           DateTime              @default(now())
-  updatedAt           DateTime?             @updatedAt
+  updatedAt           DateTime?                 @updatedAt
   createdBy           String
   updatedBy           String
   event_name          String
@@ -33,43 +44,6 @@ model Client {
   Question            Question[]
   Scenario            Scenario[]
   Webhook             Webhook[]
-}
-
-model User {
-  id        Int      @id @default(autoincrement())
-  username  String   @unique
-  email     String   @unique
-  password  String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  createdBy String
-  updatedBy String
-}
-
-model LogTestMessage {
-  id              Int               @id @default(autoincrement())
-  phoneNumber     String
-  eventName       String
-  senderName      String
-  invitationLink  String
-  createdAt       DateTime          @default(now())
-  updatedAt       DateTime          @updatedAt
-  clientId        String
-  clientName      String
-  LogTestQuestion LogTestQuestion[]
-}
-
-model LogTestQuestion {
-  id               Int            @id @default(autoincrement())
-  question         String
-  answer           String?
-  idLogTestMessage Int
-  createdAt        DateTime       @default(now())
-  updatedAt        DateTime       @updatedAt
-  type             String
-  flag             String?
-  position         Int?
-  guest            LogTestMessage @relation(fields: [idLogTestMessage], references: [id])
 }
 
 model ClientImage {
@@ -95,18 +69,19 @@ model ClientVideo {
 }
 
 model Guest {
-  id               Int                @id @default(autoincrement())
-  guestId          String
-  name             String
-  scenario         String
-  clientId         Int
-  createdAt        DateTime           @default(now())
-  updatedAt        DateTime           @updatedAt
-  scenario_slug    String?
-  client           Client             @relation(fields: [clientId], references: [id], onDelete: Cascade)
-  GuestDetail      GuestDetail[]
-  Invitations      Invitations[]
-  SendBlastingLogs SendBlastingLogs[]
+  id                      Int                @id @default(autoincrement())
+  guestId                 String
+  name                    String
+  scenario                String
+  clientId                Int
+  createdAt               DateTime           @default(now())
+  updatedAt               DateTime           @updatedAt
+  scenario_slug           String?
+  excluded_from_broadcast Boolean?           @default(false)
+  client                  Client             @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  GuestDetail             GuestDetail[]
+  Invitations             Invitations[]
+  SendBlastingLogs        SendBlastingLogs[]
 }
 
 model GuestDetail {
@@ -116,67 +91,7 @@ model GuestDetail {
   detail_val String
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
-  guest      Guest    @relation(fields: [guestId], references: [id], onDelete: Cascade)
-}
-
-model Question {
-  id               Int                @id @default(autoincrement())
-  question         String
-  type             String
-  client_id        Int
-  createdAt        DateTime           @default(now())
-  updatedAt        DateTime           @updatedAt
-  position         Int
-  Invitations      Invitations[]
-  Client           Client             @relation(fields: [client_id], references: [id], onDelete: Cascade)
-  ScenarioQuestion ScenarioQuestion[]
-}
-
-model BroadcastTemplate {
-  id                        Int                         @id @default(autoincrement())
-  template_name             String
-  client_id                 Int
-  createdAt                 DateTime                    @default(now())
-  updatedAt                 DateTime                    @updatedAt
-  template_type             String?
-  Client                    Client                      @relation(fields: [client_id], references: [id], onDelete: Cascade)
-  ScenarioBroadcastTemplate ScenarioBroadcastTemplate[]
-}
-
-model Scenario {
-  id                        Int                         @id @default(autoincrement())
-  scenario_name             String
-  client_id                 Int
-  createdAt                 DateTime                    @default(now())
-  updatedAt                 DateTime                    @updatedAt
-  scenario_slug             String?
-  Client                    Client                      @relation(fields: [client_id], references: [id], onDelete: Cascade)
-  ScenarioBroadcastTemplate ScenarioBroadcastTemplate[]
-  ScenarioQuestion          ScenarioQuestion[]
-}
-
-model ScenarioQuestion {
-  id                Int      @id @default(autoincrement())
-  scenario_question String
-  question_id       Int
-  scenario_id       Int
-  status            Boolean
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
-  Question          Question @relation(fields: [question_id], references: [id], onDelete: Cascade)
-  Scenario          Scenario @relation(fields: [scenario_id], references: [id], onDelete: Cascade)
-}
-
-model ScenarioBroadcastTemplate {
-  id                          Int               @id @default(autoincrement())
-  broadcast_template_scenario String
-  broadcast_template_id       Int
-  scenario_id                 Int
-  status                      Boolean
-  createdAt                   DateTime          @default(now())
-  updatedAt                   DateTime          @updatedAt
-  BroadcastTemplate           BroadcastTemplate @relation(fields: [broadcast_template_id], references: [id], onDelete: Cascade)
-  Scenario                    Scenario          @relation(fields: [scenario_id], references: [id], onDelete: Cascade)
+  Guest      Guest    @relation(fields: [guestId], references: [id], onDelete: Cascade)
 }
 
 model Invitations {
@@ -194,18 +109,53 @@ model Invitations {
   Question   Question  @relation(fields: [questionId], references: [id], onDelete: Cascade)
 }
 
-model SendBlastingLogs {
-  id        Int      @id @default(autoincrement())
-  status    String
-  logs      String
-  guestId   Int
-  createdAt DateTime @default(now())
-  Guest     Guest    @relation(fields: [guestId], references: [id], onDelete: Cascade)
+model LogTestMessage {
+  id              Int               @id @default(autoincrement())
+  phoneNumber     String
+  eventName       String
+  senderName      String
+  invitationLink  String
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  clientId        String
+  clientName      String
+  LogTestQuestion LogTestQuestion[]
 }
 
-model QrGalleryImage {
+model LogTestQuestion {
+  id               Int            @id @default(autoincrement())
+  question         String
+  answer           String?
+  idLogTestMessage Int
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+  type             String
+  flag             String?
+  position         Int?
+  LogTestMessage   LogTestMessage @relation(fields: [idLogTestMessage], references: [id])
+}
+
+model QrBroadcastLogs {
+  id        Int      @id @default(autoincrement())
+  QrGuestId Int
+  status    String
+  createdAt DateTime @default(now())
+  QrGuest   QrGuest  @relation(fields: [QrGuestId], references: [id], onDelete: Cascade)
+}
+
+model QrBroadcastTemplate {
+  id        Int      @id @default(autoincrement())
+  name      String
+  clientId  Int
+  createdAt DateTime @default(now())
+  type      String?
+  Client    Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+}
+
+model QrFile {
   id           Int      @id @default(autoincrement())
   name         String
+  code         String
   path         String
   originalPath String
   clientId     Int
@@ -213,10 +163,9 @@ model QrGalleryImage {
   Client       Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
 }
 
-model QrFile {
+model QrGalleryImage {
   id           Int      @id @default(autoincrement())
   name         String
-  code         String
   path         String
   originalPath String
   clientId     Int
@@ -235,21 +184,73 @@ model QrGuest {
   Client          Client            @relation(fields: [clientId], references: [id], onDelete: Cascade)
 }
 
-model QrBroadcastTemplate {
-  id        Int      @id @default(autoincrement())
-  name      String
-  clientId  Int
-  createdAt DateTime @default(now())
-  type      String?
-  Client    Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+model Question {
+  id               Int                @id @default(autoincrement())
+  question         String
+  type             String
+  client_id        Int
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+  position         Int
+  Invitations      Invitations[]
+  Client           Client             @relation(fields: [client_id], references: [id], onDelete: Cascade)
+  ScenarioQuestion ScenarioQuestion[]
 }
 
-model QrBroadcastLogs {
+model Scenario {
+  id                        Int                         @id @default(autoincrement())
+  scenario_name             String
+  client_id                 Int
+  createdAt                 DateTime                    @default(now())
+  updatedAt                 DateTime                    @updatedAt
+  scenario_slug             String?
+  Client                    Client                      @relation(fields: [client_id], references: [id], onDelete: Cascade)
+  ScenarioBroadcastTemplate ScenarioBroadcastTemplate[]
+  ScenarioQuestion          ScenarioQuestion[]
+}
+
+model ScenarioBroadcastTemplate {
+  id                          Int               @id @default(autoincrement())
+  broadcast_template_scenario String
+  broadcast_template_id       Int
+  scenario_id                 Int
+  status                      Boolean
+  createdAt                   DateTime          @default(now())
+  updatedAt                   DateTime          @updatedAt
+  BroadcastTemplate           BroadcastTemplate @relation(fields: [broadcast_template_id], references: [id], onDelete: Cascade)
+  Scenario                    Scenario          @relation(fields: [scenario_id], references: [id], onDelete: Cascade)
+}
+
+model ScenarioQuestion {
+  id                Int      @id @default(autoincrement())
+  scenario_question String
+  question_id       Int
+  scenario_id       Int
+  status            Boolean
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  Question          Question @relation(fields: [question_id], references: [id], onDelete: Cascade)
+  Scenario          Scenario @relation(fields: [scenario_id], references: [id], onDelete: Cascade)
+}
+
+model SendBlastingLogs {
   id        Int      @id @default(autoincrement())
-  QrGuestId Int
   status    String
+  logs      String
+  guestId   Int
   createdAt DateTime @default(now())
-  QrGuest   QrGuest  @relation(fields: [QrGuestId], references: [id], onDelete: Cascade)
+  Guest     Guest    @relation(fields: [guestId], references: [id], onDelete: Cascade)
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  username  String   @unique
+  email     String   @unique
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  createdBy String
+  updatedBy String
 }
 
 model Webhook {
