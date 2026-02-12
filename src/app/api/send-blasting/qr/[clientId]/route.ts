@@ -1,16 +1,7 @@
-import { QrBroadcastTemplateTab } from '@/components/tab/QrBroadcastTemplateTab';
 import logger from '@/libs/logger';
 import prisma from '@/libs/prisma';
-import { sendBlastingQrService } from '@/services/sendBlastingService';
+import { sendBlastingQrServiceV2, BlastType } from '@/services/sendBlastingQrService';
 import { NextRequest, NextResponse } from 'next/server';
-
-// Define the interface for the message structure
-interface MessageDetail {
-   message: string;
-   type: string;
-   code: number;
-   fbtrace_id: string;
-}
 
 // Define the interface for the blasting message structure
 interface BlastingMessage {
@@ -18,11 +9,17 @@ interface BlastingMessage {
    message: string;
 }
 
-// Define the type for the response, which is an array of BlastingMessage objects
+// Define the type for the response
 type BlastingMessageResponse = BlastingMessage;
 
 export async function POST(req: NextRequest, { params }: { params: { clientId: string } }) {
    const body = await req.json();
+   
+   // Extract blastType from request body, default to 'both' for backward compatibility
+   const { guests, blastType = 'both' }: { guests: any[]; blastType?: BlastType } = body;
+   
+   // Support both old format (array) and new format (object with guests and blastType)
+   const guestData = Array.isArray(body) ? body : guests;
 
    try {
       // get client
@@ -43,7 +40,7 @@ export async function POST(req: NextRequest, { params }: { params: { clientId: s
          },
       });
 
-      if (!template) {
+      if (!template || template.length === 0) {
          return NextResponse.json({ status: 404, message: 'Template not found' }, { status: 404 });
       }
 
@@ -60,10 +57,15 @@ export async function POST(req: NextRequest, { params }: { params: { clientId: s
          },
       });
 
-      const blastingMessage = (await sendBlastingQrService(body, template, image, qrFile)) as BlastingMessageResponse;
+      const blastingMessage = (await sendBlastingQrServiceV2(
+         guestData, 
+         template, 
+         image, 
+         qrFile,
+         blastType
+      )) as BlastingMessageResponse;
 
-
-      logger.info('Blasting message sent successfully', { blastingMessage });
+      logger.info('Blasting message sent successfully', { blastingMessage, blastType });
 
       return NextResponse.json(
          {
@@ -73,19 +75,12 @@ export async function POST(req: NextRequest, { params }: { params: { clientId: s
          { status: 200 }
       );
    } catch (error) {
-      const createErrorLogs = await prisma.qrBroadcastLogs.create({
-         data: {
-            QrGuestId: body.id,
-            status: 'failed_sent',
-         },
-      });
-
       logger.error('Error while sending broadcast', { error });
 
       return NextResponse.json(
          {
             status: 500,
-            message: error,
+            message: 'Internal server error',
          },
          { status: 500 }
       );

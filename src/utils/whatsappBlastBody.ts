@@ -1,5 +1,6 @@
 import prisma from '@/libs/prisma';
 import jwt from 'jsonwebtoken';
+import { encodeImageUrl } from './encodeImageUrl';
 
 type WhatsappBlastBodyProps = {
    data: any;
@@ -8,6 +9,7 @@ type WhatsappBlastBodyProps = {
    video?: any;
    clientCode?: any;
    link?: any;
+   mediaId?: string | null;  // Add mediaId parameter
 };
 
 export const WhatsappBlastBody = async ({
@@ -17,6 +19,7 @@ export const WhatsappBlastBody = async ({
    video,
    clientCode,
    link,
+   mediaId,  // Add mediaId parameter
 }: WhatsappBlastBodyProps) => {
    const invitation = await prisma.invitations.findMany({
       select: {
@@ -103,9 +106,9 @@ export const WhatsappBlastBody = async ({
                      parameters: [
                         {
                            type: 'image',
-                           image: {
-                              link: `${process.env.NEXTAUTH_URL}${image.imagePath}`,
-                           },
+                           image: mediaId
+                              ? { id: mediaId }  // Use media_id if provided
+                              : { link: encodeImageUrl(process.env.NEXTAUTH_URL || '', image.imagePath) },  // Fallback to URL
                         },
                      ],
                   },

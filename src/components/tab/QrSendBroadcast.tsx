@@ -163,7 +163,7 @@ export const QrSendBroadcast = ({ clientId }: QrSendBroadcastProps) => {
       },
    });
 
-   const handleSendBroadcast = async () => {
+   const handleSendBroadcast = async (blastType: 'reminder' | 'qr_code' | 'both' = 'both') => {
       const data = getSelectedRowsData();
 
       if (data.length === 0) {
@@ -173,7 +173,24 @@ export const QrSendBroadcast = ({ clientId }: QrSendBroadcastProps) => {
             text: 'Please select at least one guest',
          });
       } else {
-         await dispatch(sendQrBlasting({ clientId, data }))
+         const typeLabels = {
+            reminder: 'Reminder',
+            qr_code: 'QR Code',
+            both: 'Reminder + QR Code'
+         };
+         
+         const confirm = await Swal.fire({
+            icon: 'question',
+            title: 'Confirm Send',
+            text: `Send ${typeLabels[blastType]} to ${data.length} guest(s)?`,
+            showCancelButton: true,
+            confirmButtonText: 'Yes, Send',
+            cancelButtonText: 'Cancel'
+         });
+         
+         if (!confirm.isConfirmed) return;
+         
+         await dispatch(sendQrBlasting({ clientId, data, blastType }))
             .unwrap()
             .then((res) => {
                if (res.status === 200) {
@@ -199,13 +216,29 @@ export const QrSendBroadcast = ({ clientId }: QrSendBroadcastProps) => {
 
    return (
       <>
-         <button
-            className="btn bg-blue-500 text-white hover:bg-blue-600 transition duration-100 mb-5"
-            onClick={handleSendBroadcast}
-            disabled={statusSend === 'sending'}
-         >
-            {statusSend === 'sending' ? <span className="loading loading-spinner loading-sm"></span> : 'Send Broadcast'}
-         </button>
+         <div className="flex gap-2 mb-5">
+            <button
+               className="btn bg-green-500 text-white hover:bg-green-600 transition duration-100"
+               onClick={() => handleSendBroadcast('reminder')}
+               disabled={statusSend === 'sending'}
+            >
+               {statusSend === 'sending' ? <span className="loading loading-spinner loading-sm"></span> : 'Send Reminder'}
+            </button>
+            <button
+               className="btn bg-purple-500 text-white hover:bg-purple-600 transition duration-100"
+               onClick={() => handleSendBroadcast('qr_code')}
+               disabled={statusSend === 'sending'}
+            >
+               {statusSend === 'sending' ? <span className="loading loading-spinner loading-sm"></span> : 'Send QR Code'}
+            </button>
+            <button
+               className="btn bg-blue-500 text-white hover:bg-blue-600 transition duration-100"
+               onClick={() => handleSendBroadcast('both')}
+               disabled={statusSend === 'sending'}
+            >
+               {statusSend === 'sending' ? <span className="loading loading-spinner loading-sm"></span> : 'Send Both'}
+            </button>
+         </div>
          <div className="flex items-center justify-between mb-3">
             <h2 className="text-lg font-bold mb-2">Broadcast Data</h2>
             <input
