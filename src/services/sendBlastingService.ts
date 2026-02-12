@@ -341,6 +341,7 @@ export const sendBlastingQrService = async (body: any, template: any, image: any
 
       const processBlasting = async () => {
          if (image?.length > 0) {
+            logger.info("DEBUG - Image length:", image?.length, "- Masuk blok IF (dengan image)");
             // Send broadcast reminder with image
             await Promise.all(
                body.map(async (guest: any) => limit(async () => {
@@ -596,6 +597,7 @@ export const sendBlastingQrService = async (body: any, template: any, image: any
             );
          } else {
             // Send broadcast reminder without image
+            logger.info("DEBUG - Image length:", image?.length, "- Masuk blok ELSE (tanpa image)");
 
             await Promise.all(
                body.map(async (guest: any) => limit(async () => {
@@ -657,6 +659,7 @@ export const sendBlastingQrService = async (body: any, template: any, image: any
                      );
 
                      const whatsappResponse = await response.json();
+                     logger.info("DEBUG - WhatsApp Response for REMINDER (no image):", JSON.stringify(whatsappResponse));
 
                      const qrGuest = await prisma.qrGuest.findMany({
                         select: {
@@ -667,7 +670,6 @@ export const sendBlastingQrService = async (body: any, template: any, image: any
                            id: guest.id,
                         },
                      });
-
 
                      const webhookData = {
                         templateName: template.find((t: any) => t.type === 'reminder_template')?.name,
@@ -691,7 +693,9 @@ export const sendBlastingQrService = async (body: any, template: any, image: any
                      if (webhookExist.length > 0) {
                         await prisma.webhook.deleteMany({
                            where: {
-                              id: webhookExist.map((w) => w.id)[0],
+                              id: {
+                                 in: webhookExist.map((w) => w.id),
+                              },
                               blastingSource: 'QR_REMINDER',
                               clientId: webhookData.clientId,
                            },
@@ -743,7 +747,9 @@ export const sendBlastingQrService = async (body: any, template: any, image: any
                         if (webhookExistQr.length > 0) {
                            await prisma.webhook.deleteMany({
                               where: {
-                                 id: webhookExistQr.map((w) => w.id)[0],
+                                 id: {
+                                    in: webhookExistQr.map((w) => w.id),
+                                 },
                                  blastingSource: 'QR_CODE',
                                  clientId: webhookDataQr.clientId,
                               },

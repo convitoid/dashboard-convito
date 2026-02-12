@@ -44,3 +44,11 @@ next-env.d.ts
 /logs
 
 .idea
+# QR uploads (user generated)
+public/uploads/clients/qr/
+
+# Backup files
+*.backup
+
+# Failed webhooks log
+failed_webhooks.log
