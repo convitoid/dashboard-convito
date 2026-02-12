@@ -156,7 +156,6 @@ export const QrDataGuestTab = ({ clientId }: QrDataGuestTabProps) => {
       onPaginationChange: setPagination,
       onGlobalFilterChange: setGlobalFilter,
       autoResetPageIndex: false, // Prevent pagination reset
-      autoResetPageIndex: false, // Prevent pagination reset
       state: {
          globalFilter,
          pagination,

@@ -272,6 +272,10 @@ export const SendBroadcastTab = ({ clientId }: SendBroadcastTabProps) => {
       const selectedRowsData = getSelectedRowsData();
       const checkboxItem = Object.keys(selectedRows).filter((key: any) => selectedRows[key]);
 
+       console.log('DEBUG - selectedRows state:', selectedRows);
+console.log('DEBUG - selectedRowsData:', selectedRowsData);
+console.log('DEBUG - checkboxItem:', checkboxItem);
+console.log('DEBUG - data array:', data);
       if (checkboxItem.length === 0) {
          Swal.fire({
             icon: 'warning',

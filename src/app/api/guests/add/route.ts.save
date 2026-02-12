@@ -1,23 +1,29 @@
-import { NextRequest, NextResponse } from 'next/server';
+ NextRequest, NextResponse } from 'next/server';
 import { jwtVerify } from 'jose';
 import prisma from '@/libs/prisma';
-
 import generateGuestId from '@/utils/generateGuestId';
 import { cleanString } from '@/utils/clearPhoneNumber';
-import { getGuests } from '@/services/guestService';
+
+interface JWTError extends Error {
+   code?: string;
+}
+
+const secret = new TextEncoder().encode(process.env.NEXTAUTH_SECRET ?? '' );
 
 export async function POST(request: NextRequest) {
    try {
-      const token = request.headers.get('authorization');
-      const jwtToken = token?.split(' ')[1];
+           const jwtToken = token?.split(' ')[1];
+      if (!jwtToken) {
+         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      }
+      await jwtVerify(jwtToken as string, secret);
       const { clientId, guestData } = await request.json();
-
-      await getGuests(jwtToken as string, clientId);
 
       if (!clientId || !guestData?.name) {
          return NextResponse.json({ error: 'Client ID and guest name are required' }, { status: 400 });
       }
 
+      // Get client internal ID
       const client = await prisma.client.findFirst({
          where: { client_id: clientId },
          select: { id: true }
@@ -27,8 +33,10 @@ export async function POST(request: NextRequest) {
          return NextResponse.json({ error: 'Client not found' }, { status: 404 });
       }
 
+      // Generate unique guest ID
       const guestId = generateGuestId(guestData.name, clientId);
 
+      // Check if guest with same guestId already exists
       const existingGuest = await prisma.guest.findFirst({
          where: { guestId }
       });
@@ -37,6 +45,7 @@ export async function POST(request: NextRequest) {
          return NextResponse.json({ error: 'Guest with this name already exists for this client' }, { status: 409 });
       }
 
+      // Create guest
       const newGuest = await prisma.guest.create({
          data: {
             guestId,
@@ -48,6 +57,7 @@ export async function POST(request: NextRequest) {
          },
       });
 
+      // Create guest details for additional fields
       const guestDetails = [];
       const fieldsToStore = ['phone_number', 'pax', 'kids_pax', 'holmat_pax', 'welcome_dinner_pax', 'hotel'];
       
@@ -63,19 +73,8 @@ export async function POST(request: NextRequest) {
       }
 
       if (guestDetails.length > 0) {
-         await prisma.guestDetail.createMany({
             data: guestDetails,
          });
       }
 
-      return NextResponse.json({
-         status: 201,
-         message: 'Guest created successfully',
-         data: { guestId: newGuest.guestId, name: newGuest.name }
-      });
-
-   } catch (error) {
-      console.error('Error creating guest:', error);
-      return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
-   }
-}
+      return NextR

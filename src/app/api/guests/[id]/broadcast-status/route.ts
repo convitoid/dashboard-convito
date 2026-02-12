@@ -19,7 +19,7 @@ export async function PATCH(
       // First, check if guest exists and get client info
       const guest = await prisma.guest.findUnique({
          where: { id: guestId },
-         include: { Client: true }
+         include: { client: true }
       });
 
       if (!guest) {

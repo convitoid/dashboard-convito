@@ -293,10 +293,8 @@ export async function POST(req: NextRequest, { params }: { params: { clientId: s
             });
 
             const webhookStatus = webhookData?.length > 0 ? webhookData[0] : null;
-            const status = convertStatus(webhookStatus?.status);
-            const statusText = status === 'FAILED' 
-               ? `Failed: ${webhookStatus.statusCode}` 
-               : status;
+            const status = convertStatus(webhookStatus?.status || '');
+            const statusText = status === 'FAILED' ? `Failed: ${webhookStatus?.statusCode || 'Unknown'}` : status;
 
             const question = guest.Invitations.map((invitation) => {
                return {

@@ -197,6 +197,8 @@ export const sendBlastingService = async (data: any, clientId: any, clientCode: 
 
       const sendBlastingProcess = await Promise.all(
          data.map((d: any) => limit(async () => {
+logger.info('DEBUG - Guest data:', JSON.stringify(d, null, 2));
+            logger.info('DEBUG - broadcastTemplate structure:', JSON.stringify(d.broadcastTemplate, null, 2));
             const templateBody = await WhatsappBlastBody({
                data: d,
                broadcastTemplate: d.broadcastTemplate,

@@ -23,6 +23,7 @@ const secret = new TextEncoder().encode(process.env.NEXTAUTH_SECRET ?? '');
 
 export async function POST(req: NextRequest, { params }: { params: { clientId: string } }) {
    const body = await req.json();
+   logger.info("DEBUG - Request body from frontend:", JSON.stringify(body, null, 2));
    const token = req.headers.get('authorization');
    const jwtToken = token?.split(' ')[1];
    const { clientId } = params;
@@ -52,7 +53,7 @@ export async function POST(req: NextRequest, { params }: { params: { clientId: s
             const scenario = await prisma.scenario.findMany({
                where: {
                   client_id: Number(client?.id),
-                  scenario_slug: data.scenario,
+                  scenario_slug: data.scenario.toLowerCase(),
                },
                include: {
                   ScenarioBroadcastTemplate: {
@@ -63,10 +64,13 @@ export async function POST(req: NextRequest, { params }: { params: { clientId: s
                },
             });
 
+            logger.info("DEBUG - Scenario found:", JSON.stringify(scenario, null, 2));
             const broadcastTemplate = scenario.map((s: any) => {
-               // ambil broadcast_template_scenario
-               return s.ScenarioBroadcastTemplate;
-            });
+   // ambil broadcast_template_scenario
+   return s.ScenarioBroadcastTemplate;
+});
+
+logger.info("DEBUG - BroadcastTemplate result:", JSON.stringify(broadcastTemplate, null, 2));
 
             return {
                ...data,
