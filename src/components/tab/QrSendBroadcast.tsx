@@ -218,25 +218,18 @@ export const QrSendBroadcast = ({ clientId }: QrSendBroadcastProps) => {
       <>
          <div className="flex gap-2 mb-5">
             <button
-               className="btn bg-green-500 text-white hover:bg-green-600 transition duration-100"
+               className="btn bg-blue-500 text-white hover:bg-blue-600 transition duration-100"
                onClick={() => handleSendBroadcast('reminder')}
                disabled={statusSend === 'sending'}
             >
                {statusSend === 'sending' ? <span className="loading loading-spinner loading-sm"></span> : 'Send Reminder'}
             </button>
             <button
-               className="btn bg-purple-500 text-white hover:bg-purple-600 transition duration-100"
+               className="btn bg-orange-500 text-white hover:bg-orange-600 transition duration-100"
                onClick={() => handleSendBroadcast('qr_code')}
                disabled={statusSend === 'sending'}
             >
                {statusSend === 'sending' ? <span className="loading loading-spinner loading-sm"></span> : 'Send QR Code'}
-            </button>
-            <button
-               className="btn bg-blue-500 text-white hover:bg-blue-600 transition duration-100"
-               onClick={() => handleSendBroadcast('both')}
-               disabled={statusSend === 'sending'}
-            >
-               {statusSend === 'sending' ? <span className="loading loading-spinner loading-sm"></span> : 'Send Both'}
             </button>
          </div>
          <div className="flex items-center justify-between mb-3">
