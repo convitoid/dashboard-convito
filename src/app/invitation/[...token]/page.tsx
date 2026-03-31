@@ -324,8 +324,7 @@ export default function InvitationPage({ params }: { params: { token: string } }
                            </h1>
                            <div className="border-b-2 border-slate-900 w-1/2 mx-auto mt-3 mb-10"></div>
                            <h5 className="text-md mb-7">
-                              Dear, {''}
-                              <span className="font-semibold">{invitations?.name}</span>
+                              Dear <span className="font-semibold">{invitations?.name}</span>,
                            </h5>
 
                            <form onSubmit={submitAnswer}>
