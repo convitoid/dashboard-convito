@@ -21,6 +21,11 @@ export const WhatsappBlastBody = async ({
    link,
    mediaId,  // Add mediaId parameter
 }: WhatsappBlastBodyProps) => {
+   // Validasi input
+   if (!broadcastTemplate || broadcastTemplate.length === 0) {
+      throw new Error('Broadcast template is required');
+   }
+
    const invitation = await prisma.invitations.findMany({
       select: {
          guestId: true,
@@ -42,6 +47,11 @@ export const WhatsappBlastBody = async ({
       const t = b.map((t: any) => {
          return t.BroadcastTemplate;
       });
+
+      // Validasi template data
+      if (!t[0] || !t[0].template_type || !t[0].template_name) {
+         throw new Error('Invalid template data');
+      }
 
       return {
          template_type: t[0].template_type,
@@ -89,6 +99,11 @@ export const WhatsappBlastBody = async ({
       }
 
       case 'header_image': {
+         // Validasi image
+         if (!image || !image.imagePath) {
+            throw new Error('Image is required for header_image template type');
+         }
+
          const token_header_image = uniqueData.filter((t: any) => t.guestId === data.id).map((t: any) => t.token);
 
          const bodyImage = {
@@ -140,6 +155,11 @@ export const WhatsappBlastBody = async ({
       }
 
       case 'header_video': {
+         // Validasi video
+         if (!video || !video.video) {
+            throw new Error('Video is required for header_video template type');
+         }
+
          const token_header_image = uniqueData.filter((t: any) => t.guestId === data.id).map((t: any) => t.token);
          const url = video.video;
          const urlArray = url.split('/');

@@ -271,13 +271,12 @@ const buildReminderBody = (guest: any, templateName: string, hasImage: boolean, 
 const buildQrCodeBody = (guest: any, templateName: string, qrPath: string, mediaId: string | null) => {
    const imageUrl = encodeImageUrl(process.env.NEXTAUTH_URL || '', qrPath);
    
-   // DEBUG: Print URL details to console
-   console.log('=== QR IMAGE URL DEBUG ===');
-   console.log('qrPath:', qrPath);
-   console.log('baseUrl:', process.env.NEXTAUTH_URL);
-   console.log('finalUrl:', imageUrl);
-   console.log('mediaId:', mediaId);
-   console.log('==========================');
+   logger.info('Building QR body', {
+      qrPath,
+      baseUrl: process.env.NEXTAUTH_URL,
+      finalUrl: imageUrl,
+      usingMediaId: !!mediaId,
+   });
 
    return {
       messaging_product: 'whatsapp',
@@ -325,12 +324,16 @@ const saveWebhook = async (guestId: number, templateName: string, source: string
 
    if (!qrGuest) return;
 
+   const contactWaId = response.contacts?.[0]?.wa_id;
+   const isBSUID = contactWaId && contactWaId.includes('.');
+
    const webhookData = {
       templateName,
       blastingSource: source,
       waId: response.messages?.[0]?.id,
       status: response.messages?.[0]?.message_status,
-      recipientId: response.contacts?.[0]?.wa_id,
+      recipientId: isBSUID ? null : contactWaId,
+      bsuid: isBSUID ? contactWaId : null,
       clientId: qrGuest.clientId,
       lastUpdateStatus: new Date(),
    };
@@ -338,24 +341,18 @@ const saveWebhook = async (guestId: number, templateName: string, source: string
    logger.info('Webhook data to save', {
       guestId,
       guestPhoneNumber: qrGuest.phoneNumber,
-      recipientIdFromWhatsApp: webhookData.recipientId,
-      match: qrGuest.phoneNumber === webhookData.recipientId,
-      webhookData
+      recipientIdFromWhatsApp: contactWaId,
+      identityFormat: isBSUID ? 'BSUID' : 'PHONE_NUMBER',
+      webhookData,
    });
-   
-   console.log('=== WEBHOOK DATA DEBUG ===');
-   console.log('Guest Phone:', qrGuest.phoneNumber);
-   console.log('Recipient ID from WA:', webhookData.recipientId);
-   console.log('Match:', qrGuest.phoneNumber === webhookData.recipientId);
-   console.log('Full webhook data:', JSON.stringify(webhookData, null, 2));
-   console.log('==========================');
 
    // Delete existing webhook
    await prisma.webhook.deleteMany({
       where: {
-         recipientId: webhookData.recipientId,
-         blastingSource: source,
-         clientId: webhookData.clientId,
+         OR: [
+            { recipientId: webhookData.recipientId, blastingSource: source, clientId: webhookData.clientId },
+            { bsuid: webhookData.bsuid, blastingSource: source, clientId: webhookData.clientId },
+         ],
       },
    });
 

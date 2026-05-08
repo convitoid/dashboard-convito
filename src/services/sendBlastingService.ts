@@ -174,8 +174,26 @@ export const sendBlastingService = async (data: any, clientId: any, clientCode: 
 
       const sendBlastingProcess = await Promise.all(
          data.map((d: any) => limit(async () => {
-logger.info('DEBUG - Guest data:', JSON.stringify(d, null, 2));
-            logger.info('DEBUG - broadcastTemplate structure:', JSON.stringify(d.broadcastTemplate, null, 2));
+            // Validasi broadcastTemplate
+            if (!d.broadcastTemplate || d.broadcastTemplate.length === 0) {
+               return {
+                  error: { message: 'No enabled broadcast template found for this scenario' },
+                  guest: { id: d.id, name: d.name },
+               };
+            }
+
+            // Validasi apakah ada template yang aktif
+            const hasActiveTemplate = d.broadcastTemplate.some((bt: any) => 
+               bt.length > 0 && bt.some((t: any) => t.BroadcastTemplate)
+            );
+
+            if (!hasActiveTemplate) {
+               return {
+                  error: { message: 'No valid broadcast template found for this scenario' },
+                  guest: { id: d.id, name: d.name },
+               };
+            }
+
             const templateBody = await WhatsappBlastBody({
                data: d,
                broadcastTemplate: d.broadcastTemplate,
@@ -190,9 +208,14 @@ logger.info('DEBUG - Guest data:', JSON.stringify(d, null, 2));
                guestName: d.name,
                usingMediaId: !!mediaId,
             });
-            console.log('=== TEMPLATE BODY ===');
-            console.log(JSON.stringify(templateBody, null, 2));
-            console.log('=====================');
+
+            // Validasi templateBody
+            if (!templateBody) {
+               return {
+                  error: { message: 'Failed to generate template body' },
+                  guest: { id: d.id, name: d.name },
+               };
+            }
 
             const myHeaders = new Headers();
             myHeaders.append('Content-Type', 'application/json');
@@ -271,12 +294,16 @@ logger.info('DEBUG - Guest data:', JSON.stringify(d, null, 2));
                   },
                });
 
+               const contactWaId = webhook.contacts.map((data: any) => data.wa_id)[0];
+               const isBSUID = contactWaId && contactWaId.includes('.');
+
                return {
                   templateName: webhook.template_name,
                   blastingSource: 'RSVP',
                   waId: webhook.messages.map((data: any) => data.id)[0],
                   status: webhook.messages.map((data: any) => data.message_status)[0],
-                  recipientId: webhook.contacts.map((data: any) => data.wa_id)[0],
+                  recipientId: isBSUID ? null : contactWaId,
+                  bsuid: isBSUID ? contactWaId : null,
                   clientId: Number(client?.id),
                   lastUpdateStatus: new Date(),
                };
@@ -316,7 +343,7 @@ logger.info('DEBUG - Guest data:', JSON.stringify(d, null, 2));
          return getSuccessReponse(invitationCreateData, 200, 'Successfully sent');
       }
    } catch (error) {
-      logger.info('ERROR SEND SRVP: ', error);
+      logger.error('ERROR SEND RSVP: ', error);
       return error;
    }
 };
@@ -472,7 +499,8 @@ const sendReminderMessages = async (body: any, template: any, image: any, qrFile
                blastingSource: 'QR_REMINDER',
                waId: whatsappResponse.messages?.map((data: any) => data.id)[0],
                status: whatsappResponse.messages?.map((data: any) => data.message_status)[0],
-               recipientId: whatsappResponse.contacts?.map((data: any) => data.wa_id)[0],
+               recipientId: (() => { const id = whatsappResponse.contacts?.map((data: any) => data.wa_id)[0]; return id && id.includes('.') ? null : id; })(),
+               bsuid: (() => { const id = whatsappResponse.contacts?.map((data: any) => data.wa_id)[0]; return id && id.includes('.') ? id : null; })(),
                clientId: qrGuest[0]?.clientId,
                lastUpdateStatus: new Date(),
             };
@@ -579,7 +607,8 @@ const sendQrCodeMessages = async (body: any, template: any, qrFile: any) => {
                   blastingSource: 'QR_CODE',
                   waId: whatsappQrResponse.messages?.map((data: any) => data.id)[0],
                   status: whatsappQrResponse.messages?.map((data: any) => data.message_status)[0],
-                  recipientId: whatsappQrResponse.contacts?.map((data: any) => data.wa_id)[0],
+                  recipientId: (() => { const id = whatsappQrResponse.contacts?.map((data: any) => data.wa_id)[0]; return id && id.includes('.') ? null : id; })(),
+                  bsuid: (() => { const id = whatsappQrResponse.contacts?.map((data: any) => data.wa_id)[0]; return id && id.includes('.') ? id : null; })(),
                   clientId: qrGuest[0]?.clientId,
                   lastUpdateStatus: new Date(),
                };

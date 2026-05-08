@@ -1,11 +1,8 @@
 import prisma from '@/libs/prisma';
 import { createAsyncThunk } from '@reduxjs/toolkit';
 
-export const sendBlasting = createAsyncThunk('sendBlasting', async (payload: any) => {   // return payload;
+export const sendBlasting = createAsyncThunk('sendBlasting', async (payload: any) => {
    try {
-       console.log('DEBUG - Thunk payload:', payload);
-      console.log('DEBUG - Sending to API:', payload.data);
-      
       const getToken = await fetch('/api/auth/session')
          .then((res) => res.json())
          .then((data) => {

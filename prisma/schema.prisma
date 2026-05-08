@@ -258,6 +258,7 @@ model Webhook {
   templateName     String?
   waId             String?
   recipientId      String?
+  bsuid            String?
   status           String?
   lastUpdateStatus DateTime?
   createdAt        DateTime  @default(now())
@@ -266,4 +267,7 @@ model Webhook {
   statusCode       String?
   blastingSource   String?
   Client           Client    @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  @@index([waId])
+  @@index([bsuid])
 }
