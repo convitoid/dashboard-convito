@@ -56,11 +56,6 @@ export async function POST(req: NextRequest, { params }: { params: { clientId: s
                },
                include: {
                   ScenarioBroadcastTemplate: {
-                     where: {
-                        BroadcastTemplate: {
-                           enable: true,
-                        },
-                     },
                      include: {
                         BroadcastTemplate: true,
                      },
