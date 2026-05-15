@@ -346,15 +346,20 @@ const saveWebhook = async (guestId: number, templateName: string, source: string
       webhookData,
    });
 
-   // Delete existing webhook
-   await prisma.webhook.deleteMany({
-      where: {
-         OR: [
-            { recipientId: webhookData.recipientId, blastingSource: source, clientId: webhookData.clientId },
-            { bsuid: webhookData.bsuid, blastingSource: source, clientId: webhookData.clientId },
-         ],
-      },
-   });
+   // Delete existing webhook (only if we have a valid identifier)
+   const deleteConditions = [];
+   if (webhookData.recipientId) {
+      deleteConditions.push({ recipientId: webhookData.recipientId, blastingSource: source, clientId: webhookData.clientId });
+   }
+   if (webhookData.bsuid) {
+      deleteConditions.push({ bsuid: webhookData.bsuid, blastingSource: source, clientId: webhookData.clientId });
+   }
+
+   if (deleteConditions.length > 0) {
+      await prisma.webhook.deleteMany({
+         where: { OR: deleteConditions },
+      });
+   }
 
    await prisma.webhook.create({ data: webhookData });
 };
